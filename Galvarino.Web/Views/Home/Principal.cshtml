@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Mi Resumen";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li class="active">Mi Resumen</li>
+}
+
+@section style{
+    <!--Bootstrap Table-->
+    <link href="~/lib/css/bootstrap-table.min.css" rel="stylesheet">
+}
+
+@section script{
+    <!--Bootstrap Table-->
+    <script src="~/lib/js/bootstrap-table.min.js"></script>
+}
+
+<!--Grilla Mi Resumen-->
+<!--===================================================-->
+@*<table data-toggle="table"
+                data-url="data/bs-table.json"
+                data-search="true"
+                data-show-refresh="true"
+                data-show-toggle="true"
+                data-show-columns="true"
+                data-sort-name="id"
+                data-page-list="[]"
+                data-page-size="20"
+                data-pagination="true" data-show-pagination-switch="false">
+    <thead>
+        <tr>
+            <th data-field="id" data-sortable="true" data-formatter="invoiceFormatter">Folio Credito</th>
+            <th data-field="name" data-sortable="true">Documentos</th>
+            <th data-field="date" data-sortable="true" data-formatter="dateFormatter">Fecha Desembolso</th>
+            <th data-field="amount" data-align="center" data-sortable="true" data-sorter="priceSorter">Monto Credito</th>
+            <th data-field="status" data-align="center" data-sortable="true" data-formatter="statusFormatter">Estado</th>
+            <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
+        </tr>
+    </thead>
+</table>*@
+
+
+
+<table data-toggle="table"
+                data-url="data/bs-table.json"
+                data-search="true"
+                data-show-refresh="true"
+                data-show-toggle="true"
+                data-show-columns="true"
+                data-sort-name="id"
+                data-page-list="[]"
+                data-page-size="20"
+                data-pagination="true" data-show-pagination-switch="false">
+    <thead>
+        <tr>
+            <th data-field="id" data-sortable="true" data-formatter="invoiceFormatter">Etapa</th>
+            <th data-field="name" data-sortable="true">Nro. Expedientes</th>
+            <th data-field="date" data-sortable="true" data-formatter="dateFormatter">Atrasados</th>
+            <th data-field="amount" data-align="center" data-sortable="true" data-sorter="priceSorter">Rendimeinto</th>
+            <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Packs</th>
+        </tr>
+    </thead>
+</table>
+<!--===================================================-->
