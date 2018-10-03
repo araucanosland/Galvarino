@@ -29,3 +29,5 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
+wwwroot/js/*.min.js
+wwwroot/js/*.min.js.map

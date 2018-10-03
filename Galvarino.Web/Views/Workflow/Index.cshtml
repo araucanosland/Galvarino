@@ -1,0 +1,52 @@
+@{
+    ViewData["Title"] = "Mis Solicitudes";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    
+    @if((string)ViewData["etapaIn"] != "")
+    {
+        <li>@ViewData["Title"]</li>
+        <li class="active">@ViewData["etapaIn"]</li>
+    }
+    else
+    {
+        <li class="active">@ViewData["Title"]</li>
+    }
+}
+
+@section style{
+    <!--Bootstrap Table-->
+    <link href="~/lib/css/bootstrap-table.min.css" rel="stylesheet">
+}
+
+@section script{
+    <!--Bootstrap Table-->
+    <script src="~/lib/js/bootstrap-table.min.js"></script>
+}
+
+
+
+<table data-toggle="table"
+                data-url="/api/wf/v1"
+                data-search="true"
+                data-show-refresh="true"
+                data-show-toggle="true"
+                data-show-columns="true"
+                data-sort-name="id"
+                data-page-list="[]"
+                data-page-size="20"
+                data-pagination="true" data-show-pagination-switch="false">
+    <thead>
+        <tr>
+            <th data-field="id" data-sortable="true" data-formatter="invoiceFormatter">Folio Credito</th>
+            <th data-field="name" data-sortable="true">Documentos</th>
+            <th data-field="date" data-sortable="true" data-formatter="dateFormatter">Fecha Desembolso</th>
+            <th data-field="amount" data-align="center" data-sortable="true" data-sorter="priceSorter">Monto Credito</th>
+            <th data-field="status" data-align="center" data-sortable="true" data-formatter="statusFormatter">Etapa</th>
+            <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
+        </tr>
+    </thead>
+</table>

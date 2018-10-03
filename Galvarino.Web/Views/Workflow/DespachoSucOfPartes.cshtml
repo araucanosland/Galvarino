@@ -1,0 +1,52 @@
+@{
+    ViewData["Title"] = "Despacho de Sucursal a Of. de Partes";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section style{
+    <!--Bootstrap Table-->
+    <link href="~/lib/css/bootstrap-table.min.css" rel="stylesheet">
+}
+
+@section script{
+    <!--Bootstrap Table-->
+    <script src="~/lib/js/bootstrap-table.min.js"></script>
+}
+
+
+<div class="row">
+    <div class="col-sm-6 table-toolbar-left">                      
+        <div class="btn-group">
+            <button class="btn btn-default"><i class="demo-pli-exclamation"></i></button>
+            <button class="btn btn-default"><i class="demo-pli-recycling"></i></button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table data-toggle="table"
+                    data-url="data/bs-table.json"
+                    data-search="true"
+                    data-show-refresh="true"
+                    data-show-toggle="true"
+                    data-show-columns="true"
+                    data-sort-name="id"
+                    data-page-list="[]"
+                    data-page-size="20"
+                    data-pagination="true" data-show-pagination-switch="false">
+        <thead>
+            <tr>
+                <th data-field="id" data-sortable="true" data-formatter="invoiceFormatter">Folio Credito</th>
+                <th data-field="name" data-sortable="true">Documentos</th>
+                <th data-field="date" data-sortable="true" data-formatter="dateFormatter">Fecha Desembolso</th>
+                <th data-field="amount" data-align="center" data-sortable="true" data-sorter="priceSorter">Monto Credito</th>
+                <th data-field="status" data-align="center" data-sortable="true" data-formatter="statusFormatter">Estado</th>
+                <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
+            </tr>
+        </thead>
+    </table>
+</div>

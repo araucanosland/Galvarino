@@ -1,0 +1,16 @@
+[
+    {
+        "outputFileName": "wwwroot/js/despachoNotaria.min.js",
+        "inputFiles": [
+            "wwwroot/lib/js/bootstrap-table.min.js",
+            "wwwroot/js/despachoNotaria.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    }
+
+]
