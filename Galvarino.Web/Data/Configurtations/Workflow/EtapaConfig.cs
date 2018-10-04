@@ -18,11 +18,13 @@ namespace Galvarino.Web.Data.Configurtations.Workflow
 
             builder.HasMany(d => d.Destinos)
                 .WithOne(d => d.EtapaDestino)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(d => d.Actuales)
                 .WithOne(d => d.EtapaActaual)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(e => e.TipoUsuarioAsignado)
                 .HasConversion(new ValueConverter<TipoUsuarioAsignado, string>(

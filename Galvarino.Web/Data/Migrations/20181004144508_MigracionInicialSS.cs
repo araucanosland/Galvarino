@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Galvarino.Web.Data.Migrations
 {
-    public partial class MigracionInicialPackCompleto : Migration
+    public partial class MigracionInicialSS : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +13,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     FechaCarga = table.Column<DateTime>(nullable: false),
                     FechaCorresponde = table.Column<DateTime>(nullable: false),
                     FolioCredito = table.Column<string>(nullable: false),
@@ -37,7 +37,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     TipoDocumento = table.Column<int>(nullable: false),
                     TipoExpediente = table.Column<int>(nullable: false),
                     TipoCredito = table.Column<int>(nullable: false)
@@ -52,7 +52,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     FolioCredito = table.Column<string>(nullable: true),
                     MontoCredito = table.Column<long>(nullable: false),
                     FechaFormaliza = table.Column<DateTime>(nullable: false),
@@ -72,7 +72,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Nombre = table.Column<string>(nullable: false),
                     TipoOrganizacion = table.Column<string>(nullable: false),
                     PadreId = table.Column<int>(nullable: true)
@@ -93,7 +93,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Nombre = table.Column<string>(maxLength: 150, nullable: false),
                     NombreInterno = table.Column<string>(nullable: true),
                     NamespaceGeneraTickets = table.Column<string>(nullable: true),
@@ -111,7 +111,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Nombre = table.Column<string>(nullable: true),
                     Secuencia = table.Column<int>(nullable: false)
                 },
@@ -125,7 +125,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     NumeroTicket = table.Column<string>(nullable: true),
                     Clave = table.Column<string>(nullable: true),
                     Valor = table.Column<string>(nullable: true),
@@ -170,7 +170,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ProcesoId = table.Column<int>(nullable: false),
                     TipoEtapa = table.Column<string>(nullable: false),
                     Nombre = table.Column<string>(nullable: true),
@@ -200,7 +200,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     NumeroTicket = table.Column<string>(nullable: false),
                     ProcesoId = table.Column<int>(nullable: true),
                     Estado = table.Column<string>(maxLength: 200, nullable: false),
@@ -225,7 +225,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Nombre = table.Column<string>(nullable: true),
                     RegionId = table.Column<int>(nullable: true)
                 },
@@ -245,7 +245,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -266,7 +266,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     EtapaId = table.Column<int>(nullable: true),
                     Descripcion = table.Column<string>(nullable: true),
                     EventoDisparador = table.Column<int>(nullable: false),
@@ -291,7 +291,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     EtapaActaualId = table.Column<int>(nullable: false),
                     EtapaDestinoId = table.Column<int>(nullable: false),
                     NamespaceValidacion = table.Column<string>(nullable: true),
@@ -306,13 +306,13 @@ namespace Galvarino.Web.Data.Migrations
                         column: x => x.EtapaActaualId,
                         principalTable: "Etapas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Transiciones_Etapas_EtapaDestinoId",
                         column: x => x.EtapaDestinoId,
                         principalTable: "Etapas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -320,7 +320,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     SolicitudId = table.Column<int>(nullable: false),
                     EtapaId = table.Column<int>(nullable: true),
                     AsignadoA = table.Column<string>(nullable: true),
@@ -353,7 +353,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Nombre = table.Column<string>(nullable: true),
                     ComunaId = table.Column<int>(nullable: false)
                 },
@@ -373,7 +373,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Codificacion = table.Column<string>(nullable: true),
                     Nombre = table.Column<string>(nullable: true),
                     ComunaId = table.Column<int>(nullable: true),
@@ -393,7 +393,7 @@ namespace Galvarino.Web.Data.Migrations
                         column: x => x.OficinaProcesoId,
                         principalTable: "Oficinas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -401,7 +401,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     FechaEnvio = table.Column<DateTime>(nullable: false),
                     NotariaEnvioId = table.Column<int>(nullable: false),
                     OficinaId = table.Column<int>(nullable: false)
@@ -465,7 +465,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     FechaCreacion = table.Column<DateTime>(nullable: false),
                     CreditoId = table.Column<int>(nullable: false),
                     TipoExpediente = table.Column<int>(nullable: false),
@@ -513,7 +513,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -578,7 +578,7 @@ namespace Galvarino.Web.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Resumen = table.Column<string>(nullable: true),
                     Codificacion = table.Column<string>(nullable: false),
                     TipoDocumento = table.Column<string>(nullable: false),
@@ -669,7 +669,8 @@ namespace Galvarino.Web.Data.Migrations
                 name: "RoleNameIndex",
                 table: "Roles",
                 column: "NormalizedName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Roles_OrzanizacionId",
@@ -736,7 +737,8 @@ namespace Galvarino.Web.Data.Migrations
                 name: "UserNameIndex",
                 table: "Usuarios",
                 column: "NormalizedUserName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_OficinaId",

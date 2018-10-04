@@ -46,6 +46,7 @@ namespace Galvarino.Web.Data
         {
             base.OnModelCreating(builder);
 
+
             /*Identity*/
             builder.Entity<Usuario>().ToTable("Usuarios");
             builder.Entity<Rol>().ToTable("Roles");

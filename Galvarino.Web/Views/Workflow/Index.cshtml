@@ -23,14 +23,20 @@
 }
 
 @section script{
-    <!--Bootstrap Table-->
-    <script src="~/lib/js/bootstrap-table.min.js"></script>
+     <!--Page Script-->
+    <environment include="Development">
+        <script src="~/lib/js/bootstrap-table.min.js"></script>
+        <script src="~/js/mis-solicitudes.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/mis-solicitudes.min.js"></script>
+    </environment>
 }
 
 
 
 <table data-toggle="table"
-                data-url="/api/wf/v1"
+                data-url="/api/wf/v1/mis-solicitudes"
                 data-search="true"
                 data-show-refresh="true"
                 data-show-toggle="true"
@@ -41,11 +47,11 @@
                 data-pagination="true" data-show-pagination-switch="false">
     <thead>
         <tr>
-            <th data-field="id" data-sortable="true" data-formatter="invoiceFormatter">Folio Credito</th>
-            <th data-field="name" data-sortable="true">Documentos</th>
-            <th data-field="date" data-sortable="true" data-formatter="dateFormatter">Fecha Desembolso</th>
-            <th data-field="amount" data-align="center" data-sortable="true" data-sorter="priceSorter">Monto Credito</th>
-            <th data-field="status" data-align="center" data-sortable="true" data-formatter="statusFormatter">Etapa</th>
+            <th data-field="credito.folioCredito" data-sortable="true">Folio Credito</th>
+            <th data-field="credito.montoCredito" data-sortable="true">Documentos</th>
+            <th data-field="credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+            <th data-field="credito.montoCredito" data-align="center" data-sortable="true" >Monto Credito</th>
+            <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="true">Etapa</th>
             <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
         </tr>
     </thead>

@@ -38,6 +38,11 @@ const metodos = {
     }
 }
 
+function formatoFecha(valor) {
+    console.log(valor)
+    return valor.toFecha(); //.toChileanDateString();
+}
+
 $(function(){
 
     $(document).on(eventos.pistolaDisparada, function (event, params) {

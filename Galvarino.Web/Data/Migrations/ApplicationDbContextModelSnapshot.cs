@@ -3,6 +3,7 @@ using System;
 using Galvarino.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Galvarino.Web.Data.Migrations
@@ -15,12 +16,14 @@ namespace Galvarino.Web.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.1-rtm-30846")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Galvarino.Web.Models.Application.CargaInicial", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CanalVenta");
 
@@ -55,7 +58,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Application.Comuna", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Nombre");
 
@@ -71,7 +75,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Application.ConfiguracionDocumento", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("TipoCredito");
 
@@ -87,7 +92,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Application.Credito", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("FechaDesembolso");
 
@@ -113,7 +119,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Application.Documento", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Codificacion")
                         .IsRequired();
@@ -136,7 +143,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Application.ExpedienteCredito", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int?>("CreditoId")
                         .IsRequired();
@@ -159,7 +167,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Application.Notaria", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int?>("ComunaId")
                         .IsRequired();
@@ -176,7 +185,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Application.Oficina", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Codificacion");
 
@@ -199,7 +209,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Application.PackNotaria", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("FechaEnvio");
 
@@ -221,7 +232,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Application.Region", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Nombre");
 
@@ -235,7 +247,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Security.Organizacion", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Nombre")
                         .IsRequired();
@@ -277,7 +290,8 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasName("RoleNameIndex");
+                        .HasName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.HasIndex("OrzanizacionId");
 
@@ -343,7 +357,8 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("UserNameIndex");
+                        .HasName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.HasIndex("OficinaId");
 
@@ -353,7 +368,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Workflow.Etapa", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Link");
 
@@ -395,7 +411,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Workflow.Proceso", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<bool>("Activo");
 
@@ -419,7 +436,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Workflow.Solicitud", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Estado")
                         .IsRequired()
@@ -454,7 +472,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Workflow.Tarea", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("AsignadoA");
 
@@ -489,7 +508,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Workflow.TareaAutomatica", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Clase");
 
@@ -515,7 +535,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Workflow.Transito", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ClaseValidacion");
 
@@ -541,7 +562,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Galvarino.Web.Models.Workflow.Variable", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Clave");
 
@@ -559,7 +581,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ClaimType");
 
@@ -578,7 +601,8 @@ namespace Galvarino.Web.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ClaimType");
 
@@ -684,7 +708,7 @@ namespace Galvarino.Web.Data.Migrations
                     b.HasOne("Galvarino.Web.Models.Application.Oficina", "OficinaProceso")
                         .WithMany()
                         .HasForeignKey("OficinaProcesoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Galvarino.Web.Models.Application.PackNotaria", b =>
@@ -765,12 +789,12 @@ namespace Galvarino.Web.Data.Migrations
                     b.HasOne("Galvarino.Web.Models.Workflow.Etapa", "EtapaActaual")
                         .WithMany("Actuales")
                         .HasForeignKey("EtapaActaualId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Galvarino.Web.Models.Workflow.Etapa", "EtapaDestino")
                         .WithMany("Destinos")
                         .HasForeignKey("EtapaDestinoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

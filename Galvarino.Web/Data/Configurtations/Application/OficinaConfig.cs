@@ -16,7 +16,8 @@ namespace Galvarino.Web.Data.Configurtations.Application
 
             builder.HasOne(o => o.OficinaProceso)
                 .WithMany()
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(o => o.PacksNotaria)
                 .WithOne(p => p.Oficina)

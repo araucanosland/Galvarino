@@ -42,15 +42,72 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpGet("mis-solicitudes")]
-        public IActionResult ListarMisSolicitudes(){
-            var mistareas = _context.Tareas.Where(x => x.AsignadoA=="17042783-1" && x.Estado == EstadoTarea.Activada);
-            return Ok(mistareas);
+        public async Task<IActionResult> ListarMisSolicitudes(){
+
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == "17042783-1" && x.Estado == EstadoTarea.Activada);
+            var salida = new List<dynamic>();
+            
+            await mistareas.ForEachAsync(tarea => {
+
+                var folioCredito = _context.Variables.FirstOrDefault(c => c.Clave == "FOLIO_CREDITO" && c.NumeroTicket == tarea.Solicitud.NumeroTicket).Valor;
+                var credito = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito);
+
+                salida.Add(new {
+                    tarea = tarea,
+                    credito = credito
+                });
+            });
+
+            
+            return Ok(salida);
         }
 
 
         [HttpPost("despacho-oficina-a-notaria")]
         public async Task<IActionResult> DespachoOfNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, "17042783-1");
+            
+            return Ok();
+        }
+
+        [Route("recepcion-set-legal")]
+        public async Task<IActionResult> RecepcionSetLegal([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_SET_LEGAL, ticketsAvanzar, "17042783-1");
+            return Ok();
+        }
+
+        [Route("envio-a-notaria")]
+        public async Task<IActionResult> EnvioNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        {
+
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
             var notariaEnvio = _context.Notarias.Find(1);
@@ -80,93 +137,263 @@ namespace Galvarino.Web.Controllers.Api
             return Ok();
         }
 
-        [Route("recepcion-set-legal")]
-        public IActionResult RecepcionSetLegal()
-        {
-            return Ok();
-        }
-
-        [Route("envio-a-notaria")]
-        public IActionResult EnvioNotaria()
-        {
-            return Ok();
-        }
-
         [Route("recepciona-notaria")]
-        public IActionResult RecepcionaNotaria()
+        public async Task<IActionResult> RecepcionaNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("revision-documentos")]
-        public IActionResult RevisionDocumentos()
+        public async Task<IActionResult> RevisionDocumentos([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("despacho-reparo-notaria")]
-        public IActionResult DespachoReparoNotaria()
+        public async Task<IActionResult> DespachoReparoNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("despacho-sucursal-oficiana-partes")]
-        public IActionResult DespachoSucOfPartes()
+        public async Task<IActionResult> DespachoSucOfPartes([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("recepcion-oficina-partes")]
-        public IActionResult RecepcionOfPartes()
+        public async Task<IActionResult> RecepcionOfPartes([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("recepcion-valija")]
-        public IActionResult RecepcionValija()
+        public async Task<IActionResult> RecepcionValija([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("analisis-mesa-control")]
-        public IActionResult AnalisisMesaControl()
+        public async Task<IActionResult> AnalisisMesaControl([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("solucion-expediente-faltante")]
-        public IActionResult SolucionExpedienteFaltante()
+        public async Task<IActionResult> SolucionExpedienteFaltante([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("despacho-reparo-oficina-partes")]
-        public IActionResult DespachoOfPtReparoSucursal()
+        public async Task<IActionResult> DespachoOfPtReparoSucursal([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("despacho-oficina-correccion")]
-        public IActionResult DespachoOfCorreccion()
+        public async Task<IActionResult> DespachoOfCorreccion([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("solucion-reparo-sucursal")]
-        public IActionResult SolucionReparosSucursal()
+        public async Task<IActionResult> SolucionReparosSucursal([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("despacho-a-custodia")]
-        public IActionResult DespachoCustodia()
+        public async Task<IActionResult> DespachoCustodia([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
         [Route("recepcion-custodia")]
-        public IActionResult RecepcionCustodia()
+        public async Task<IActionResult> RecepcionCustodia([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            //var oficinaEnvio = _context.Oficinas.Find(3);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
     }
