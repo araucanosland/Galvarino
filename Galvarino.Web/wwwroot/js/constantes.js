@@ -1,2 +1,1 @@
-const unidadesMedida = Array('Granel', 'Gramos', 'Kilogramos', 'Litros');
-const tipoCliente=('Clinica','Doctor','Paciente');
+const enumTipoDocumentos = new Array('Pagare', 'Fotocopia Cedula Identidad', 'Solicitud Credito', 'Liquidacion')

@@ -49,7 +49,7 @@ namespace Galvarino.Web.Controllers.Api
             
             await mistareas.ForEachAsync(tarea => {
 
-                var folioCredito = _context.Variables.FirstOrDefault(c => c.Clave == "FOLIO_CREDITO" && c.NumeroTicket == tarea.Solicitud.NumeroTicket).Valor;
+                var folioCredito = _wfService.ObtenerVariable("FOLIO_CREDITO", tarea.Solicitud.NumeroTicket);
                 var credito = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito);
 
                 salida.Add(new {
@@ -57,7 +57,7 @@ namespace Galvarino.Web.Controllers.Api
                     credito = credito
                 });
             });
-
+            
             
             return Ok(salida);
         }

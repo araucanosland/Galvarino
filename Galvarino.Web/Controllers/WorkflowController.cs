@@ -12,6 +12,11 @@ namespace Galvarino.Web.Controllers
     public class WorkflowController : Controller
     {
 
+        public WorkflowController()
+        {
+            
+        }
+
         [Route("mis-solicitudes/{etapaIn?}")]
         public IActionResult Index([FromRoute] string etapaIn = "")
         {
@@ -26,7 +31,7 @@ namespace Galvarino.Web.Controllers
         [Route("despacho-oficina-a-notaria")]
         public IActionResult DespachoOfNotaria()
         {
-            ViewBag.CantidadCaracteresFolio = 23;
+            
             return View();
         }
 
@@ -39,6 +44,7 @@ namespace Galvarino.Web.Controllers
         [Route("envio-a-notaria")]
         public IActionResult EnvioNotaria()
         {
+            ViewBag.CantidadCaracteresFolio = 23;
             return View();
         }
 
