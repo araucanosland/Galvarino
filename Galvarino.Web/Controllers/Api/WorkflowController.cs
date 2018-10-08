@@ -41,20 +41,26 @@ namespace Galvarino.Web.Controllers.Api
             }
         }
 
-        [HttpGet("mis-solicitudes")]
-        public async Task<IActionResult> ListarMisSolicitudes(){
+        [HttpGet("mis-solicitudes/{etapaIn?}")]
+        public async Task<IActionResult> ListarMisSolicitudes(string etapaIn = ""){
 
             var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == "17042783-1" && x.Estado == EstadoTarea.Activada);
-            var salida = new List<dynamic>();
             
+            if(!string.IsNullOrEmpty(etapaIn)){
+                mistareas = mistareas.Where(g => g.Etapa.NombreInterno==etapaIn);
+            }
+            
+            var salida = new List<dynamic>();
             await mistareas.ForEachAsync(tarea => {
 
                 var folioCredito = _wfService.ObtenerVariable("FOLIO_CREDITO", tarea.Solicitud.NumeroTicket);
                 var credito = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito);
+                var expediente = _context.ExpedientesCreditos.Include(f => f.Documentos).Include(f => f.Credito).FirstOrDefault(ex => ex.Credito.FolioCredito == folioCredito);
 
                 salida.Add(new {
                     tarea = tarea,
-                    credito = credito
+                    credito = credito,
+                    expediente = expediente
                 });
             });
             
@@ -84,7 +90,7 @@ namespace Galvarino.Web.Controllers.Api
             return Ok();
         }
 
-        [Route("recepcion-set-legal")]
+        [HttpPost("recepcion-set-legal")]
         public async Task<IActionResult> RecepcionSetLegal([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -104,7 +110,7 @@ namespace Galvarino.Web.Controllers.Api
             return Ok();
         }
 
-        [Route("envio-a-notaria")]
+        [HttpPost("envio-a-notaria")]
         public async Task<IActionResult> EnvioNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
 
@@ -137,32 +143,26 @@ namespace Galvarino.Web.Controllers.Api
             return Ok();
         }
 
-        [Route("recepciona-notaria")]
+        [HttpPost("recepciona-notaria")]
         public async Task<IActionResult> RecepcionaNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
-            //var oficinaEnvio = _context.Oficinas.Find(3);
 
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                expedientesModificados.Add(elExpediente);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-            await _context.SaveChangesAsync();
             await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
-        [Route("revision-documentos")]
+        [HttpPost("revision-documentos")]
         public async Task<IActionResult> RevisionDocumentos([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
-            //var oficinaEnvio = _context.Oficinas.Find(3);
 
             foreach (var item in entrada)
             {

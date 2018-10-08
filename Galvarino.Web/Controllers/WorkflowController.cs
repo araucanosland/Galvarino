@@ -51,12 +51,14 @@ namespace Galvarino.Web.Controllers
         [Route("recepciona-notaria")]
         public IActionResult RecepcionaNotaria()
         {
+            ViewBag.CantidadCaracteresFolio = 23;
             return View();
         }
 
         [Route("revision-documentos")]
         public IActionResult RevisionDocumentos()
         {
+            ViewBag.CantidadCaracteresFolio = 23;
             return View();
         }
 

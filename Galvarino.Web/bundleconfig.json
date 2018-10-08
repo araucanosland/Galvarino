@@ -46,6 +46,34 @@
         },
         "sourceMap": true
     },
+
+    {
+        "outputFileName": "wwwroot/js/recepcionNotaria.min.js",
+        "inputFiles": [
+            "wwwroot/lib/js/bootstrap-table.min.js",
+            "wwwroot/js/recepcionNotaria.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/revisionDocumentos.min.js",
+        "inputFiles": [
+            "wwwroot/lib/js/bootstrap-table.min.js",
+            "wwwroot/js/revisionDocumentos.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+
     {
         "outputFileName": "wwwroot/js/mis-solicitudes.min.js",
         "inputFiles": [

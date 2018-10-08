@@ -125,3 +125,9 @@ function soloNumeros(e) {
         return soloNumeros(e);
     })
 })(jQuery);
+
+
+/* Funciones especiales para Tablas */
+function formatoFecha(valor) {
+    return valor.toFecha();
+}

@@ -13,6 +13,7 @@ namespace Galvarino.Web.Models.Application
         public TipoExpediente TipoExpediente { get; set; }
         public PackNotaria PackNotaria { get; set; }
         public ICollection<Documento> Documentos { get; set; }
+        public string NumeroSeguimiento { get; set; }
 
         public ExpedienteCredito()
         {
