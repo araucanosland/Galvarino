@@ -78,23 +78,30 @@ const metodos = {
             data: JSON.stringify(foliosEnvio),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
-            console.log(data);
+            $.niftyNoty({
+                type: "success",
+                container: "floating",
+                title: "Avance Tareas",
+                message: "Tarea Finalizada!!",
+                closeBtn: true,
+                timer: 5000
+            });
 
         }).fail(function (errMsg) {
-            console.log(errMsg);
+            $.niftyNoty({
+                type: "warning",
+                container: "floating",
+                title: "Avance Tareas",
+                message: "Tarea No Finalizada, contacte a Soporte!",
+                closeBtn: true,
+                timer: 5000
+            });
 
         }).always(function () {
             console.log("always");
 
         });
-
-
-        console.log(foliosEnvio)
     }
-}
-
-function formatoFecha(valor) {
-    return valor.toFecha();
 }
 
 $(function () {

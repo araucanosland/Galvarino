@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Galvarino.Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20181008213030_NuevoCampoNumeroSeguimientoPack")]
-    partial class NuevoCampoNumeroSeguimientoPack
+    [Migration("20181009132844_AddSeguimientoPacks")]
+    partial class AddSeguimientoPacks
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -153,8 +153,6 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<DateTime>("FechaCreacion");
 
-                    b.Property<string>("NumeroSeguimiento");
-
                     b.Property<int?>("PackNotariaId");
 
                     b.Property<int>("TipoExpediente");
@@ -215,6 +213,8 @@ namespace Galvarino.Web.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CodigoSeguimiento");
 
                     b.Property<DateTime>("FechaEnvio");
 

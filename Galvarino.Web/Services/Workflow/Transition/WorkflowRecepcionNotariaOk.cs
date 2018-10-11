@@ -15,10 +15,10 @@ namespace Galvarino.Web.Services.Workflow.Transition
 
         public override bool Validar()
         {
-            bool ret = true;
-            if (Variable("REPARO_REPECION_NOTARIA") == "1")
+            bool ret = false;
+            if (Convert.ToInt32(Variable("REPARO_REVISION_DOCUMENTO_LEGALIZADO")) == 0)
             {
-                ret = false;
+                ret = true;
             }
             return ret;
         }

@@ -25,69 +25,32 @@
 <div class="row">
     <div class="col-sm-6 table-toolbar-left">                      
         <div class="btn-group">
-            <button class="btn btn-default" data-target="#modal-pistoleo" data-toggle="modal"><i class="glyphicon glyphicon-barcode"></i></button>
-            <button class="btn btn-default"><i class="demo-pli-recycling"></i></button>
+            <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Procesar Documentos</button>
         </div>
     </div>
 </div>
 <div class="row">
-    <table data-toggle="table"
+    <table          id="tabla-generica" 
+                    data-toggle="table"
                     data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS"
                     data-search="true"
-                    data-show-refresh="true"
-                    data-show-toggle="true"
-                    data-show-columns="true"
-                    data-sort-name="id"
+                    data-show-refresh="false"
+                    data-show-toggle="false"
+                    data-show-columns="false"
+                    data-sort-name="expediente.packNotaria.fechaEnvio"
                     data-page-list="[]"
-                    data-page-size="20"
-                    data-pagination="true" data-show-pagination-switch="false">
+                    data-page-size="40"
+                    data-pagination="true" 
+                    data-show-pagination-switch="false"
+                    data-locale="es-CL">
         <thead>
             <tr>
-                <th data-field="expediente.credito.folioCredito" data-formatter="formatoReparo">Reparo?</th>
-                <th data-field="expediente.credito.folioCredito" data-sortable="true">Folio Credito</th>
-                <th data-field="expediente.credito.montoCredito" data-sortable="true">Documentos</th>
-                <th data-field="expediente.credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
-                <th data-field="expediente.credito.montoCredito" data-align="center" data-sortable="true" >Monto Credito</th>
-                <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
+                <th data-field="expediente.credito.folioCredito" data-events="operateEvents" data-formatter="formatoReparo">Reparo?</th>
+                <th data-field="expediente.credito.folioCredito" data-align="center" data-sortable="true">Folio Credito</th>
+                <th data-field="expediente.credito.fechaDesembolso" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                <th data-field="expediente.packNotaria.fechaEnvio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fec. Envío Notaría</th>
+                <th data-field="expediente.packNotaria.codigoSeguimiento" data-align="center" data-sortable="true">Tracking Pack</th>
             </tr>
         </thead>
     </table>
 </div>
-
-
-<!--Default Bootstrap Modal-->
-<!--===================================================-->
-<div class="modal fade" id="modal-pistoleo" role="dialog" tabindex="-1" aria-labelledby="modal-pistoleo" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form id="frm-pistoleo">
-                <!--Modal header-->
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
-                    <h4 class="modal-title">Marcar Expedientes con Reparo</h4>
-                </div>
-
-                <!--Modal body-->
-                <div class="modal-body">
-                    
-                    <div class="form-group">
-                        <label class="control-label">Pistolea el documento</label>
-                        <input type="text" id="folio-shot" class="form-control solo-numeros" maxlength="@ViewBag.CantidadCaracteresFolio" placeholder="Pistolea el documento" autocomplete="off" />
-                    </div>
-
-                    <div class="well contenedor-folios">
-                        
-                    </div>
-                </div>
-
-                <!--Modal footer-->
-                <div class="modal-footer">
-                    <button data-dismiss="modal" class="btn btn-default" type="button">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btn-generar-generico">Marcar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!--===================================================-->
-<!--End Default Bootstrap Modal-->

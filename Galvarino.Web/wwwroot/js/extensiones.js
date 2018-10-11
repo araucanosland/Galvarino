@@ -131,3 +131,7 @@ function soloNumeros(e) {
 function formatoFecha(valor) {
     return valor.toFecha();
 }
+
+function formatoTipoCredito(valor) {
+    return enumTipoCreditos[valor];
+}

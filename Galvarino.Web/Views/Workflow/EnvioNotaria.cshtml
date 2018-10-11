@@ -36,11 +36,11 @@
 </div>
 <div class="row">
     <table data-toggle="table"
-                    data-url="/api/wf/v1/mis-solicitudes"
+                    data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_ENVIO_NOTARIA"
                     data-search="true"
-                    data-show-refresh="true"
-                    data-show-toggle="true"
-                    data-show-columns="true"
+                    data-show-refresh="false"
+                    data-show-toggle="false"
+                    data-show-columns="false"
                     data-sort-name="id"
                     data-page-list="[]"
                     data-page-size="20"
@@ -48,11 +48,10 @@
         <thead>
             <tr>
                 <th data-field="credito.folioCredito" data-sortable="true">Folio Credito</th>
-                <th data-field="credito.montoCredito" data-sortable="true">Documentos</th>
+                <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
                 <th data-field="credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
                 <th data-field="credito.montoCredito" data-align="center" data-sortable="true" >Monto Credito</th>
                 <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="true">Etapa</th>
-                <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
             </tr>
         </thead>
     </table>
@@ -93,3 +92,4 @@
 </div>
 <!--===================================================-->
 <!--End Default Bootstrap Modal-->
+<canvas id="barcode"></canvas>

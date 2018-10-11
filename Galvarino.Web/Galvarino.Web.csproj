@@ -6,9 +6,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.1" />
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
     <DotNetCliToolReference Include="BundlerMinifier.Core" Version="2.6.362" />
+    
+
   </ItemGroup>
 
 </Project>

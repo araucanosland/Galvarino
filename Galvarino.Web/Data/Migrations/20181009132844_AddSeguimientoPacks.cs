@@ -2,21 +2,21 @@
 
 namespace Galvarino.Web.Data.Migrations
 {
-    public partial class NuevoCampoNumeroSeguimientoPack : Migration
+    public partial class AddSeguimientoPacks : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "NumeroSeguimiento",
-                table: "ExpedientesCreditos",
+                name: "CodigoSeguimiento",
+                table: "PacksNotarias",
                 nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "NumeroSeguimiento",
-                table: "ExpedientesCreditos");
+                name: "CodigoSeguimiento",
+                table: "PacksNotarias");
         }
     }
 }

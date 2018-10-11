@@ -34,6 +34,7 @@ namespace Galvarino.Web.Data
         public DbSet<Notaria> Notarias { get; set; }
         public DbSet<Oficina> Oficinas { get; set; }
         public DbSet<PackNotaria> PacksNotarias { get; set; }
+        public DbSet<ValijaValorada> ValijasValoradas { get; set; }
         public DbSet<Region> Regiones { get; set; }
         public DbSet<ConfiguracionDocumento> ConfiguracionDocumentos { get; set; }
         

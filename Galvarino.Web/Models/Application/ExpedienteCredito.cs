@@ -12,9 +12,9 @@ namespace Galvarino.Web.Models.Application
         public Credito Credito { get; set; }
         public TipoExpediente TipoExpediente { get; set; }
         public PackNotaria PackNotaria { get; set; }
+        public ValijaValorada ValijaValorada { get; set; }
         public ICollection<Documento> Documentos { get; set; }
-        public string NumeroSeguimiento { get; set; }
-
+        
         public ExpedienteCredito()
         {
             Documentos = new List<Documento>();
