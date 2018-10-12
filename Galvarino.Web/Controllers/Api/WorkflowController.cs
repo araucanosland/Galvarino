@@ -231,7 +231,8 @@ namespace Galvarino.Web.Controllers.Api
             {
                 FechaEnvio = DateTime.Now,
                 Oficina = oficinaEnvio,
-                CodigoSeguimiento=codSeg
+                CodigoSeguimiento=codSeg,
+                MarcaAvance = "OF_PARTES"
             };
 
             _context.ValijasValoradas.Add(valijaEnvio);
@@ -253,8 +254,13 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("recepcion-oficina-partes/{codigoSeguimiento}")]
         public async Task<IActionResult> RecepcionOfPartes([FromRoute] string codigoSeguimiento)
         {
-            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
+
+            var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
+            laValija.MarcaAvance = "MS_CONTROL";
+            _context.ValijasValoradas.Update(laValija);
+            await _context.SaveChangesAsync();
+
 
             var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
 
@@ -263,28 +269,28 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(item.Credito.NumeroTicket);
             }
 
-
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_OFICINA_PARTES, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
-        [Route("recepcion-valija")]
-        public async Task<IActionResult> RecepcionValija([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        [HttpGet("recepcion-valija/{codigoSeguimiento}")]
+        public async Task<IActionResult> RecepcionValija([FromRoute] string codigoSeguimiento)
         {
-            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
-            //var oficinaEnvio = _context.Oficinas.Find(3);
 
-            foreach (var item in entrada)
+            var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
+            laValija.MarcaAvance = "FN";
+            _context.ValijasValoradas.Update(laValija);
+            await _context.SaveChangesAsync();
+
+            var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
+
+            foreach (var item in elExpediente)
             {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                expedientesModificados.Add(elExpediente);
-                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+                ticketsAvanzar.Add(item.Credito.NumeroTicket);
             }
 
-            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-            await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_MESA_CONTROL, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 
@@ -304,7 +310,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, "17042783-1");
             return Ok();
         }
 

@@ -89,6 +89,7 @@ namespace Galvarino.Web.Controllers
         [Route("analisis-mesa-control")]
         public IActionResult AnalisisMesaControl()
         {
+            ViewBag.CantidadCaracteresFolio = 23;
             return View();
         }
 

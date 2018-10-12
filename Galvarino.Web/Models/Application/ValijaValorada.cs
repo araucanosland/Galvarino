@@ -12,6 +12,6 @@ namespace Galvarino.Web.Models.Application
         public Oficina Oficina { get; set; }
         public ICollection<ExpedienteCredito> Expedientes { get; set; }
         public string CodigoSeguimiento { get; set; }
-
+        public string MarcaAvance { get; set; }
     }
 }

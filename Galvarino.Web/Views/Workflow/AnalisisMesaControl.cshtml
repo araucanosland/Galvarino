@@ -8,45 +8,198 @@
     <li class="active">@ViewData["Title"]</li>
 }
 
-@section style{
-    <!--Bootstrap Table-->
-    <link href="~/lib/css/bootstrap-table.min.css" rel="stylesheet">
-}
-
 @section script{
-    <!--Bootstrap Table-->
-    <script src="~/lib/js/bootstrap-table.min.js"></script>
+
+ <!--Page Script-->
+<environment include="Development">
+    <script src="~/js/analisisMsControl.js"></script>
+</environment>
+<environment exclude="Development">
+    <script src="~/js/analisisMsControl.min.js"></script>
+</environment>
+
 }
+<div class="pantalla1">
+    <div class="row">
+        <div class="col-sm-6 table-toolbar-left">                      
+            <div class="btn-group">
+                <button class="btn btn-default" data-target="#modal-pistoleo" data-toggle="modal"><i class="glyphicon glyphicon-barcode"></i></button>
+                <button class="btn btn-default"><i class="demo-pli-recycling"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <table          id="tabla-generica"
+                        data-toggle="table"
+                        data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL"
+                        data-search="true"
+                        data-show-refresh="false"
+                        data-show-toggle="false"
+                        data-show-columns="false"
+                        data-sort-name="id"
+                        data-page-list="[]"
+                        data-page-size="20"
+                        data-pagination="true" data-show-pagination-switch="false">
+            <thead>
+                <tr>
+                    <th data-field="credito.folioCredito" data-sortable="true">Folio Credito</th>
+                    <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                    <th data-field="credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                    <th data-field="credito.montoCredito" data-align="center" data-sortable="true" >Monto Credito</th>
+                    <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="true">Etapa</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
 
 
-<div class="row">
-    <div class="col-sm-6 table-toolbar-left">                      
-        <div class="btn-group">
-            <button class="btn btn-default"><i class="demo-pli-exclamation"></i></button>
-            <button class="btn btn-default"><i class="demo-pli-recycling"></i></button>
+<div class="pantalla2">
+
+
+    <div class="row">
+        <div class="col-sm-6 table-toolbar-left">                      
+            <div class="btn-group">
+                <button class="btn btn-primary" type="button" id="btn-generar-generico">Procesar Expedientes</button>
+            </div>
+        </div>
+    </div>
+
+    <!--Default Tabs (Left Aligned)-->
+    <!--===================================================-->
+    <div class="tab-base">
+
+        <!--Nav Tabs-->
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a data-toggle="tab" href="#demo-lft-tab-1">A Custodia <span class="badge badge-success">10</span></a>
+            </li>
+            <li>
+                <a data-toggle="tab" href="#demo-lft-tab-2">Documneto(s) Faltante <span class="badge badge-warning">10</span></a>
+            </li>
+            <li>
+                <a data-toggle="tab" href="#demo-lft-tab-3">Devolución a Sucursal<span class="badge badge-warning">10</span></a>
+            </li>
+        </ul>
+
+        <!--Tabs Content-->
+        <div class="tab-content">
+            <div id="demo-lft-tab-1" class="tab-pane fade active in">
+                 <table id="tabla-custodia"
+                        data-toggle="table"
+                        data-search="true"
+                        data-show-refresh="false"
+                        data-show-toggle="false"
+                        data-show-columns="false"
+                        data-sort-name="id"
+                        data-page-list="[]"
+                        data-page-size="20"
+                        data-pagination="true" data-show-pagination-switch="false">
+                    <thead>
+                        <tr>
+                            <th data-field="credito.folioCredito" data-sortable="true">Folio Credito</th>
+                            <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                            <th data-field="credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                            <th data-field="credito.montoCredito" data-align="center" data-sortable="true" >Monto Credito</th>
+                            <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="true">Etapa</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="demo-lft-tab-2" class="tab-pane fade">
+                <table id="tabla-faltantes"
+                        data-toggle="table"
+                        data-search="true"
+                        data-show-refresh="false"
+                        data-show-toggle="false"
+                        data-show-columns="false"
+                        data-sort-name="id"
+                        data-page-list="[]"
+                        data-page-size="20"
+                        data-pagination="true" data-show-pagination-switch="false">
+                    <thead>
+                        <tr>
+                            <th data-field="credito.folioCredito" data-sortable="true">Folio Credito</th>
+                            <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                            <th data-field="credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                            <th data-field="credito.montoCredito" data-align="center" data-sortable="true" >Monto Credito</th>
+                            <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="true">Etapa</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="demo-lft-tab-3" class="tab-pane fade">
+                <table id="tabla-dovoluciones"
+                        data-toggle="table"
+                        data-search="true"
+                        data-show-refresh="false"
+                        data-show-toggle="false"
+                        data-show-columns="false"
+                        data-sort-name="id"
+                        data-page-list="[]"
+                        data-page-size="20"
+                        data-pagination="true" data-show-pagination-switch="false">
+                    <thead>
+                        <tr>
+                            <th data-field="credito.folioCredito" data-sortable="true">Folio Credito</th>
+                            <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                            <th data-field="credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                            <th data-field="credito.montoCredito" data-align="center" data-sortable="true" >Monto Credito</th>
+                            <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="true">Etapa</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!--===================================================-->
+    <!--End Default Tabs (Left Aligned)-->
+</div>
+
+<!--Default Bootstrap Modal-->
+<!--===================================================-->
+<div class="modal fade" id="modal-pistoleo" role="dialog" tabindex="-1" aria-labelledby="modal-pistoleo" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="frm-pistoleo">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Clasificar Expedientes</h4>
+                </div>
+                
+                <!--Modal body-->
+                <div class="modal-body">
+                    
+                    <div class="form-group">
+                        <label class="control-label">Selecciona Tipo</label>
+                        <select id="tipo-pistoleo" class="form-control">
+                            <option value="">Selecciona</option>
+                            <option value="SIN">Expediente Sin Reparos (Bueno)</option>
+                            <option value="CON">Expediente Con Reparos (Malo)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Pistolea el documento</label>
+                        <input type="text" id="folio-shot" class="form-control solo-numeros" maxlength="@ViewBag.CantidadCaracteresFolio" placeholder="Pistolea el documento" autocomplete="off" />
+                    </div>
+                    <div class="well contenedor-folios">
+                        
+                    </div>
+
+                    <div class="mensahes" ></div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-generar-generico">Generar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-<div class="row">
-    <table data-toggle="table"
-                    data-url="data/bs-table.json"
-                    data-search="true"
-                    data-show-refresh="true"
-                    data-show-toggle="true"
-                    data-show-columns="true"
-                    data-sort-name="id"
-                    data-page-list="[]"
-                    data-page-size="20"
-                    data-pagination="true" data-show-pagination-switch="false">
-        <thead>
-            <tr>
-                <th data-field="id" data-sortable="true" data-formatter="invoiceFormatter">Folio Credito</th>
-                <th data-field="name" data-sortable="true">Documentos</th>
-                <th data-field="date" data-sortable="true" data-formatter="dateFormatter">Fecha Desembolso</th>
-                <th data-field="amount" data-align="center" data-sortable="true" data-sorter="priceSorter">Monto Credito</th>
-                <th data-field="status" data-align="center" data-sortable="true" data-formatter="statusFormatter">Estado</th>
-                <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
-            </tr>
-        </thead>
-    </table>
-</div>
+<!--===================================================-->
+<!--End Default Bootstrap Modal-->
+<canvas id="barcode"></canvas>

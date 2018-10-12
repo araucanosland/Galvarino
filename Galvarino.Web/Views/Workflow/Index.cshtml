@@ -17,15 +17,9 @@
     }
 }
 
-@section style{
-    <!--Bootstrap Table-->
-    <link href="~/lib/css/bootstrap-table.min.css" rel="stylesheet">
-}
-
 @section script{
      <!--Page Script-->
     <environment include="Development">
-        <script src="~/lib/js/bootstrap-table.min.js"></script>
         <script src="~/js/mis-solicitudes.js"></script>
     </environment>
     <environment exclude="Development">
@@ -35,7 +29,7 @@
 
 
 
-<table data-toggle="table"
+<table id="tabla-generica" data-toggle="table"
                 data-url="/api/wf/v1/mis-solicitudes"
                 data-search="true"
                 data-show-refresh="true"

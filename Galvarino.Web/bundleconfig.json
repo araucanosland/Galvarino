@@ -7,6 +7,7 @@
             "wwwroot/lib/js/bootstrap.js",
             "wwwroot/lib/js/nifty.js",
             "wwwroot/lib/js/pace.min.js",
+            "wwwroot/lib/js/bootstrap-table.min.js",
             "wwwroot/js/constantes.js",
             "wwwroot/js/extensiones.js",
             "wwwroot/js/configuracion.js"
@@ -24,7 +25,8 @@
             "wwwroot/lib/css/bootstrap.css",
             "wwwroot/lib/css/nifty.css",
             "wwwroot/lib/css/pace.min.css",
-            "wwwroot/lib/css/demo/nifty-demo-icons.css"
+            "wwwroot/lib/css/demo/nifty-demo-icons.css",
+            "wwwroot/lib/css/bootstrap-table.min.css"
         ],
         "minify": {
             "enabled": true,
@@ -33,12 +35,9 @@
         },
         "sourceMap": true
     },
-
-
     {
         "outputFileName": "wwwroot/js/mis-solicitudes.min.js",
         "inputFiles": [
-            "wwwroot/lib/js/bootstrap-table.min.js",
             "wwwroot/js/mis-solicitudes.js"
         ],
         "minify": {
@@ -49,13 +48,9 @@
         "sourceMap": true
     },
 
-
-
-
     {
         "outputFileName": "wwwroot/js/despachoNotaria.min.js",
         "inputFiles": [
-            "wwwroot/lib/js/bootstrap-table.min.js",
             "wwwroot/js/despachoNotaria.js"
         ],
         "minify": {
@@ -69,7 +64,6 @@
     {
         "outputFileName": "wwwroot/js/recepcionNotaria.min.js",
         "inputFiles": [
-            "wwwroot/lib/js/bootstrap-table.min.js",
             "wwwroot/js/recepcionNotaria.js"
         ],
         "minify": {
@@ -82,7 +76,6 @@
     {
         "outputFileName": "wwwroot/js/revisionDocumentos.min.js",
         "inputFiles": [
-            "wwwroot/lib/js/bootstrap-table.min.js",
             "wwwroot/js/revisionDocumentos.js"
         ],
         "minify": {
@@ -96,8 +89,56 @@
     {
         "outputFileName": "wwwroot/js/reparosaNotaria.min.js",
         "inputFiles": [
-            "wwwroot/lib/js/bootstrap-table.min.js",
             "wwwroot/js/reparosaNotaria.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+
+    {
+        "outputFileName": "wwwroot/js/despachoaOfPartes.min.js",
+        "inputFiles": [
+            "wwwroot/js/despachoaOfPartes.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/recepcionOfPartes.min.js",
+        "inputFiles": [
+            "wwwroot/js/recepcionOfPartes.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/recepcionMsControl.min.js",
+        "inputFiles": [
+            "wwwroot/js/recepcionMsControl.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/analisisMsControl.min.js",
+        "inputFiles": [
+            "wwwroot/js/analisisMsControl.js"
         ],
         "minify": {
             "enabled": true,

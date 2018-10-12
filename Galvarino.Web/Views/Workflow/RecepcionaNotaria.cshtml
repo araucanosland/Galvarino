@@ -13,7 +13,6 @@
 
  <!--Page Script-->
 <environment include="Development">
-    <script src="~/lib/js/bootstrap-table.min.js"></script>
     <script src="~/js/recepcionNotaria.js"></script>
 </environment>
 <environment exclude="Development">
@@ -31,7 +30,7 @@
     </div>
 </div>
 <div class="row">
-    <table data-toggle="table"
+    <table id="tabla-generica" data-toggle="table"
                     data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA"
                     data-search="true"
                     data-show-refresh="true"
