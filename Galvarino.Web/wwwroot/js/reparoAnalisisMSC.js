@@ -1,37 +1,26 @@
-window._procesar = [];
+
 
 const metodos = {
-    avanzarWf: function () {
+   
+    avanzarWf: function (entrada) {
+        let processData = $(entrada.destiny).bootstrapTable('getData');
 
-        let data = $('#tabla-generica').bootstrapTable('getData');
-
-
-        if (data.length == 0){
-            $.niftyNoty({
-                type: "warning",
-                container: "floating",
-                title: "Avance Tareas",
-                message: "Nada para enviar!",
-                closeBtn: true,
-                timer: 5000
-            });
-            return false;
-        }
-
-
-        $.each(data, function (index, element) {
-            _procesar.push({
-                FolioCredito: element.expediente.credito.folioCredito,
-                Reparo: element.reparo
-            });
+        let foliosEnvio = processData.map(function(item){
+            return {
+                folioCredito: item.expediente.credito.folioCredito
+            };
         });
 
+        var postValues = {
+            codOficina: entrada.oficina,
+            expedientesGenericos: foliosEnvio
+        };
 
-
+        
         $.ajax({
             type: "POST",
-            url: `/api/wf/v1/despacho-reparo-notaria`,
-            data: JSON.stringify(_procesar),
+            url: `/api/wf/v1/despacho-reparo-oficina-partes`,
+            data: JSON.stringify(postValues),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
 
@@ -54,15 +43,23 @@ const metodos = {
                 unit: 'px',
                 format: 'letter'
             });
-            
 
+
+            doc.setFontSize(16)
+            doc.text(20, 100, 'Valija Devoluciones a Of. Partes')
             doc.setFontSize(14)
-            doc.text(20, 20, 'Nómina de envío Reparos a notaría')
+            doc.text(20, 115, 'Fecha: ' + new Date(data.fechaEnvio).toLocaleDateString())
+            doc.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 250, 100, 170, 45)
+            doc.text(20, 130, 'Para: ' + data.oficina.nombre)
+            doc.text(20, 145, 'Cantidad Expedientes: ' + data.expedientes.length)
+
+
+            doc.addPage()
+            doc.setFontSize(14)
+            doc.text(20, 20, 'Nómina Devoluciones Valija')
             doc.setFontSize(12)
             doc.text(20, 35, 'Fecha: ' + new Date(data.fechaEnvio).toLocaleDateString())
-            doc.text(125, 35, data.notariaEnvio.nombre)
             doc.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 250, 5, 170, 45)
-
             doc.text(20, 47, data.oficina.nombre)
             doc.text(125, 47, 'Cantidad Expedientes: ' + data.expedientes.length)
 
@@ -123,7 +120,7 @@ const metodos = {
 
             doc.text(60, 550, 'Firma Entrega Conforme')
             doc.text(280, 550, 'Firma Recibí Conforme')
-            doc.autoPrint(); 
+            doc.autoPrint();
             doc.output('dataurlnewwindow');
 
         }).fail(function (errMsg) {
@@ -137,17 +134,16 @@ const metodos = {
             });
 
         }).always(function () {
-            _procesar = [];
-            $('#tabla-generica').bootstrapTable('refresh');
+            $(entrada.destiny).bootstrapTable('refresh');
         });
-
     }
 }
 
 
-
-$(function () {
-    $("#btn-generar-generico").on("click", function () {
-        metodos.avanzarWf();
+$(function(){
+    $('.avanzarwf').on('click', function(){
+        var destiny = $(this).data('destiny');
+        var oficina = $(this).data('oficina');
+        metodos.avanzarWf({destiny, oficina});
     });
 });

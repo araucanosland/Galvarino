@@ -1,5 +1,7 @@
 @{
     ViewData["Title"] = "Despacho a Of. Partes para envio de reparo a sucursal";
+    var increment = 1;
+    var inCollapse = "in";
 }
 
 @section breadcumbs{
@@ -8,45 +10,140 @@
     <li class="active">@ViewData["Title"]</li>
 }
 
-@section style{
-    <!--Bootstrap Table-->
-    <link href="~/lib/css/bootstrap-table.min.css" rel="stylesheet">
-}
-
 @section script{
-    <!--Bootstrap Table-->
-    <script src="~/lib/js/bootstrap-table.min.js"></script>
+
+    <!--Page Script-->
+<environment include="Development">
+    <script src="~/js/reparoAnalisisMSC.js"></script>
+</environment>
+<environment exclude="Development">
+    <script src="~/js/reparoAnalisisMSC.min.js"></script>
+</environment>
+
 }
 
+<div class="row">
 
-<div class="row">
-    <div class="col-sm-6 table-toolbar-left">                      
-        <div class="btn-group">
-            <button class="btn btn-default"><i class="demo-pli-exclamation"></i></button>
-            <button class="btn btn-default"><i class="demo-pli-recycling"></i></button>
+   <div class="col-md-12">
+					
+        @if(ViewBag.OficinasDevolucion.Count > 0)
+        {
+        <!--Bordered Accordion-->
+        <!--===================================================-->
+        <div class="panel-group accordion" id="demo-acc-info-outline">
+
+
+            @foreach(var oficinad in ViewBag.OficinasDevolucion)
+            {
+                <div class="panel panel-bordered panel-info">
+
+
+                    @if(increment > 1)
+                    {
+
+                    <!--Accordion title-->
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-parent="#demo-acc-info-outline" data-toggle="collapse" href="#demo-acd-info-outline-@increment" aria-expanded="false" class="collapsed">Valija @oficinad.Nombre</a>
+                        </h4>
+                    </div>
+                    
+                    <!--Accordion content-->
+                    <div class="panel-collapse collapse" id="demo-acd-info-outline-@increment" aria-expanded="false" style="height: 0px;">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-6 table-toolbar-left">                      
+                                    <div class="btn-group">
+                                        <button class="btn btn-primary avanzarwf" data-oficina="@oficinad.Codificacion" data-destiny="#tabla-generica-@increment"><i class="demo-pli-exclamation"></i> Procesar @oficinad.Nombre</button>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div class="row">
+                                <table          id="tabla-generica-@increment"
+                                                data-toggle="table"
+                                                data-url="/api/wf/v1/solicitudes-reparo-devolicion/@oficinad.Codificacion"
+                                                data-search="false"
+                                                data-show-refresh="false"
+                                                data-show-toggle="false"
+                                                data-show-columns="false"
+                                                data-sort-name="expediente.credito.fechaDesembolso"
+                                                data-page-list="[]"
+                                                data-page-size="20"
+                                                data-pagination="false" data-show-pagination-switch="false">
+                                    <thead>
+                                        <tr>
+                                            <th data-field="expediente.credito.folioCredito" data-sortable="false">Folio Credito</th>
+                                            <th data-field="expediente.credito.tipoCredito" data-sortable="false" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                                            <th data-field="expediente.credito.fechaDesembolso" data-sortable="false" data-formatter="formatoFecha">Fecha Desembolso</th>
+                                            <th data-field="expediente.credito.montoCredito" data-align="center" data-sortable="false" >Monto Credito</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>  
+                              
+                        </div>
+                    </div>
+                    }
+                    else
+                    {
+                        <!--Accordion title-->
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-parent="#demo-acc-info-outline" data-toggle="collapse" href="#demo-acd-info-outline-@increment" aria-expanded="true" class="">Valija @oficinad.Nombre</a>
+                        </h4>
+                    </div>
+                    
+                    <!--Accordion content-->
+                    <div class="panel-collapse collapse in" id="demo-acd-info-outline-@increment" aria-expanded="true" style="">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-6 table-toolbar-left">                      
+                                    <div class="btn-group">
+                                        <button class="btn btn-primary avanzarwf" data-oficina="@oficinad.Codificacion" data-destiny="#tabla-generica-@increment"><i class="demo-pli-exclamation"></i> Procesar @oficinad.Nombre</button>
+                                    </div>
+                                </div>
+                            </div>  
+                            <div class="row">
+                                <table          id="tabla-generica-@increment"
+                                                data-toggle="table"
+                                                data-url="/api/wf/v1/solicitudes-reparo-devolicion"
+                                                data-search="false"
+                                                data-show-refresh="false"
+                                                data-show-toggle="false"
+                                                data-show-columns="false"
+                                                data-sort-name="id"
+                                                data-page-list="[]"
+                                                data-page-size="20"
+                                                data-pagination="false" data-show-pagination-switch="false">
+                                    <thead>
+                                        <tr>
+                                            <th data-field="expediente.credito.folioCredito" data-sortable="false">Folio Credito</th>
+                                            <th data-field="expediente.credito.tipoCredito" data-sortable="false" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                                            <th data-field="expediente.credito.fechaDesembolso" data-sortable="false" data-formatter="formatoFecha">Fecha Desembolso</th>
+                                            <th data-field="expediente.credito.montoCredito" data-align="center" data-sortable="false" >Monto Credito</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                              
+                        </div>
+                    </div>
+                    }  
+                </div>
+
+
+                increment=increment+1;
+                
+            }
+
+        <!--===================================================-->
+        <!--End Bordered Accordion-->
+
         </div>
-    </div>
+        }else{
+            <h2>Buen Trabajo!!</h2>
+            <p>No hay tareas pendientes en esta etapa</p>
+        }
 </div>
-<div class="row">
-    <table data-toggle="table"
-                    data-url="data/bs-table.json"
-                    data-search="true"
-                    data-show-refresh="true"
-                    data-show-toggle="true"
-                    data-show-columns="true"
-                    data-sort-name="id"
-                    data-page-list="[]"
-                    data-page-size="20"
-                    data-pagination="true" data-show-pagination-switch="false">
-        <thead>
-            <tr>
-                <th data-field="id" data-sortable="true" data-formatter="invoiceFormatter">Folio Credito</th>
-                <th data-field="name" data-sortable="true">Documentos</th>
-                <th data-field="date" data-sortable="true" data-formatter="dateFormatter">Fecha Desembolso</th>
-                <th data-field="amount" data-align="center" data-sortable="true" data-sorter="priceSorter">Monto Credito</th>
-                <th data-field="status" data-align="center" data-sortable="true" data-formatter="statusFormatter">Estado</th>
-                <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
-            </tr>
-        </thead>
-    </table>
 </div>
+<canvas id="barcode"></canvas>

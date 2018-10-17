@@ -136,6 +136,30 @@
         "sourceMap": true
     },
     {
+        "outputFileName": "wwwroot/js/aperturaValija.min.js",
+        "inputFiles": [
+            "wwwroot/js/aperturaValija.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/reparoAnalisisMSC.min.js",
+        "inputFiles": [
+            "wwwroot/js/reparoAnalisisMSC.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
         "outputFileName": "wwwroot/js/analisisMsControl.min.js",
         "inputFiles": [
             "wwwroot/js/analisisMsControl.js"
@@ -146,8 +170,42 @@
             "outputMode": "singleLine"
         },
         "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/recepcionOfPartesCorrecciones.min.js",
+        "inputFiles": [
+            "wwwroot/js/recepcionOfPartesCorrecciones.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/solucionSucursal.min.js",
+        "inputFiles": [
+            "wwwroot/js/solucionSucursal.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/despachoCustodia.min.js",
+        "inputFiles": [
+            "wwwroot/js/despachoCustodia.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
     }
-
-    
 
 ]

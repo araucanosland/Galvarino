@@ -22,6 +22,11 @@ namespace Galvarino.Web.Models.Helper
         public static readonly string ETAPA_SOLUCION_REPAROS_SUCURSAL = "SOLUCION_REPAROS_SUCURSAL";
         public static readonly string ETAPA_DESPACHO_A_CUSTODIA = "DESPACHO_A_CUSTODIA";
         public static readonly string ETAPA_RECEPCION_Y_CUSTODIA = "RECEPCION_Y_CUSTODIA";
+        public static readonly string ETAPA_APERTURA_VALIJA = "APERTURA_VALIJA";
+        public static readonly string ETAPA_DOCUMENTACION_FALTANTE = "DOCUMENTACION_FALTANTE";
+
+        
+
 
     }
 }

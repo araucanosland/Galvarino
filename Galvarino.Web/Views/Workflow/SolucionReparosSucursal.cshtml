@@ -8,44 +8,47 @@
     <li class="active">@ViewData["Title"]</li>
 }
 
-@section style{
-    <!--Bootstrap Table-->
-    <link href="~/lib/css/bootstrap-table.min.css" rel="stylesheet">
-}
 
 @section script{
-    <!--Bootstrap Table-->
-    <script src="~/lib/js/bootstrap-table.min.js"></script>
-}
 
+ <!--Page Script-->
+<environment include="Development">
+    <script src="~/js/solucionSucursal.js"></script>
+</environment>
+<environment exclude="Development">
+    <script src="~/js/solucionSucursal.min.js"></script>
+</environment>
+
+}
 
 <div class="row">
     <div class="col-sm-6 table-toolbar-left">                      
         <div class="btn-group">
-            <button class="btn btn-default"><i class="demo-pli-exclamation"></i></button>
-            <button class="btn btn-default"><i class="demo-pli-recycling"></i></button>
+            <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Reparos Resueltos</button>
         </div>
     </div>
 </div>
 <div class="row">
-    <table data-toggle="table"
-                    data-url="data/bs-table.json"
+    <table          id="tabla-generica" 
+                    data-toggle="table"
+                    data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL"
                     data-search="true"
-                    data-show-refresh="true"
-                    data-show-toggle="true"
-                    data-show-columns="true"
-                    data-sort-name="id"
+                    data-show-refresh="false"
+                    data-show-toggle="false"
+                    data-show-columns="false"
+                    data-sort-name="expediente.valijaValorada.fechaEnvio"
                     data-page-list="[]"
-                    data-page-size="20"
-                    data-pagination="true" data-show-pagination-switch="false">
+                    data-page-size="40"
+                    data-pagination="true" 
+                    data-show-pagination-switch="false"
+                    data-locale="es-CL">
         <thead>
             <tr>
-                <th data-field="id" data-sortable="true" data-formatter="invoiceFormatter">Folio Credito</th>
-                <th data-field="name" data-sortable="true">Documentos</th>
-                <th data-field="date" data-sortable="true" data-formatter="dateFormatter">Fecha Desembolso</th>
-                <th data-field="amount" data-align="center" data-sortable="true" data-sorter="priceSorter">Monto Credito</th>
-                <th data-field="status" data-align="center" data-sortable="true" data-formatter="statusFormatter">Estado</th>
-                <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
+                <th data-field="reparo" data-formatter="formatoReparo">Motivo</th>
+                <th data-field="expediente.credito.folioCredito" data-align="center" data-sortable="true">Folio Credito</th>
+                <th data-field="expediente.credito.fechaDesembolso" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                <th data-field="expediente.valijaValorada.fechaEnvio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fec. Envío Sucursal</th>
+                <th data-field="expediente.valijaValorada.codigoSeguimiento" data-align="center" data-sortable="true">Valija</th>
             </tr>
         </thead>
     </table>

@@ -14,4 +14,16 @@ namespace Galvarino.Web.Models.Helper
             Reparo = 0;
         }
     }
+
+    public class ExpedienteGenerico{
+        public string FolioCredito { get; set; }    
+        public IEnumerable<string> DocumentosPistoleados { get; set; }
+        public bool Faltante { get; set; }
+    }
+
+    public class ColeccionExpedientesGenerica{
+
+        public string CodOficina { get; set; }
+        public IEnumerable<ExpedienteGenerico> ExpedientesGenericos { get; set; }
+    }
 }

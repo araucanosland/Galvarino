@@ -199,6 +199,7 @@
                                     <!--<img class="img-circle img-user media-object" src="img/profile-photos/1.png" alt="Profile Picture">-->
                                     <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
                                     <i class="demo-pli-male"></i>
+                                    <span class="badge badge-header badge-danger"></span>
                                 </span>
                                 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
                                 <!--You can also display a user name in the navbar.-->
@@ -210,19 +211,10 @@
                             <div class="dropdown-menu dropdown-menu-sm dropdown-menu-right panel-default">
                                 <ul class="head-list">
                                     <li>
-                                        <a href="#"><i class="demo-pli-male icon-lg icon-fw"></i> Profile</a>
+                                        <a href="#"><span class="badge badge-danger pull-right">9</span><i class="demo-pli-mail icon-lg icon-fw"></i> Notificaciones</a>
                                     </li>
                                     <li>
-                                        <a href="#"><span class="badge badge-danger pull-right">9</span><i class="demo-pli-mail icon-lg icon-fw"></i> Messages</a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><span class="label label-success pull-right">New</span><i class="demo-pli-gear icon-lg icon-fw"></i> Settings</a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="demo-pli-computer-secure icon-lg icon-fw"></i> Lock screen</a>
-                                    </li>
-                                    <li>
-                                        <a href="pages-login.html"><i class="demo-pli-unlock icon-lg icon-fw"></i> Logout</a>
+                                        <a href="/"><i class="demo-pli-unlock icon-lg icon-fw"></i> Logout</a>
                                     </li>
                                 </ul>
                             </div>
@@ -305,7 +297,17 @@
                         <div class="nano">
                             <div class="nano-content">
 
-                               
+                               <div id="mainnav-profile" class="mainnav-profile">
+                                    <div class="profile-wrap text-center">
+                                        <div class="pad-btm">
+                                            <img class="img-circle img-md" src="/lib/img/profile-photos/5.png" alt="Profile Picture">
+                                        </div>
+                                        <a href="#" class="box-block collapsed">
+                                            <p class="mnp-name">Carlos Pradenas</p>
+                                            <span class="mnp-desc">Administrador</span>
+                                        </a>
+                                    </div>
+                                </div>
 
                                 <ul id="mainnav-menu" class="list-group">
 						
@@ -321,17 +323,29 @@
 						                </a>
 						
 						                <!--Submenu-->
-						                <ul class="collapse">
-						                    <li><a href="index.html">Etapa 1</a></li>
-											<li><a href="dashboard-2.html">Etapa 2</a></li>
-											<li><a href="dashboard-3.html">Etapa 3</a></li>
-											
+						                <ul class="collapse in">
+						                    <li><a href="/wf/v1/mis-solicitudes">Mis Solicitudes</a></li>
+						                    <li><a href="/wf/v1/envio-a-notaria">Envio a Notaía</a></li>
+						                    <li><a href="/wf/v1/recepciona-notaria">Recepción Notaría</a></li>
+						                    <li><a href="/wf/v1/revision-documentos">Revisión Documentos</a></li>
+						                    <li><a href="/wf/v1/despacho-reparo-notaria">Despacho Reparo a Notaría</a></li>
+						                    <li><a href="/wf/v1/despacho-sucursal-oficiana-partes">Despacho Of. Partes</a></li>
+						                    <li><a href="/wf/v1/recepcion-oficina-partes">Recepción de Of. de Partes</a></li>
+						                    <li><a href="/wf/v1/recepcion-valija">Recepción Valija</a></li>
+						                    <li><a href="/wf/v1/apertura-valija">Apertura Valija</a></li>
+						                    <li><a href="/wf/v1/analisis-mesa-control">Análisis Expedientes</a></li>
+						                    <li><a href="/wf/v1/despacho-reparo-oficina-partes">Despacho Reparos Of. de Partes</a></li>
+						                    <li><a href="/wf/v1/despacho-oficina-correccion">Despacho Oficina para Corrección</a></li>
+						                    <li><a href="/wf/v1/solucion-reparo-sucursal">Recepcion y Solución Reparos</a></li>
+						                    <li><a href="/wf/v1/despacho-a-custodia">Despacho a Custodia</a></li>
+						                    <li><a href="/wf/v1/recepcion-custodia">Recepción Custodia</a></li>
 						                </ul>
 						            </li>
 						
 						
 						            <li class="list-divider"></li>
 						
+                                    @*
 						            <!--Category name-->
 						            <li class="list-header">Opciones</li>
 						
@@ -351,7 +365,7 @@
 											<li><a href="grid-masonry.html">Masonry</a></li>
 											
 						                </ul>
-						            </li>
+						            </li>*@
 						
 						        </ul>
 

@@ -186,8 +186,7 @@ const metodos = {
             });
 
         }).always(function () {
-            console.log("always");
-
+            $('#tabla-generica').bootstrapTable('refresh');
         });
     }
 }
@@ -230,10 +229,12 @@ $(function(){
                 type: "danger",
                 container: "floating",
                 title: "Suceso Erroneo",
-                message: "Error al Pistolear",
+                message: "Error al Pistolear:  " + $("#folio-shot").val(),
                 closeBtn: true,
                 timer: 5000
             });
+
+            $("#folio-shot").val("");
         })
 
     });

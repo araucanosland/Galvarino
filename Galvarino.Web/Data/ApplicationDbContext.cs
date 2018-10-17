@@ -35,6 +35,7 @@ namespace Galvarino.Web.Data
         public DbSet<Oficina> Oficinas { get; set; }
         public DbSet<PackNotaria> PacksNotarias { get; set; }
         public DbSet<ValijaValorada> ValijasValoradas { get; set; }
+        public DbSet<CajaValorada> CajasValoradas { get; set; }
         public DbSet<Region> Regiones { get; set; }
         public DbSet<ConfiguracionDocumento> ConfiguracionDocumentos { get; set; }
         
@@ -70,6 +71,8 @@ namespace Galvarino.Web.Data
             builder.ApplyConfiguration(new OficinaConfig());
             builder.ApplyConfiguration(new PackNotariaConfig());
             builder.ApplyConfiguration(new RegionConfig());
+            builder.ApplyConfiguration(new ValijaValoradaConfig());
+            builder.ApplyConfiguration(new CajaValoradaConfig());
 
             
 

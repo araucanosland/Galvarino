@@ -11,8 +11,6 @@ window.operateEvents = {
 const metodos = {
     avanzarWf: function () {
         
-
-
         let data = $('#tabla-generica').bootstrapTable('getData');
         
         $.each(data, function(index,element){
@@ -48,7 +46,7 @@ const metodos = {
              });
 
         }).always(function () {
-            console.log("always");
+            $('#tabla-generica').bootstrapTable('refresh');
 
         });
 
@@ -56,7 +54,6 @@ const metodos = {
 }
 
 function formatoReparo(val, row, inc){
-    console.log(row)
     return `
     <select class="form-control reparo" id="${inc}">
         <option value="0">Sin Reparos</option>

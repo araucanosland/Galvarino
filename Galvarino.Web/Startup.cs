@@ -43,6 +43,10 @@ namespace Galvarino.Web
                  .AddDefaultTokenProviders();
 
 
+            services.Configure<IISOptions>(options =>
+            {
+                options.ForwardClientCertificate = false;
+            });
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -61,9 +65,9 @@ namespace Galvarino.Web
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "docman.laaraucana.cl",
-                        ValidAudience = "docman.laaraucana.cl",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Llave"])),
+                        ValidIssuer = "galvarino.laaraucana.cl",
+                        ValidAudience = "galvarino.laaraucana.cl",
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["GALVARINO_SECURITY_KEY"])),
                         ClockSkew = TimeSpan.Zero
                     };
                 });

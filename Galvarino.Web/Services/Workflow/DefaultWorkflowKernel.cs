@@ -278,7 +278,7 @@ namespace Galvarino.Web.Services.Workflow
         public string GetVariableValue(string key, string numeroTicket)
         {
             Variable variable = _context.Variables.FirstOrDefault(d => d.Clave == key && d.NumeroTicket == numeroTicket);
-            return variable.Valor;
+            return variable != null ? variable.Valor : "";
         }
 
         public IEnumerable<Tarea> TareasActivasUsuario(string nombreInternoProceso, string identificacionUsuario)

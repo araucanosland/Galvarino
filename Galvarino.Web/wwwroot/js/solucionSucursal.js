@@ -1,28 +1,19 @@
-window.operateEvents = {
-    'change .reparo': function (e, value, row, index) {
-        row.reparo = parseInt($(e.target).val());
-    }
-};
-
 const metodos = {
     avanzarWf: function () {
-        let foliosEnvio = [];
+
         let data = $('#tabla-generica').bootstrapTable('getData');
-
-        foliosEnvio = data.map(function(element){
+        let procesar = data.map(function(element){
             return {
-                folioCredito: element.expediente.credito.folioCredito,
-                reparo: element.reparo
+                folioCredito: element.expediente.credito.folioCredito
             }
-        });
-
+        })
+       
         $.ajax({
             type: "POST",
-            url: `/api/wf/v1/analisis-mesa-control`,
-            data: JSON.stringify(foliosEnvio),
+            url: `/api/wf/v1/solucion-reparo-sucursal`,
+            data: JSON.stringify(procesar),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
-
             $.niftyNoty({
                 type: "success",
                 container: "floating",
@@ -44,27 +35,29 @@ const metodos = {
 
         }).always(function () {
             $('#tabla-generica').bootstrapTable('refresh');
-
         });
+
     }
 }
 
 
 function formatoReparo(val, row, inc) {
-    return `
-    <select class="form-control reparo" id="${inc}">
-        <option value="0">Sin Reparos</option>
-        <option value="1">Sin Firma de Notario</option>
-        <option value="2">Sin Timbre de Notario</option>
-        <option value="3">Sin Firma ni Timbre</option>
-        <option value="4">Ilegible</option>
-    </select>`;
+    
+    let opciones =[
+        'Sin Reparos',
+        'Sin Firma de Notario',
+        'Sin Timbre de Notario',
+        'Sin Firma ni Timbre',
+        'Ilegible'
+    ]
+    
+    return opciones[val];
 }
+
 
 $(function () {
 
-    
-    $("#btn-generar-generico").on("click", function () {
+    $("#btn-generar-generico").on("click", function () {   
         metodos.avanzarWf();
     });
 

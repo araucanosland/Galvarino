@@ -5,16 +5,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Galvarino.Web.Models;
+using Galvarino.Web.Data;
+using Microsoft.EntityFrameworkCore;
+using Galvarino.Web.Services.Workflow;
+using Galvarino.Web.Models.Application;
+using Galvarino.Web.Models.Workflow;
 
 namespace Galvarino.Web.Controllers
 {
     [Route("wf/v1")]
     public class WorkflowController : Controller
     {
+        private const int CantidadCaracteres = 23;
+        private readonly ApplicationDbContext _context;
+        private readonly IWorkflowService _wfService;
 
-        public WorkflowController()
+        public WorkflowController(ApplicationDbContext context, IWorkflowService wfservice)
         {
-            
+            _context = context;
+            _wfService = wfservice;
         }
 
         [Route("mis-solicitudes/{etapaIn?}")]
@@ -31,101 +40,137 @@ namespace Galvarino.Web.Controllers
         [Route("despacho-oficina-a-notaria")]
         public IActionResult DespachoOfNotaria()
         {
-            
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("recepcion-set-legal")]
         public IActionResult RecepcionSetLegal()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("envio-a-notaria")]
         public IActionResult EnvioNotaria()
         {
-            ViewBag.CantidadCaracteresFolio = 23;
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("recepciona-notaria")]
         public IActionResult RecepcionaNotaria()
         {
-            ViewBag.CantidadCaracteresFolio = 23;
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("revision-documentos")]
         public IActionResult RevisionDocumentos()
         {
-            ViewBag.CantidadCaracteresFolio = 23;
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("despacho-reparo-notaria")]
         public IActionResult DespachoReparoNotaria()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("despacho-sucursal-oficiana-partes")]
         public IActionResult DespachoSucOfPartes()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("recepcion-oficina-partes")]
         public IActionResult RecepcionOfPartes()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("recepcion-valija")]
         public IActionResult RecepcionValija()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+        [Route("apertura-valija")]
+        public IActionResult AperturaValija()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("analisis-mesa-control")]
         public IActionResult AnalisisMesaControl()
         {
-            ViewBag.CantidadCaracteresFolio = 23;
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("solucion-expediente-faltante")]
         public IActionResult SolucionExpedienteFaltante()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("despacho-reparo-oficina-partes")]
         public IActionResult DespachoOfPtReparoSucursal()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == "17042783-1" && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION").ToList();
+
+            var salida = new List<Oficina>();
+           
+            foreach (var tarea in mistareas)
+            {
+                var codigoOficinaDevolucion = _wfService.ObtenerVariable("OFINA_PROCESA_NOTARIA", tarea.Solicitud.NumeroTicket);
+                var oficinaDevolucion = _context.Oficinas.FirstOrDefault(o => o.Codificacion == codigoOficinaDevolucion);
+                //salida.Add(oficinaDevolucion);
+
+                if (!salida.Any(c => c.Codificacion == codigoOficinaDevolucion))
+                {
+                    salida.Add(oficinaDevolucion);
+                }
+            }
+            
+
+            ViewBag.OficinasDevolucion = salida;
             return View();
         }
 
         [Route("despacho-oficina-correccion")]
         public IActionResult DespachoOfCorreccion()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("solucion-reparo-sucursal")]
         public IActionResult SolucionReparosSucursal()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("despacho-a-custodia")]
         public IActionResult DespachoCustodia()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
 
         [Route("recepcion-custodia")]
         public IActionResult RecepcionCustodia()
         {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
         #endregion

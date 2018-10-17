@@ -1,48 +1,22 @@
-window._procesar = [];
 
 const metodos = {
+   
     avanzarWf: function () {
 
         let data = $('#tabla-generica').bootstrapTable('getData');
-
-
-        if (data.length == 0){
-            $.niftyNoty({
-                type: "warning",
-                container: "floating",
-                title: "Avance Tareas",
-                message: "Nada para enviar!",
-                closeBtn: true,
-                timer: 5000
-            });
-            return false;
-        }
-
-
-        $.each(data, function (index, element) {
-            _procesar.push({
-                FolioCredito: element.expediente.credito.folioCredito,
-                Reparo: element.reparo
-            });
+        let foliosEnvio = data.map(function (exp) {
+            return {
+                folioCredito: exp.credito.folioCredito
+            }
         });
-
 
 
         $.ajax({
             type: "POST",
-            url: `/api/wf/v1/despacho-reparo-notaria`,
-            data: JSON.stringify(_procesar),
+            url: `/api/wf/v1/despacho-a-custodia`,
+            data: JSON.stringify(foliosEnvio),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
-
-            $.niftyNoty({
-                type: "success",
-                container: "floating",
-                title: "Avance Tareas",
-                message: "Tarea Finalizada!!",
-                closeBtn: true,
-                timer: 5000
-            });
 
 
             JsBarcode("#barcode", data.codigoSeguimiento);
@@ -54,16 +28,23 @@ const metodos = {
                 unit: 'px',
                 format: 'letter'
             });
-            
 
+
+            doc.setFontSize(16)
+            doc.text(20, 100, 'Envío de Caja a Custodia')
             doc.setFontSize(14)
-            doc.text(20, 20, 'Nómina de envío Reparos a notaría')
+            doc.text(20, 115, 'Fecha: ' + new Date(data.fechaEnvio).toLocaleDateString())
+            doc.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 250, 100, 170, 45)
+            doc.text(20, 145, 'Cantidad Expedientes: ' + data.expedientes.length)
+
+
+            doc.addPage()
+            doc.setFontSize(14)
+            doc.text(20, 20, 'Nómina envío a Custodia')
             doc.setFontSize(12)
             doc.text(20, 35, 'Fecha: ' + new Date(data.fechaEnvio).toLocaleDateString())
-            doc.text(125, 35, data.notariaEnvio.nombre)
             doc.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 250, 5, 170, 45)
-
-            doc.text(20, 47, data.oficina.nombre)
+            //doc.text(20, 47, data.oficina.nombre)
             doc.text(125, 47, 'Cantidad Expedientes: ' + data.expedientes.length)
 
             doc.text(20, 70, '#')
@@ -123,8 +104,20 @@ const metodos = {
 
             doc.text(60, 550, 'Firma Entrega Conforme')
             doc.text(280, 550, 'Firma Recibí Conforme')
-            doc.autoPrint(); 
+            doc.autoPrint();
             doc.output('dataurlnewwindow');
+            
+
+
+
+            $.niftyNoty({
+                type: "success",
+                container: "floating",
+                title: "Avance Tareas",
+                message: "Tarea Finalizada!!",
+                closeBtn: true,
+                timer: 5000
+            });
 
         }).fail(function (errMsg) {
             $.niftyNoty({
@@ -137,17 +130,17 @@ const metodos = {
             });
 
         }).always(function () {
-            _procesar = [];
             $('#tabla-generica').bootstrapTable('refresh');
         });
-
     }
 }
 
 
 
 $(function () {
+
     $("#btn-generar-generico").on("click", function () {
         metodos.avanzarWf();
     });
+
 });

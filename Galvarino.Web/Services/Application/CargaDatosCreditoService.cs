@@ -11,6 +11,7 @@ using Galvarino.Web.Models.Application;
 using Galvarino.Web.Services.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Galvarino.Web.Models.Helper;
 
 namespace Galvarino.Web.Services.Application
 {
@@ -98,10 +99,9 @@ namespace Galvarino.Web.Services.Application
                                 _setVariables.Add("OFINA_PROCESA_NOTARIA", oficinaProceso);
 
 
-                                var test = _scope.ServiceProvider.GetService<WorkflowService>();
                                 
                                 _wfservice = new WorkflowService(new DefaultWorkflowKernel(_context));
-                                var wf = _wfservice.Instanciar("SOLICITUD_CUSTODIA_DOCUMENTOS", "wfboot", "Ingreso Automatico de Creditos Vendidos", _setVariables);
+                                var wf = _wfservice.Instanciar(ProcesoDocumentos.NOMBRE_PROCESO, "wfboot", "Ingreso Automatico de Creditos Vendidos", _setVariables);
                                 
                                 Credito cred = new Credito
                                 {
