@@ -206,6 +206,30 @@
             "outputMode": "singleLine"
         },
         "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/recepcionCustodia.min.js",
+        "inputFiles": [
+            "wwwroot/js/recepcionCustodia.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/solicionDocsFaltantes.min.js",
+        "inputFiles": [
+            "wwwroot/js/solicionDocsFaltantes.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
     }
 
 ]

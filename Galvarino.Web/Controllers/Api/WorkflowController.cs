@@ -56,6 +56,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 var folioCredito = _wfService.ObtenerVariable("FOLIO_CREDITO", tarea.Solicitud.NumeroTicket);
                 var motivoDevol = _wfService.ObtenerVariable("CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL", tarea.Solicitud.NumeroTicket);
+                var documentosFaltantes = _wfService.ObtenerVariable("COLECCION_DOCUMENTOS_FALTANTES", tarea.Solicitud.NumeroTicket);
                 var credito = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito);
                 var expediente = _context.ExpedientesCreditos
                                 .Include(f => f.Documentos)
@@ -68,7 +69,8 @@ namespace Galvarino.Web.Controllers.Api
                     tarea = tarea,
                     credito = credito,
                     expediente = expediente,
-                    reparo=motivoDevol.Length > 0 ? Convert.ToInt32(motivoDevol): 0
+                    reparo=motivoDevol.Length > 0 ? Convert.ToInt32(motivoDevol): 0,
+                    documentosFaltantes
                 });
             });
             
@@ -349,8 +351,24 @@ namespace Galvarino.Web.Controllers.Api
 
             foreach (var item in entrada)
             {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                _wfService.AsignarVariable("EXPEDIENTE_FALTANTE", item.Faltante ? "1": "0", elExpediente.Credito.NumeroTicket);
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.Documentos).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                _wfService.AsignarVariable("EXPEDIENTE_FALTANTE", item.Faltante ? "1" : "0", elExpediente.Credito.NumeroTicket);
+                
+                if(item.Faltante)
+                {
+                    string jsonEnv = ""; int controlador = 0;
+                    foreach (var dc in item.DocumentosPistoleados)
+                    {
+                        if(!elExpediente.Documentos.Any(d => d.Codificacion == dc))
+                        {
+                            jsonEnv = jsonEnv + (controlador>0 ? ",":"") + "'" + dc + "'";
+                            controlador++;
+                        }
+                    }
+                    jsonEnv = "[" + jsonEnv + "]";
+                    _wfService.AsignarVariable("COLECCION_DOCUMENTOS_FALTANTES", jsonEnv, elExpediente.Credito.NumeroTicket);
+                }
+                
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
@@ -392,9 +410,9 @@ namespace Galvarino.Web.Controllers.Api
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", "1", elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
-
             await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, "17042783-1");
             return Ok();
         }
@@ -505,22 +523,24 @@ namespace Galvarino.Web.Controllers.Api
             return Ok(cajaval);
         }
 
-        [Route("recepcion-custodia")]
-        public async Task<IActionResult> RecepcionCustodia([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
-        {
-            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
-            List<string> ticketsAvanzar = new List<string>();
 
+        [HttpPost("recepcion-custodia/{codigoSeguimiento}")]
+        public async Task<IActionResult> RecepcionCustodia([FromBody] IEnumerable<ExpedienteGenerico> entrada, [FromRoute] string codigoSeguimiento)
+        {
+            List<string> ticketsAvanzar = new List<string>();
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                expedientesModificados.Add(elExpediente);
+                _wfService.AsignarVariable("EXPEDIENTE_FALTANTE_CUSTODIA", item.Faltante ? "1": "0", elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_Y_CUSTODIA, ticketsAvanzar, "17042783-1");
+            var laCaja = _context.CajasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
+            laCaja.MarcaAvance = "FN";
+            _context.CajasValoradas.Update(laCaja);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
+            
             return Ok();
         }
     }

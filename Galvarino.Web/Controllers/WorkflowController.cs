@@ -167,10 +167,12 @@ namespace Galvarino.Web.Controllers
             return View();
         }
 
-        [Route("recepcion-custodia")]
-        public IActionResult RecepcionCustodia()
+        [Route("recepcion-custodia/{folioCaja?}")]
+        public IActionResult RecepcionCustodia(string folioCaja = "")
         {
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            ViewBag.folioCaja = folioCaja;
+            
             return View();
         }
         #endregion

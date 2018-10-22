@@ -146,6 +146,14 @@ namespace Galvarino.Web.Services.Workflow
             tareaActual.Estado = EstadoTarea.Finalizada;
 
             _context.Entry(tareaActual).State = EntityState.Modified;
+
+            /*Cuando se instancia la etapa final esta cierra la solicitud */
+            if(tareaActual.Etapa.TipoEtapa == TipoEtapa.Fin)
+            {
+                solicitud.Estado = EstadoSolicitud.Finalizada;
+                solicitud.FechaTermino = DateTime.Now;
+                _context.Solicitudes.Update(solicitud);
+            }
             _context.SaveChanges();
 
             ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d=>d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa).ToList();

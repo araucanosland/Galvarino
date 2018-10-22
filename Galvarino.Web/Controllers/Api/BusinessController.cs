@@ -67,7 +67,6 @@ namespace Galvarino.Web.Controllers.Api
             return Ok(valijas);
         }
 
-
         [HttpGet("listar-expedientes-valija/{folioValija}")]
         public IActionResult ListarExpedientesValija(string folioValija)
         {
@@ -75,9 +74,12 @@ namespace Galvarino.Web.Controllers.Api
             return Ok(expedientes);
         }
 
-
-
-       
+        [HttpGet("listar-expedientes-caja/{folioCaja}")]
+        public IActionResult ListarExpedientesCaja(string folioCaja)
+        {
+            var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.CajaValorada.CodigoSeguimiento == folioCaja);
+            return Ok(expedientes);
+        }
         
     }
 }
