@@ -26,11 +26,18 @@
 ###  
 ###fi
 
-git fetch master
+##git fetch master
+##git checkout master
+
+
 git checkout master
+
+git pull
 
 dotnet publish -o /home/desarrollo/Galvarino/output
 
 rm -rfv /var/apps/docman/*
 
 cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
+
+systemctl restart kestrel-docman.service
