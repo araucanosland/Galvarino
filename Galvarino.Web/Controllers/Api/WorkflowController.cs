@@ -117,25 +117,43 @@ namespace Galvarino.Web.Controllers.Api
 
 
 
-        [HttpPost("despacho-oficina-a-notaria")]
-        public async Task<IActionResult> DespachoOfNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        [HttpPost("despacho-oficina-matriz")]
+        public async Task<IActionResult> DespachoOfMatriz([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
             var oficinaEnvio = _context.Oficinas.Find(3);
 
+            DateTime now = DateTime.Now;
+            var codSeg = now.Ticks.ToString() + "O" + oficinaEnvio.Codificacion;
+
+            var valijaMatrix = new ValijaOficina{
+                CodigoSeguimiento = codSeg,
+                FechaEnvio = DateTime.Now,
+                OficinaEnvio = oficinaEnvio,
+                MarcaAvance = "INI"
+            };
+            
+
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                if(valijaMatrix.OficinaDestino == null)
+                {
+                    var oficinaDestino = _wfService.ObtenerVariable("OFINA_PROCESA_NOTARIA", elExpediente.Credito.NumeroTicket);
+                    valijaMatrix.OficinaDestino = _context.Oficinas.FirstOrDefault(f => f.Codificacion == oficinaDestino);
+                }
+                elExpediente.ValijaOficina = valijaMatrix;
                 expedientesModificados.Add(elExpediente);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
+            _context.ValijasOficinas.Add(valijaMatrix);
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
             await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, "17042783-1");
             
-            return Ok();
+            return Ok(valijaMatrix);
         }
 
         [HttpPost("recepcion-set-legal")]

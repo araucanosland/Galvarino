@@ -14,6 +14,7 @@ namespace Galvarino.Web.Models.Application
         public PackNotaria PackNotaria { get; set; }
         public ValijaValorada ValijaValorada { get; set; }
         public CajaValorada CajaValorada { get; set; }
+        public ValijaOficina ValijaOficina { get; set; }
         public ICollection<Documento> Documentos { get; set; }
         
         public ExpedienteCredito()

@@ -16,7 +16,7 @@ namespace Galvarino.Web.Controllers
     [Route("wf/v1")]
     public class WorkflowController : Controller
     {
-        private const int CantidadCaracteres = 23;
+        private const int CantidadCaracteres = 24;
         private readonly ApplicationDbContext _context;
         private readonly IWorkflowService _wfService;
 
@@ -37,7 +37,7 @@ namespace Galvarino.Web.Controllers
 
         #region Etapas
 
-        [Route("despacho-oficina-a-notaria")]
+        [Route("despacho-oficina-matriz")]
         public IActionResult DespachoOfNotaria()
         {
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;

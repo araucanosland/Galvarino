@@ -230,6 +230,18 @@
             "outputMode": "singleLine"
         },
         "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/despachoOficinaNotaria.min.js",
+        "inputFiles": [
+            "wwwroot/js/despachoOficinaNotaria.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
     }
 
 ]

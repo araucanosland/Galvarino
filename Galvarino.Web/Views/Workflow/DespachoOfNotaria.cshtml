@@ -13,26 +13,26 @@
 
  <!--Page Script-->
 <environment include="Development">
-    <script src="~/js/despachoNotaria.js"></script>
+    <script src="~/js/despachoOficinaNotaria.js"></script>
 </environment>
 <environment exclude="Development">
-    <script src="~/js/despachoNotaria.min.js"></script>
+    <script src="~/js/despachoOficinaNotaria.min.js"></script>
 </environment>
 
 }
 
-
 <div class="row">
     <div class="col-sm-6 table-toolbar-left">                      
         <div class="btn-group">
-            <button class="btn btn-default" data-target="#modal-pistoleo" data-toggle="modal"><i class="demo-pli-exclamation"></i></button>
+            <button class="btn btn-default" data-target="#modal-pistoleo" data-toggle="modal"><i class="glyphicon glyphicon-barcode"></i></button>
             <button class="btn btn-default"><i class="demo-pli-recycling"></i></button>
         </div>
     </div>
 </div>
 <div class="row">
-    <table data-toggle="table"
-                    data-url="data/bs-table.json"
+    <table          id="tabla-generica"
+                    data-toggle="table"
+                    data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA"
                     data-search="true"
                     data-show-refresh="false"
                     data-show-toggle="false"
@@ -44,17 +44,14 @@
         <thead>
             <tr>
                 <th data-field="credito.folioCredito" data-sortable="true">Folio Credito</th>
-                <th data-field="credito.montoCredito" data-sortable="true">Documentos</th>
+                <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
                 <th data-field="credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
                 <th data-field="credito.montoCredito" data-align="center" data-sortable="true" >Monto Credito</th>
                 <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="true">Etapa</th>
-                <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
             </tr>
         </thead>
     </table>
 </div>
-
-
 
 
 <!--Default Bootstrap Modal-->
@@ -73,7 +70,10 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="control-label">Pistolea el documento</label>
-                        <input type="text" id="folio-shot" class="form-control" maxlength="@ViewBag.CantidadCaracteresFolio" placeholder="Pistolea el documento" autocomplete="off" />
+                        <input type="text" id="folio-shot" class="form-control solo-numeros" maxlength="@ViewBag.CantidadCaracteresFolio" placeholder="Pistolea el documento" autocomplete="off" />
+                    </div>
+                    <div class="well contenedor-folios">
+                        
                     </div>
                 </div>
 
@@ -88,3 +88,4 @@
 </div>
 <!--===================================================-->
 <!--End Default Bootstrap Modal-->
+<canvas id="barcode"></canvas>
