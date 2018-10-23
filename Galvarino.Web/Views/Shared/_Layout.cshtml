@@ -269,6 +269,12 @@
 					    <div class="col-lg-12">
 					        <div class="panel panel-body text-center">
                                 <div class="panel-body">
+
+                                    @*@foreach(var cl in User.Claims)
+                                    {
+                                        <i>@cl.Type " - " @cl.Value</i><br/>
+                                    }*@
+
                                     @RenderBody()
                                 </div>
 					        </div>
@@ -303,8 +309,8 @@
                                             <img class="img-circle img-md" src="/lib/img/profile-photos/5.png" alt="Profile Picture">
                                         </div>
                                         <a href="#" class="box-block collapsed">
-                                            <p class="mnp-name">Carlos Pradenas</p>
-                                            <span class="mnp-desc">Administrador</span>
+                                            <p class="mnp-name">@User.Claims.FirstOrDefault(x => x.Type=="Nombres").Value</p>
+                                            <span class="mnp-desc">@User.Claims.FirstOrDefault(x => x.Type=="http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Value</span>
                                         </a>
                                     </div>
                                 </div>

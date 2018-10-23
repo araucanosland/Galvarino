@@ -10,10 +10,12 @@ using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Services.Workflow;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Workflow;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Galvarino.Web.Controllers
 {
     [Route("wf/v1")]
+    [Authorize]
     public class WorkflowController : Controller
     {
         private const int CantidadCaracteres = 24;
@@ -125,7 +127,7 @@ namespace Galvarino.Web.Controllers
         public IActionResult DespachoOfPtReparoSucursal()
         {
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == "17042783-1" && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION").ToList();
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == User.Identity.Name && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION").ToList();
 
             var salida = new List<Oficina>();
            

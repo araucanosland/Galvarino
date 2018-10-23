@@ -11,12 +11,13 @@ using Galvarino.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Workflow;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace Galvarino.Web.Controllers.Api
 {
     [Route("api/app/v1")]
     [ApiController]
+    [Authorize]
     public class BusinessController : ControllerBase
     {
 

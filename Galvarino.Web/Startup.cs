@@ -48,33 +48,39 @@ namespace Galvarino.Web
                 options.ForwardClientCertificate = false;
             });
 
-            services.Configure<CookiePolicyOptions>(options =>
+
+            services.Configure<IdentityOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                // Password settings.
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings.
+                options.User.RequireUniqueEmail = false;
             });
 
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = "galvarino.laaraucana.cl",
-                        ValidAudience = "galvarino.laaraucana.cl",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["GALVARINO_SECURITY_KEY"])),
-                        ClockSkew = TimeSpan.Zero
-                    };
-                });
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
 
+                options.LoginPath = "/";
+                options.AccessDeniedPath = "/acceso-denegado";
+                options.SlidingExpiration = true;
+            });
 
-
-
+            services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
             services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
             services.AddTransient<IWorkflowService, WorkflowService>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
@@ -93,6 +99,7 @@ namespace Galvarino.Web
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -102,7 +109,6 @@ namespace Galvarino.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
             app.UseAuthentication();
 
             app.UseMvc(routes =>

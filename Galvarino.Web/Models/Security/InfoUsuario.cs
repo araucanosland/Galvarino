@@ -11,6 +11,8 @@ namespace Galvarino.Web.Models.Security
         public string Identificacion { get; set; }
         public string Correo { get; set; }
         public string Llave { get; set; }
-
+        public string CodificacionOficina { get; set; }
+        public string Firma { get; set; }
+        public string Rol { get; set; }
     }
 }

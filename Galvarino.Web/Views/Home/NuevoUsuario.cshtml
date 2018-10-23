@@ -1,7 +1,6 @@
-﻿@{
+@{
     Layout = null;
 }
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>Login | Galvarino Workflow</title>
+    <title>Registro de Usuario | Galvarino - Workflow de Documentos</title>
 
 
     <!--STYLESHEET-->
@@ -44,50 +43,58 @@
         
     <!--Demo [ DEMONSTRATION ]-->
     <link href="/lib/css/demo/nifty-demo.min.css" rel="stylesheet">
-
-        
+      
 </head>
-
-<!--TIPS-->
-<!--You may remove all ID or Class names which contain "demo-", they are only used for demonstration. -->
 
 <body>
     <div id="container" class="cls-container">
         
+		
 		<!-- BACKGROUND IMAGE -->
 		<!--===================================================-->
 		<div id="bg-overlay"></div>
 		
 		
-		<!-- LOGIN FORM -->
+		<!-- REGISTRATION FORM -->
 		<!--===================================================-->
 		<div class="cls-content">
-		    <div class="cls-content-sm panel">
+		    <div class="cls-content-lg panel">
 		        <div class="panel-body">
 		            <div class="mar-ver pad-btm">
-		                <h1 class="h3">Acceso a Galvarino</h1>
-		                <p>Logueate para poder ingresar a la App</p>
+		                <h1 class="h3">Crear Nueva Cuenta de Usuario</h1>
+		                <p>Ingresa los datos del ejecutivo para crear la cuenta</p>
 		            </div>
 		            <form id="form-usuario-generico">
-		                <div class="form-group">
-		                    <input type="text" class="form-control" placeholder="Rut" name="Identificacion" autofocus>
+		                <div class="row">
+		                    <div class="col-sm-6">
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="Nombre" name="Nombres">
+		                        </div>
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="E-mail" name="Correo">
+		                        </div>
+		                    </div>
+		                    <div class="col-sm-6">
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="Rut" name="Identificacion">
+		                        </div>
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="Oficina" name="CodificacionOficina">
+		                        </div>
+		                    </div>
+                            <div class="col-sm-8 col-sm-offset-2">
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="Rol" name="Rol">
+		                        </div>
+		                    </div>
 		                </div>
-		                <div class="form-group">
-		                    <input type="password" class="form-control" placeholder="Clave" name="Llave">
-		                </div>
-		                <div class="checkbox pad-btm text-left">
-		                    <input id="demo-form-checkbox" class="magic-checkbox" type="checkbox">
-		                    <label for="demo-form-checkbox">Recuerdame</label>
-		                </div>
-		                <button class="btn btn-primary btn-lg btn-block" type="submit">Acceder</button>
+		                <button class="btn btn-primary btn-lg btn-block" type="submit">Registrar</button>
+                        <input type="hidden" name="Firma" value="CARLITOS%EL%MAS%BONITO" />
 		            </form>
 		        </div>
 		    </div>
 		</div>
 		<!--===================================================-->
-		
-	
-		
 		
     </div>
     <!--===================================================-->
@@ -119,13 +126,21 @@
                 console.log({model});
                 $.ajax({
                     type: "POST",
-                    url: `/api/auth/challenge`,
+                    url: `/api/auth/user-create`,
                     data: JSON.stringify(model),
                     contentType: "application/json; charset=utf-8"
                 }).done(function (data) {
-                
-                    location.href="/wf/v1/mis-solicitudes"
 
+                    $.niftyNoty({
+                        type: "success",
+                        container: "floating",
+                        title: "Exito",
+                        message: "Usuario Registrado!!"+"<br/><small>Este mensaje se cierra en 5 segundos.</small>",
+                        closeBtn: true,
+                        timer: 5000
+                    });
+
+                    $(this).reset();
                 }).fail(function (errMsg) {
                     $.niftyNoty({
                         type: "warning",
@@ -135,12 +150,19 @@
                         closeBtn: true,
                         timer: 5000
                     });
+
+                }).always(function () {
+                    
+
                 });
+
             });
         });
     </script>
+    
 
-    <!--=================================================-->
+
+    
 
 </body>
 </html>

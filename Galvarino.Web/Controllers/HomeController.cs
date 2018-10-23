@@ -15,6 +15,16 @@ namespace Galvarino.Web.Controllers
             return View();
         }
 
+        public IActionResult SinPermiso()
+        {
+            return View();
+        }
+        
+        public IActionResult NuevoUsuario()
+        {
+            return View();
+        }
+
         public IActionResult Principal()
         {
             return View();

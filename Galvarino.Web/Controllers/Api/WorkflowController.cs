@@ -11,12 +11,13 @@ using Galvarino.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Workflow;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace Galvarino.Web.Controllers.Api
 {
     [Route("api/wf/v1")]
     [ApiController]
+    [Authorize]
     public class WorkflowController : ControllerBase
     {
 
@@ -45,7 +46,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("mis-solicitudes/{etapaIn?}")]
         public async Task<IActionResult> ListarMisSolicitudes(string etapaIn = ""){
 
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == "17042783-1" && x.Estado == EstadoTarea.Activada);
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == User.Identity.Name && x.Estado == EstadoTarea.Activada);
             
             if(!string.IsNullOrEmpty(etapaIn)){
                 mistareas = mistareas.Where(g => g.Etapa.NombreInterno==etapaIn);
@@ -82,7 +83,7 @@ namespace Galvarino.Web.Controllers.Api
         public async Task<IActionResult> ListarOficinasReparo(string oficina="")
         {
 
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == "17042783-1" && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION");
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == User.Identity.Name && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION");
 
             var salida = new List<dynamic>();
             await mistareas.ForEachAsync(tarea =>
@@ -151,7 +152,7 @@ namespace Galvarino.Web.Controllers.Api
             _context.ValijasOficinas.Add(valijaMatrix);
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, User.Identity.Name);
             
             return Ok(valijaMatrix);
         }
@@ -172,7 +173,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_SET_LEGAL, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_SET_LEGAL, ticketsAvanzar, User.Identity.Name);
             return Ok();
         }
 
@@ -210,7 +211,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name);
 
             return Ok(packNotaria);
         }
@@ -226,7 +227,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, User.Identity.Name);
             return Ok();
         }
 
@@ -243,7 +244,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS, ticketsAvanzar, User.Identity.Name);
             return Ok(entrada);
         }
 
@@ -278,7 +279,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA, ticketsAvanzar, User.Identity.Name);
             return Ok(packNotaria);
         }
 
@@ -311,7 +312,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name);
             return Ok(valijaEnvio);
         }
 
@@ -328,7 +329,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(item.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_OFICINA_PARTES, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name);
 
             var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
             laValija.MarcaAvance = "MS_CONTROL";
@@ -349,7 +350,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(item.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_MESA_CONTROL, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_MESA_CONTROL, ticketsAvanzar, User.Identity.Name);
 
             var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
             laValija.MarcaAvance = "MSC_APERTURA";
@@ -390,7 +391,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA, ticketsAvanzar, User.Identity.Name);
 
 
             var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
@@ -416,7 +417,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name);
             return Ok();
         }
 
@@ -431,7 +432,7 @@ namespace Galvarino.Web.Controllers.Api
                 _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", "1", elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, User.Identity.Name);
             return Ok();
         }
 
@@ -467,7 +468,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OF_PARTES_DEVOLUCION, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OF_PARTES_DEVOLUCION, ticketsAvanzar, User.Identity.Name);
             return Ok(valijaEnvio);
         }
 
@@ -484,7 +485,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(item.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_CORRECCION, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_CORRECCION, ticketsAvanzar, User.Identity.Name);
 
             var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
             laValija.MarcaAvance = "DEVOLUCION_OP";
@@ -504,7 +505,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL, ticketsAvanzar, User.Identity.Name);
             return Ok();
         }
 
@@ -537,7 +538,7 @@ namespace Galvarino.Web.Controllers.Api
             
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, User.Identity.Name);
             return Ok(cajaval);
         }
 
@@ -553,7 +554,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_Y_CUSTODIA, ticketsAvanzar, "17042783-1");
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_Y_CUSTODIA, ticketsAvanzar, User.Identity.Name);
             var laCaja = _context.CajasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
             laCaja.MarcaAvance = "FN";
             _context.CajasValoradas.Update(laCaja);
