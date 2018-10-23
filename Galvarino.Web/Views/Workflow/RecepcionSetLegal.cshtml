@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Recepción de Set Legal";
+    ViewData["Title"] = "Recepción de Expedientes";
 }
 
 @section breadcumbs{
@@ -8,45 +8,72 @@
     <li class="active">@ViewData["Title"]</li>
 }
 
-@section style{
-    <!--Bootstrap Table-->
-    <link href="~/lib/css/bootstrap-table.min.css" rel="stylesheet">
-}
-
 @section script{
-    <!--Bootstrap Table-->
-    <script src="~/lib/js/bootstrap-table.min.js"></script>
+ <!--Page Script-->
+<environment include="Development">
+    <script src="~/js/recepcionExpedienteMatriz.js"></script>
+</environment>
+<environment exclude="Development">
+    <script src="~/js/recepcionExpedienteMatriz.min.js"></script>
+</environment>
+
 }
-
-
-<div class="row">
-    <div class="col-sm-6 table-toolbar-left">                      
-        <div class="btn-group">
-            <button class="btn btn-default"><i class="demo-pli-exclamation"></i></button>
-            <button class="btn btn-default"><i class="demo-pli-recycling"></i></button>
+@if(ViewBag.folioCaja.Length == 0)
+{
+<div id="maestro">
+    <div class="row">
+        <div class="col-sm-6 table-toolbar-left">    
+            <form id="form-pistoleo-maestro">
+                <div class="input-group mar-btm">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-barcode"></i></span>
+                    <input class="form-control" placeholder="Pistolear" type="text" id="codigoSeguimiento">
+                </div>
+            </form>                  
         </div>
     </div>
+    <div class="row">
+        <table id="tabla-generica" data-toggle="table"
+                        data-url="/api/app/v1/listar-valijas-enviadas-oficina/INI"
+                        data-search="true"
+                        data-show-refresh="false"
+                        data-show-toggle="false"
+                        data-show-columns="false"
+                        data-sort-name="codigoSeguimiento"
+                        data-page-list="[]"
+                        data-page-size="20"
+                        data-pagination="true" data-show-pagination-switch="false">
+            <thead>
+                <tr>
+                    <th data-field="codigoSeguimiento" data-align="center" data-formatter="linkFolio" data-sortable="true">Folio Caja</th>
+                    <th data-field="codigoSeguimiento" data-align="center" data-sortable="true" data-formatter="nroExpedientes">N° Expedientes</th>
+                    <th data-field="fechaEnvio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
 </div>
-<div class="row">
-    <table data-toggle="table"
-                    data-url="data/bs-table.json"
-                    data-search="true"
-                    data-show-refresh="true"
-                    data-show-toggle="true"
-                    data-show-columns="true"
-                    data-sort-name="id"
-                    data-page-list="[]"
-                    data-page-size="20"
-                    data-pagination="true" data-show-pagination-switch="false">
-        <thead>
-            <tr>
-                <th data-field="id" data-sortable="true" data-formatter="invoiceFormatter">Folio Credito</th>
-                <th data-field="name" data-sortable="true">Documentos</th>
-                <th data-field="date" data-sortable="true" data-formatter="dateFormatter">Fecha Desembolso</th>
-                <th data-field="amount" data-align="center" data-sortable="true" data-sorter="priceSorter">Monto Credito</th>
-                <th data-field="status" data-align="center" data-sortable="true" data-formatter="statusFormatter">Estado</th>
-                <th data-field="track" data-align="center" data-sortable="true" data-formatter="trackFormatter">Tracking Pack</th>
-            </tr>
-        </thead>
-    </table>
+}
+else
+{
+
+<div id="detalle">
+    <div class="row">
+        <div class="col-sm-6 table-toolbar-left">    
+            <form id="form-pistoleo-detalle">
+                <div class="input-group mar-btm">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-barcode"></i></span>
+                    <input class="form-control" placeholder="Pistolear" type="text" id="folio-shot" />
+                </div>
+                <input type="hidden" value="@ViewBag.folioCaja" id="folioCaja" />    
+            </form> 
+        </div>
+        <div class="col-sm-6">
+            <button class="btn btn-primary" id="btn-generar-generico" ><i class="glyphicon glyphicon-folder-close"></i> Procesar Documentos</button>                 
+        </div>
+    </div>
+    <div class="row">
+        <div class="well contenedor-folios"></div>
+    </div>
 </div>
+
+}

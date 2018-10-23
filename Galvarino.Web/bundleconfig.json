@@ -242,6 +242,18 @@
             "outputMode": "singleLine"
         },
         "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/recepcionExpedienteMatriz.min.js",
+        "inputFiles": [
+            "wwwroot/js/recepcionExpedienteMatriz.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
     }
 
 ]

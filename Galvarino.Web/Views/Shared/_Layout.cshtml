@@ -320,24 +320,64 @@
 						            <!--Category name-->
 						            <li class="list-header">Navegación</li>
 						
+                                    <!--Menu list item-->
+                                    <li>
+						                <a href="/wf/v1/mis-solicitudes">
+						                    <i class="demo-pli-home"></i>
+						                    <span class="menu-title">Mis Solicitudes</span>
+						                </a>
+						            </li>
+
+
+
+                                    <!--Category name-->
+						            <li class="list-header">Etapas</li>
 						            <!--Menu list item-->
 						            <li>
 						                <a href="#">
-						                    <i class="demo-pli-home"></i>
-						                    <span class="menu-title">Etapas</span>
+						                    <i class="demo-pli-office"></i>
+						                    <span class="menu-title">Oficina</span>
 											<i class="arrow"></i>
 						                </a>
 						
 						                <!--Submenu-->
-						                <ul class="collapse in">
-						                    <li><a href="/wf/v1/mis-solicitudes">Mis Solicitudes</a></li>
+						                <ul class="collapse">
 						                    <li><a href="/wf/v1/despacho-oficina-matriz">Envio a Of. Matriz</a></li>
+						                    <li><a href="/wf/v1/recepcion-expedientes">Recepción Expedientes</a></li>
 						                    <li><a href="/wf/v1/envio-a-notaria">Envio a Notaía</a></li>
 						                    <li><a href="/wf/v1/recepciona-notaria">Recepción Notaría</a></li>
 						                    <li><a href="/wf/v1/revision-documentos">Revisión Documentos</a></li>
 						                    <li><a href="/wf/v1/despacho-reparo-notaria">Despacho Reparo a Notaría</a></li>
 						                    <li><a href="/wf/v1/despacho-sucursal-oficiana-partes">Despacho Of. Partes</a></li>
+						                </ul>
+						            </li>
+
+
+                                    <!--Menu list item-->
+						            <li>
+						                <a href="#">
+						                    <i class="demo-pli-layout-grid"></i>
+						                    <span class="menu-title">Of. Partes</span>
+											<i class="arrow"></i>
+						                </a>
+						
+						                <!--Submenu-->
+						                <ul class="collapse">
 						                    <li><a href="/wf/v1/recepcion-oficina-partes">Recepción de Of. de Partes</a></li>
+						                    <li><a href="/wf/v1/despacho-oficina-correccion">Despacho Oficina para Corrección</a></li>
+						                </ul>
+						            </li>
+						
+                                    <!--Menu list item-->
+						            <li>
+						                <a href="#">
+						                    <i class="demo-pli-list-view"></i>
+						                    <span class="menu-title">Mesa de Control</span>
+											<i class="arrow"></i>
+						                </a>
+						
+						                <!--Submenu-->
+						                <ul class="collapse">
 						                    <li><a href="/wf/v1/recepcion-valija">Recepción Valija</a></li>
 						                    <li><a href="/wf/v1/apertura-valija">Apertura Valija</a></li>
 						                    <li><a href="/wf/v1/solucion-expediente-faltante">Expediente o Documentación Faltante</a></li>
@@ -346,13 +386,25 @@
 						                    <li><a href="/wf/v1/despacho-oficina-correccion">Despacho Oficina para Corrección</a></li>
 						                    <li><a href="/wf/v1/solucion-reparo-sucursal">Recepcion y Solución Reparos</a></li>
 						                    <li><a href="/wf/v1/despacho-a-custodia">Despacho a Custodia</a></li>
+						                </ul>
+						            </li>
+
+                                    <!--Menu list item-->
+						            <li>
+						                <a href="#">
+						                    <i class="demo-pli-recycling"></i>
+						                    <span class="menu-title">Custodia</span>
+											<i class="arrow"></i>
+						                </a>
+						
+						                <!--Submenu-->
+						                <ul class="collapse">
 						                    <li><a href="/wf/v1/recepcion-custodia">Recepción Custodia</a></li>
 						                </ul>
 						            </li>
 						
-						
 						            <li class="list-divider"></li>
-						
+                                    
                                     @*
 						            <!--Category name-->
 						            <li class="list-header">Opciones</li>
@@ -426,8 +478,7 @@
     <script src="~/js/main.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>
     <script src="~/lib/js/jsBArcode.all.min.js"></script>
-    @RenderSection("script", false)
-
+    @RenderSection("script", false)>
     <!--=================================================-->
     
 </body>

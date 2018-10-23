@@ -30,6 +30,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("obtener-expediente/{folioCredito}")]
         public IActionResult ObtenerXpediente([FromRoute] string folioCredito)
         {
+
             var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito);
             if (expediente.Documentos.Count() > 0)
             {
@@ -48,6 +49,26 @@ namespace Galvarino.Web.Controllers.Api
             var valijas = _context.ValijasValoradas.Include(v => v.Expedientes).Include(v => v.Oficina).ToList();
 
             if(!string.IsNullOrEmpty(marcavance)){
+                valijas = valijas.Where(d => d.MarcaAvance == marcavance).ToList();
+            }
+
+            return Ok(valijas);
+        }
+
+
+        [HttpGet("listar-valijas-enviadas-oficina/{marcavance?}")]
+        public IActionResult ListarValijasOficina(string marcavance = "")
+        {
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var valijas = _context.ValijasOficinas
+                                .Include(v => v.Expedientes)
+                                .Include(v => v.OficinaDestino)
+                                .Include(v => v.OficinaEnvio)
+                                .Where(val => val.OficinaDestino.Codificacion == codificacionOficinaLogedIn)
+                                .ToList();
+
+            if (!string.IsNullOrEmpty(marcavance))
+            {
                 valijas = valijas.Where(d => d.MarcaAvance == marcavance).ToList();
             }
 
@@ -79,6 +100,13 @@ namespace Galvarino.Web.Controllers.Api
         public IActionResult ListarExpedientesCaja(string folioCaja)
         {
             var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.CajaValorada.CodigoSeguimiento == folioCaja);
+            return Ok(expedientes);
+        }
+
+        [HttpGet("listar-expedientes-oficina/{folioCaja}")]
+        public IActionResult ListarExpedientesCajaOficina(string folioCaja)
+        {
+            var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.ValijaOficina.CodigoSeguimiento == folioCaja);
             return Ok(expedientes);
         }
         

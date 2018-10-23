@@ -46,7 +46,8 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("mis-solicitudes/{etapaIn?}")]
         public async Task<IActionResult> ListarMisSolicitudes(string etapaIn = ""){
 
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == User.Identity.Name && x.Estado == EstadoTarea.Activada);
+            var rolUsuario = User.Claims.FirstOrDefault(x => x.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Value;    
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && x.AsignadoA == rolUsuario) && x.Estado == EstadoTarea.Activada);
             
             if(!string.IsNullOrEmpty(etapaIn)){
                 mistareas = mistareas.Where(g => g.Etapa.NombreInterno==etapaIn);
@@ -123,8 +124,11 @@ namespace Galvarino.Web.Controllers.Api
         {
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
-            var oficinaEnvio = _context.Oficinas.Find(3);
 
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var oficinaEnvio = _context.Oficinas.Include(fd => fd.OficinaProceso).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+
+            
             DateTime now = DateTime.Now;
             var codSeg = now.Ticks.ToString() + "O" + oficinaEnvio.Codificacion;
 
@@ -132,18 +136,14 @@ namespace Galvarino.Web.Controllers.Api
                 CodigoSeguimiento = codSeg,
                 FechaEnvio = DateTime.Now,
                 OficinaEnvio = oficinaEnvio,
+                OficinaDestino = oficinaEnvio.OficinaProceso,
                 MarcaAvance = "INI"
             };
-            
 
+ 
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                if(valijaMatrix.OficinaDestino == null)
-                {
-                    var oficinaDestino = _wfService.ObtenerVariable("OFINA_PROCESA_NOTARIA", elExpediente.Credito.NumeroTicket);
-                    valijaMatrix.OficinaDestino = _context.Oficinas.FirstOrDefault(f => f.Codificacion == oficinaDestino);
-                }
                 elExpediente.ValijaOficina = valijaMatrix;
                 expedientesModificados.Add(elExpediente);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
@@ -157,23 +157,24 @@ namespace Galvarino.Web.Controllers.Api
             return Ok(valijaMatrix);
         }
 
-        [HttpPost("recepcion-set-legal")]
-        public async Task<IActionResult> RecepcionSetLegal([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        [HttpPost("recepcion-expedientes-matriz/{codigoSeguimiento}")]
+        public async Task<IActionResult> RecepcionSetLegal([FromBody] IEnumerable<ExpedienteGenerico> entrada, [FromRoute] string codigoSeguimiento)
         {
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
-            var oficinaEnvio = _context.Oficinas.Find(3);
-
+            
             foreach (var item in entrada)
             {
+                
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                expedientesModificados.Add(elExpediente);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
-
-            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-            await _context.SaveChangesAsync();
+            
             await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_SET_LEGAL, ticketsAvanzar, User.Identity.Name);
+            var laValija = _context.ValijasOficinas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
+            laValija.MarcaAvance = "OK";
+            _context.ValijasOficinas.Update(laValija);
+            await _context.SaveChangesAsync();
             return Ok();
         }
 
@@ -183,10 +184,11 @@ namespace Galvarino.Web.Controllers.Api
 
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
-            var notariaEnvio = _context.Notarias.Find(1);
-            var oficinaEnvio = _context.Oficinas.Find(3);
 
-            
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var oficinaEnvio = _context.Oficinas.Include(ofi => ofi.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+            var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Comuna.Id == oficinaEnvio.Comuna.Id);
+                        
             DateTime now = DateTime.Now;
             var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2,'0');
             
@@ -253,8 +255,10 @@ namespace Galvarino.Web.Controllers.Api
         {
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
-            var notariaEnvio = _context.Notarias.Find(1);
-            var oficinaEnvio = _context.Oficinas.Find(3);
+
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var oficinaEnvio = _context.Oficinas.FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+            var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Comuna.Id == oficinaEnvio.Comuna.Id);
 
             DateTime now = DateTime.Now;
             var codSeg = now.Ticks.ToString() + "R" + notariaEnvio.Id.ToString().PadLeft(2, '0');
@@ -288,7 +292,10 @@ namespace Galvarino.Web.Controllers.Api
         {
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
-            var oficinaEnvio = _context.Oficinas.Find(3);
+
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var oficinaEnvio = _context.Oficinas.FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+            
             DateTime now = DateTime.Now;
             var codSeg = now.Ticks.ToString() + "X" + oficinaEnvio.Codificacion; 
 

@@ -46,10 +46,11 @@ namespace Galvarino.Web.Controllers
             return View();
         }
 
-        [Route("recepcion-set-legal")]
-        public IActionResult RecepcionSetLegal()
+        [Route("recepcion-expedientes/{folioCaja?}")]
+        public IActionResult RecepcionSetLegal(string folioCaja = "")
         {
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            ViewBag.folioCaja = folioCaja;
             return View();
         }
 
