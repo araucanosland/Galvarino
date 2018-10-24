@@ -293,5 +293,15 @@ namespace Galvarino.Web.Services.Workflow
         {
             return _context.Tareas.Include(t => t.Solicitud).ThenInclude(x=>x.Proceso).Where(t => t.AsignadoA == identificacionUsuario && t.Solicitud.Proceso.NombreInterno == nombreInternoProceso && t.Estado == EstadoTarea.Activada && t.FechaTerminoFinal == null).ToList();
         }
+
+        public Usuario QuienCerroEtapa(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket)
+        {
+            var laSol = _context.Solicitudes
+                            .Include(s => s.Tareas).ThenInclude(t => t.Etapa)
+                            .FirstOrDefault(f => f.Proceso.NombreInterno == nombreInternoProceso && f.NumeroTicket == numeroTicket);
+            var ss = laSol.Tareas.FirstOrDefault(x => x.Etapa.NombreInterno == nombreInternoEtapa && x.Estado == EstadoTarea.Finalizada && x.FechaTerminoFinal != null);
+            return _context.Users.FirstOrDefault(us => us.Identificador == ss.EjecutadoPor);
+
+        }
     }
 }

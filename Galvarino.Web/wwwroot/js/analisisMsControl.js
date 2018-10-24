@@ -59,6 +59,7 @@ function formatoReparo(val, row, inc) {
         <option value="3">Sin Firma ni Timbre</option>
         <option value="4">Ilegible</option>
     </select>`;
+    /*TODO: Aqui hay datos en duro */
 }
 
 $(function () {

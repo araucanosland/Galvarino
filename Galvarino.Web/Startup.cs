@@ -83,6 +83,7 @@ namespace Galvarino.Web
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
             services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
             services.AddTransient<IWorkflowService, WorkflowService>();
+            services.AddTransient<INotificationKernel, MailSender>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);

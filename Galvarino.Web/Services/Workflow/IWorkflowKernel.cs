@@ -35,6 +35,8 @@ namespace Galvarino.Web.Services.Workflow
 
         string GetVariableValue(string key, string numeroTicket);
 
+        Usuario QuienCerroEtapa(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket);
+
         IEnumerable<Tarea> TareasActivasUsuario(string nombreInternoProceso, string identificacionUsuario);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Galvarino.Web.Models.Workflow;
+﻿using Galvarino.Web.Models.Security;
+using Galvarino.Web.Models.Workflow;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,5 +24,7 @@ namespace Galvarino.Web.Services.Workflow
         void AsignarVariable(string clave, string valor, string numeroTicket);
 
         string ObtenerVariable(string clave, string numeroTicket);
+
+        Usuario QuienCerroEtapa(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket);
     }
 }

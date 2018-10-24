@@ -98,7 +98,7 @@ const metodos = {
             });
 
         }).always(function () {
-            console.log("always");
+            location.reload();
 
         });
     }

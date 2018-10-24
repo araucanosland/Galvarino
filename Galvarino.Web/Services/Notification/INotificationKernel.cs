@@ -7,8 +7,7 @@ namespace Galvarino.Web.Services.Notification
 {
     public interface INotificationKernel
     {
-        void EnviaMail();
-
-        void EnviaPush();
+        void Send(string to, string template);
+        Task SendEmail(string email, string subject, string message);
     }
 }

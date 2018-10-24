@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Workflow;
 using Microsoft.AspNetCore.Authorization;
+using Galvarino.Web.Services.Notification;
 
 namespace Galvarino.Web.Controllers.Api
 {
@@ -23,10 +24,12 @@ namespace Galvarino.Web.Controllers.Api
 
         private readonly ApplicationDbContext _context;
         private readonly IWorkflowService _wfService;
-        public WorkflowController(ApplicationDbContext context, IWorkflowService wfservice)
+        private readonly INotificationKernel _mailService;
+        public WorkflowController(ApplicationDbContext context, IWorkflowService wfservice, INotificationKernel mailService)
         {
             _context = context;
             _wfService = wfservice;
+            _mailService = mailService;
         }
 
         [HttpGet("obtener-expediente/{folioCredito}")]
@@ -382,17 +385,34 @@ namespace Galvarino.Web.Controllers.Api
                 
                 if(item.Faltante)
                 {
-                    string jsonEnv = ""; int controlador = 0;
-                    foreach (var dc in item.DocumentosPistoleados)
+                    string jsonEnv = ""; int controlador = 0; string enviocorreo="";
+                    
+                    foreach(var dc in elExpediente.Documentos)
                     {
-                        if(!elExpediente.Documentos.Any(d => d.Codificacion == dc))
+                        if(!item.DocumentosPistoleados.Any(d => d == dc.Codificacion))
                         {
-                            jsonEnv = jsonEnv + (controlador>0 ? ",":"") + "'" + dc + "'";
+                            jsonEnv = jsonEnv + (controlador > 0 ? "," : "") + "\"" + dc.Codificacion + "\"";
+                            enviocorreo+= (controlador > 0 ? ", " : "") + dc.TipoDocumento.ToString(); 
                             controlador++;
                         }
                     }
+
                     jsonEnv = "[" + jsonEnv + "]";
                     _wfService.AsignarVariable("COLECCION_DOCUMENTOS_FALTANTES", jsonEnv, elExpediente.Credito.NumeroTicket);
+                    //enviocorreo = jsonEnv.Replace("[","").Replace("]","").Replace("'","");
+                    string mensaje = @"
+                    <table>
+                        <tr>
+                            <td><strong>Folio</strong></td>
+                            <td><strong>Reparo</strong></td>
+                        </tr>
+                        <tr>
+                            <td>" + item.FolioCredito + @"</td>
+                            <td>Codigo Documento(s) Faltante(s): " + enviocorreo + @"</td>
+                        </tr>
+                    </table>";
+                    var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                    await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Faltantes: " + item.FolioCredito, mensaje);
                 }
                 
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
@@ -413,13 +433,28 @@ namespace Galvarino.Web.Controllers.Api
         public async Task<IActionResult> AnalisisMesaControl([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
             List<string> ticketsAvanzar = new List<string>();
-
+            List<EnvioNotariaFormHelper> expedientesReparo = new List<EnvioNotariaFormHelper>();
+            var opt = new string[] { "Sin Reparos", "Sin Firma de Notario", "Sin Timbre de Notario", "Sin Firma ni Timbre", "Ilegible" };
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
                 _wfService.AsignarVariable("DEVOLUCION_A_SUCURSAL", item.Reparo > 0 ? "1":"0", elExpediente.Credito.NumeroTicket);
                 if(item.Reparo > 0){
                     _wfService.AsignarVariable("CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL", item.Reparo.ToString(), elExpediente.Credito.NumeroTicket);
+                    _wfService.AsignarVariable("TEXTO_MOTIVO_DEVOLUCION_A_SUCURSAL", opt[item.Reparo], elExpediente.Credito.NumeroTicket);
+                    string mensaje = @"
+                    <table>
+                        <tr>
+                            <td><strong>Folio</strong></td>
+                            <td><strong>Reparo</strong></td>
+                        </tr>
+                        <tr>
+                            <td>" + item.FolioCredito + @"</td>
+                            <td>El Expediente contiene un documento " + opt[item.Reparo] + @"</td>
+                        </tr>
+                    </table>";
+                    var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                    await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Reparos: " + item.FolioCredito, mensaje);
                 }
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }

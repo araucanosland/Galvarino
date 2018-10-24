@@ -11,6 +11,7 @@ using Galvarino.Web.Services.Workflow;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Workflow;
 using Microsoft.AspNetCore.Authorization;
+using Galvarino.Web.Services.Notification;
 
 namespace Galvarino.Web.Controllers
 {
@@ -21,7 +22,7 @@ namespace Galvarino.Web.Controllers
         private const int CantidadCaracteres = 24;
         private readonly ApplicationDbContext _context;
         private readonly IWorkflowService _wfService;
-
+        
         public WorkflowController(ApplicationDbContext context, IWorkflowService wfservice)
         {
             _context = context;
@@ -49,6 +50,7 @@ namespace Galvarino.Web.Controllers
         [Route("recepcion-expedientes/{folioCaja?}")]
         public IActionResult RecepcionSetLegal(string folioCaja = "")
         {
+
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             ViewBag.folioCaja = folioCaja;
             return View();

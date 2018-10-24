@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Galvarino.Web.Models.Security;
 using Galvarino.Web.Models.Workflow;
 using Galvarino.Web.Services.Workflow;
 
@@ -59,6 +60,11 @@ namespace Galvarino.Web.Services
             }
 
             await Task.CompletedTask;
+        }
+
+        public Usuario QuienCerroEtapa(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket)
+        {
+            return _kernel.QuienCerroEtapa(nombreInternoProceso, nombreInternoEtapa, numeroTicket);
         }
     }
 }
