@@ -20,7 +20,7 @@ public class GalvarinoClaimsPrincipalFactory : UserClaimsPrincipalFactory<Usuari
     {
         user = await UserManager.Users.Include(usr => usr.Oficina).FirstOrDefaultAsync(d => d.Id == user.Id);
         var identity = await base.GenerateClaimsAsync(user);
-        identity.AddClaim(new Claim("Oficina", user.Oficina.Codificacion ?? ""));
+        identity.AddClaim(new Claim("Oficina", user.Oficina != null ? user.Oficina.Codificacion : ""));
         identity.AddClaim(new Claim("Nombres", user.Nombres ?? ""));
         identity.AddClaim(new Claim("Correo", user.NormalizedEmail ?? ""));
         return identity;

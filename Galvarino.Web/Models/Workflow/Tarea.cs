@@ -17,5 +17,6 @@ namespace Galvarino.Web.Models.Workflow
         public DateTime FechaInicio { get; set; }
         public DateTime? FechaTerminoEstimada { get; set; }
         public DateTime? FechaTerminoFinal { get; set; }
+        public string UnidadNegocioAsignada { get; set; } 
     }
 }

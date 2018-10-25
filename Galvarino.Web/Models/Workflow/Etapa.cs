@@ -20,6 +20,7 @@ namespace Galvarino.Web.Models.Workflow
         public string ValorDuracionRetardo { get; set; }
         public int Secuencia { get; set; }
         public string Link { get; set; }
+        public string UnidadNegocioAsignar { get; set; }
         public ICollection<TareaAutomatica> TareasAutomaticas { get; set; }
         public ICollection<Transito> Destinos { get; set; }
         public ICollection<Transito> Actuales { get; set; }

@@ -4,14 +4,16 @@ using Galvarino.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Galvarino.Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181025151625_UnidadNegocioTarea")]
+    partial class UnidadNegocioTarea
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -470,8 +472,6 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<string>("TipoUsuarioAsignado")
                         .IsRequired();
-
-                    b.Property<string>("UnidadNegocioAsignar");
 
                     b.Property<string>("ValorDuracion");
 

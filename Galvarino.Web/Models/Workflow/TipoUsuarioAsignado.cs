@@ -10,6 +10,7 @@ namespace Galvarino.Web.Models.Workflow
         Usuario,
         Rol,
         Boot,
-        Auto
+        Auto,
+        Variable
     }
 }

@@ -12,6 +12,7 @@ using Galvarino.Web.Services.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Helper;
+using Microsoft.Extensions.Configuration;
 
 namespace Galvarino.Web.Services.Application
 {
@@ -20,10 +21,12 @@ namespace Galvarino.Web.Services.Application
         private readonly ILogger<CargaDatosCreditoService> _logger;
         private readonly IServiceScope _scope;
         private IWorkflowService _wfservice;
+        private readonly IConfiguration _configuration;
 
-        public CargaDatosCreditoService(ILogger<CargaDatosCreditoService> logger, IServiceProvider services)
+        public CargaDatosCreditoService(ILogger<CargaDatosCreditoService> logger, IServiceProvider services, IConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
             _scope = services.CreateScope();
         }
 
@@ -40,7 +43,7 @@ namespace Galvarino.Web.Services.Application
 
                 /*Todo:  Revisar Findesemanas*/
                 string nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
-                string ruta = @"E:\" + nombreArchivo + ".txt";
+                string ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
                 _logger.LogDebug(nombreArchivo);
 
                 var existencia = _context.CargasIniciales.Where(x => x.NombreArchivoCarga == nombreArchivo).ToList();

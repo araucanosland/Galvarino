@@ -50,8 +50,9 @@ namespace Galvarino.Web.Controllers.Api
         public async Task<IActionResult> ListarMisSolicitudes(string etapaIn = ""){
 
             var rolUsuario = User.Claims.FirstOrDefault(x => x.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Value;    
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && x.AsignadoA == rolUsuario) && x.Estado == EstadoTarea.Activada);
-            
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;    
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && x.AsignadoA == rolUsuario && ((x.UnidadNegocioAsignada != null && x.UnidadNegocioAsignada == oficinaUsuario) || x.UnidadNegocioAsignada == null )) && x.Estado == EstadoTarea.Activada);
+
             if(!string.IsNullOrEmpty(etapaIn)){
                 mistareas = mistareas.Where(g => g.Etapa.NombreInterno==etapaIn);
             }
@@ -68,7 +69,7 @@ namespace Galvarino.Web.Controllers.Api
                                 .Include(f => f.Credito)
                                 .Include(s => s.PackNotaria)
                                 .Include(s => s.ValijaValorada)
-                                .FirstOrDefault(ex => ex.Credito.FolioCredito == folioCredito);
+                                .FirstOrDefault(ex => ex.Credito.FolioCredito == folioCredito);      
 
                 salida.Add(new {
                     tarea = tarea,

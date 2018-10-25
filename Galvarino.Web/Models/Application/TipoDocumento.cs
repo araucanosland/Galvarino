@@ -10,6 +10,9 @@ namespace Galvarino.Web.Models.Application
         Pagare,
         FotocopiaCedulaIdentidad,
         SolicitudCredito,
-        Liquidacion
+        Liquidacion,
+        HojaProlongacion,
+        AcuerdoDePago
+
     }
 }

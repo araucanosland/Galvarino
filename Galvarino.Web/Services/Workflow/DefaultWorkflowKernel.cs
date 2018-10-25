@@ -87,6 +87,11 @@ namespace Galvarino.Web.Services.Workflow
             {
                 usuarioAsignado = new MotorAsignacion(_context, etapa.ValorUsuarioAsignado, numeroTicket).GetResult();
             }
+            else if(etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Variable)
+            {
+                usuarioAsignado = GetVariableValue(etapa.ValorUsuarioAsignado, numeroTicket);
+            }
+
 
             Tarea tarea = new Tarea
             {
@@ -96,6 +101,11 @@ namespace Galvarino.Web.Services.Workflow
                 Solicitud = solicitud,
                 AsignadoA = usuarioAsignado
             };
+
+            if (etapa.UnidadNegocioAsignar != null)
+            {
+                tarea.UnidadNegocioAsignada = GetVariableValue(etapa.UnidadNegocioAsignar, numeroTicket);
+            }
             
             _context.Tareas.Add(tarea);
             _context.SaveChanges();
