@@ -88,7 +88,7 @@ const metodos = {
                 message: "Estamos Generando la Nómina...<br/><small>Esta Tarea se ceirra en 5 Seg. y te redirige al Pdf de La Nómina de envío</small>",
                 closeBtn: true,
                 timer: 5000,
-                onHidden(){
+                onHidden: function(){
                     location.href = "/wf/v1/mis-solicitudes";
                     window.open(`/salidas/pdf/detalle-pack-notaria/${data.codigoSeguimiento}`, "_blank");
                 }
