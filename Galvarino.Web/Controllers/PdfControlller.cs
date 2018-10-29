@@ -45,12 +45,23 @@ namespace Galvarino.Web.Controllers
 
 
         [Route("detalle-pack-notaria/{codigoSeguimiento}")]
-        public IActionResult DetallePackNotaria(string codigoSeguimiento)
+        public async Task<IActionResult> DetallePackNotaria(string codigoSeguimiento)
         {
+            var pack = await _context.PacksNotarias
+                                .Include(pm => pm.Expedientes)  
+                                    .ThenInclude(e => e.Credito)
+                                .Include(pm => pm.Expedientes)
+                                    .ThenInclude(e => e.Documentos)    
+                                .Include(pm => pm.NotariaEnvio)
+                                .Include(pm => pm.Oficina)
+                                .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
+
+
             return new ViewAsPdf(new PdfModelHelper()
             {
                 FechaImpresion = DateTime.Now.ToShortDateString(),
-                CodigoSeguimiento = codigoSeguimiento
+                CodigoSeguimiento = codigoSeguimiento,
+                PackNotaria = pack
             })
             {
                 PageSize = Size.Letter

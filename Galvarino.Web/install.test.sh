@@ -20,7 +20,7 @@
 ###else
 ###	echo "not in git repo"
 ###	#git --version
-###	git clone --single-branch -b master https://github.com/araucanosland/Galvarino.git
+###	
 ###	cd Galvarino/Galvarino.Web
 ###	git checkout master
 ###  
@@ -31,6 +31,10 @@
 
 
 
+## $ sudo git config --global user.email "carlpradenas@gmail.com"
+## $ sudo git config --global user.name "Carlos Pradenas"
+
+## $ sudo git clone --single-branch -b master https://github.com/araucanosland/Galvarino.git
 ## $ sudo git stash save --keep-index --include-untracked
 ## $ sudo git checkout master
 ## $ sudo git pull
@@ -49,10 +53,8 @@
 
 git checkout master
 
-
 git stash save --keep-index --include-untracked
 
-
 git pull
 
 dotnet publish -o /home/desarrollo/Galvarino/output
@@ -64,75 +66,3 @@ cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
 systemctl restart kestrel-docman.service
 
 
-
-
-git checkout master
-
-git pull
-
-dotnet publish -o /home/desarrollo/Galvarino/output
-
-rm -rfv /var/apps/docman/*
-
-cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
-
-systemctl restart kestrel-docman.service
-
-
-
-
-git checkout master
-
-git pull
-
-dotnet publish -o /home/desarrollo/Galvarino/output
-
-rm -rfv /var/apps/docman/*
-
-cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
-
-systemctl restart kestrel-docman.service
-
-
-
-
-git checkout master
-
-git pull
-
-dotnet publish -o /home/desarrollo/Galvarino/output
-
-rm -rfv /var/apps/docman/*
-
-cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
-
-systemctl restart kestrel-docman.service
-
-
-
-
-git checkout master
-
-git pull
-
-dotnet publish -o /home/desarrollo/Galvarino/output
-
-rm -rfv /var/apps/docman/*
-
-cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
-
-systemctl restart kestrel-docman.service
-
-
-
-git checkout master
-
-git pull
-
-dotnet publish -o /home/desarrollo/Galvarino/output
-
-rm -rfv /var/apps/docman/*
-
-cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
-
-systemctl restart kestrel-docman.service

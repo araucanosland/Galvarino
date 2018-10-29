@@ -1,6 +1,9 @@
 @model Galvarino.Web.Models.Helper.PdfModelHelper
 @{
     Layout = null;
+    string Separador = "- ";
+    string Comax = ", ";
+    int Enumeracion = 1;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -11,13 +14,25 @@
     <title>Document</title>
     <link href="~/lib/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <script src="~/lib/js/jsBArcode.all.min.js"></script>
-    <style>
+    <style type="text/css">
         .tabla-orden{
             width: 100%;
         }
         .tabla-orden th{
             vertical-align: top;
             padding-top: 6px !important;
+        }
+        .alright {
+            text-align: right;
+        }
+
+        .pie-pagina{
+            vertical-align: bottom;
+            width: 100%;
+        }
+
+        .pie-pagina td {
+            text-align: center;
         }
         
     </style>
@@ -27,9 +42,9 @@
         <thead>
             <tr>
                 <th>
-                    <h3>Nómina de envío a Notaría: La Notaría</h3>
-                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong>25</h4>
-                    <h4><strong>Oficina:</strong> Sucursal La Oficina</h4>
+                    <h3>Nómina de envío a Notaría: @Model.PackNotaria.NotariaEnvio.Nombre</h3>
+                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.PackNotaria.Expedientes.Count</h4>
+                    <h4><strong>Oficina:</strong> @Model.PackNotaria.Oficina.Nombre</h4>
                 </th>
                 <th style="text-align:right;"><canvas id="barcode"></canvas></th>
             </tr>
@@ -44,27 +59,62 @@
                 <th>#</th>
                 <th>Folio</th>
                 <th>Rut</th>
-                <th>Estado</th>
+                <th>Tipo</th>
                 <th>Documentos</th>
                 <th>Fecha Otorgamiento</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>237847234823</td>
-                <td>11111111-1</td>
-                <td>Pagado</td>
-                <td><strong>001</strong> - Fotocopia CI, <strong>002</strong> - Pagaré</td>
-                <td>10/10/2018</td>
-            </tr>
+            @foreach(var xfile in Model.PackNotaria.Expedientes)
+            {
+                
+                <tr>
+                    <td>@Enumeracion</td>
+                    <td>@xfile.Credito.FolioCredito</td>
+                    <td>@xfile.Credito.RutCliente</td>
+                    <td>@xfile.Credito.TipoCredito</td>
+                    <td>
+                        @foreach(var doc in xfile.Documentos)
+                        {
+                            @if(xfile.Documentos.Last().Id == doc.Id)
+                            {
+                                <strong>@doc.Codificacion</strong> @Separador  @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim()
+                            }
+                            else
+                            {
+                                <strong>@doc.Codificacion</strong> @Separador  @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim() <br />
+                            }
+                            
+
+                        }
+                    </td>
+                    <td>@xfile.Credito.FechaDesembolso.ToShortDateString()</td>
+                </tr>
+                Enumeracion++;
+            }
+            
         </tbody>
 
     </table>
 
-
+    <br/><br/><br/>
+    <footer>
+        <table class="pie-pagina">
+            <tr>
+                <td>
+                    ______________________<br/>
+                    Firma Emisor
+                </td>
+                <td>
+                    ______________________<br/>
+                    Firma Receptor
+                </td>
+            </tr>
+        </table>
+    </footer>
+        
 
     <script type="text/javascript">
-    JsBarcode("#barcode", "A10313515454X54651651");</script>
+    JsBarcode("#barcode", "@Model.CodigoSeguimiento");</script>
 </body>
 </html>
