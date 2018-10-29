@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using Rotativa.AspNetCore;
 
 namespace Galvarino.Web
 {
@@ -118,6 +118,7 @@ namespace Galvarino.Web
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            RotativaConfiguration.Setup(env);
         }
     }
 }

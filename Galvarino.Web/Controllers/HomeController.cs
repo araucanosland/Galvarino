@@ -5,14 +5,32 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Galvarino.Web.Models;
+using Microsoft.AspNetCore.Identity;
+using Galvarino.Web.Models.Security;
 
 namespace Galvarino.Web.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly SignInManager<Usuario> _signInManager;
+
+        public HomeController(SignInManager<Usuario> signInManager)
+        {
+            _signInManager = signInManager;
+        }
         public IActionResult Index()
         {
+            if(User.Identity.IsAuthenticated)
+            {
+                return Redirect("/wf/v1/mis-solicitudes");
+            }
             return View();
+        }
+
+        public IActionResult SignOut()
+        {
+            _signInManager.SignOutAsync();
+            return Redirect("/");
         }
 
         public IActionResult SinPermiso()
