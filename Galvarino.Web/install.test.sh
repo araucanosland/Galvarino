@@ -49,6 +49,10 @@
 
 git checkout master
 
+
+git stash save --keep-index --include-untracked
+
+
 git pull
 
 dotnet publish -o /home/desarrollo/Galvarino/output
