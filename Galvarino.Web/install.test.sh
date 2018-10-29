@@ -30,6 +30,101 @@
 ##git checkout master
 
 
+
+## $ sudo git stash save --keep-index --include-untracked
+## $ sudo git checkout master
+## $ sudo git pull
+## $ sudo dotnet publish -o /home/desarrollo/Galvarino/output
+## $ sudo rm -rfv /var/apps/docman/*
+## $ sudo cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
+## $ sudo systemctl restart kestrel-docman.service
+
+
+## $ sudo chmod a+x /var/apps/docman/wwwroot/Rotativa
+## $ sudo nano /etc/systemd/system/kestrel-docman.service
+## $ sudo systemctl daemon-reload
+## $ sudo systemctl restart kestrel-docman.service
+## $ sudo systemctl status kestrel-docman.service
+
+
+git checkout master
+
+
+git stash save --keep-index --include-untracked
+
+
+git pull
+
+dotnet publish -o /home/desarrollo/Galvarino/output
+
+rm -rfv /var/apps/docman/*
+
+cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
+
+systemctl restart kestrel-docman.service
+
+
+
+
+git checkout master
+
+git pull
+
+dotnet publish -o /home/desarrollo/Galvarino/output
+
+rm -rfv /var/apps/docman/*
+
+cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
+
+systemctl restart kestrel-docman.service
+
+
+
+
+git checkout master
+
+git pull
+
+dotnet publish -o /home/desarrollo/Galvarino/output
+
+rm -rfv /var/apps/docman/*
+
+cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
+
+systemctl restart kestrel-docman.service
+
+
+
+
+git checkout master
+
+git pull
+
+dotnet publish -o /home/desarrollo/Galvarino/output
+
+rm -rfv /var/apps/docman/*
+
+cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
+
+systemctl restart kestrel-docman.service
+
+
+
+
+git checkout master
+
+git pull
+
+dotnet publish -o /home/desarrollo/Galvarino/output
+
+rm -rfv /var/apps/docman/*
+
+cp -rfv /home/desarrollo/Galvarino/output/* /var/apps/docman
+
+systemctl restart kestrel-docman.service
+
+
+
 git checkout master
 
 git pull

@@ -1,0 +1,70 @@
+@model Galvarino.Web.Models.Helper.PdfModelHelper
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="~/lib/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <script src="~/lib/js/jsBArcode.all.min.js"></script>
+    <style>
+        .tabla-orden{
+            width: 100%;
+        }
+        .tabla-orden th{
+            vertical-align: top;
+            padding-top: 6px !important;
+        }
+        
+    </style>
+</head>
+<body>
+    <table class="tabla-orden">
+        <thead>
+            <tr>
+                <th>
+                    <h3>Nómina de envío a Notaría: La Notaría</h3>
+                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong>25</h4>
+                    <h4><strong>Oficina:</strong> Sucursal La Oficina</h4>
+                </th>
+                <th style="text-align:right;"><canvas id="barcode"></canvas></th>
+            </tr>
+        </thead>
+    </table>
+    <br/>
+    <br/>
+    <br/>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Folio</th>
+                <th>Rut</th>
+                <th>Estado</th>
+                <th>Documentos</th>
+                <th>Fecha Otorgamiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>237847234823</td>
+                <td>11111111-1</td>
+                <td>Pagado</td>
+                <td><strong>001</strong> - Fotocopia CI, <strong>002</strong> - Pagaré</td>
+                <td>10/10/2018</td>
+            </tr>
+        </tbody>
+
+    </table>
+
+
+
+    <script type="text/javascript">
+    JsBarcode("#barcode", "A10313515454X54651651");</script>
+</body>
+</html>

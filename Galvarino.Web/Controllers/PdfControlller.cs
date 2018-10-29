@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Galvarino.Web.Services.Notification;
 using Rotativa.AspNetCore;
 using Rotativa.AspNetCore.Options;
+using Galvarino.Web.Models.Helper;
 
 namespace Galvarino.Web.Controllers
 {
@@ -30,9 +31,52 @@ namespace Galvarino.Web.Controllers
             _wfService = wfservice;
         }
 
+        [Route("test")]
         public IActionResult Index()
         {
-            return new ViewAsPdf{
+            
+            return new ViewAsPdf(new PdfModelHelper(){
+                FechaImpresion = DateTime.Now.ToShortDateString()
+            })
+            {
+                PageSize = Size.Letter
+            };
+        }
+
+
+        [Route("detalle-pack-notaria/{codigoSeguimiento}")]
+        public IActionResult DetallePackNotaria(string codigoSeguimiento)
+        {
+            return new ViewAsPdf(new PdfModelHelper()
+            {
+                FechaImpresion = DateTime.Now.ToShortDateString(),
+                CodigoSeguimiento = codigoSeguimiento
+            })
+            {
+                PageSize = Size.Letter
+            };
+        }
+
+        public IActionResult DetalleValijaValorada()
+        {
+            return new ViewAsPdf
+            {
+                PageSize = Size.Letter
+            };
+        }
+
+        public IActionResult DetalleCajaValorada()
+        {
+            return new ViewAsPdf
+            {
+                PageSize = Size.Letter
+            };
+        }
+
+        public IActionResult DetalleValijaValoradaOficina()
+        {
+            return new ViewAsPdf
+            {
                 PageSize = Size.Letter
             };
         }
