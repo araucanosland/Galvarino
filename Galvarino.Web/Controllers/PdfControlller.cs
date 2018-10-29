@@ -21,7 +21,6 @@ namespace Galvarino.Web.Controllers
     [Authorize]
     public class PdfController : Controller
     {
-        private const int CantidadCaracteres = 24;
         private readonly ApplicationDbContext _context;
         private readonly IWorkflowService _wfService;
 
