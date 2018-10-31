@@ -1,4 +1,4 @@
-BEGIN;
+/*BEGIN;
 INSERT INTO `Etapas` (`Id`, `ProcesoId`, `TipoEtapa`, `Nombre`, `NombreInterno`, `TipoUsuarioAsignado`, `ValorUsuarioAsignado`, `TipoDuracion`, `ValorDuracion`, `TipoDuracionRetardo`, `ValorDuracionRetardo`, `Secuencia`) 
 VALUES  ('1', '1', 'Inicio', 'Inicio', 'INICIO', 'Boot', 'wfboot', 'Ninguna', null, 'Ninguna', null, '100'), 
         ('2', '1', 'Actividad', 'Carga Inicial', 'CARGA_INICIAL', 'Boot', 'wfboot', 'Ninguna', null, 'Ninguna', null, '200'), 
@@ -19,3 +19,4 @@ VALUES  ('1', '1', 'Inicio', 'Inicio', 'INICIO', 'Boot', 'wfboot', 'Ninguna', nu
         ('17', '1', 'Actividad', 'Recepción y Custodia', 'RECEPCION_Y_CUSTODIA', 'Rol', 'Iron Mountain', 'Ninguna', null, 'Ninguna', null, '900'),
         ('18', '1', 'Fin', 'Fin', 'FIN', 'Boot', 'wfboot', 'Ninguna', null, 'Ninguna', null, '900');
 COMMIT;
+*/

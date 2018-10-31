@@ -47,17 +47,18 @@ namespace Galvarino.Web.Services.Application
                 _logger.LogDebug(nombreArchivo);
 
                 var existencia = _context.CargasIniciales.Where(x => x.NombreArchivoCarga == nombreArchivo).ToList();
-
-                if (File.Exists(ruta) && existencia.Count == 0)
+                if ((File.Exists(ruta) && existencia.Count == 0) || (File.Exists(ruta) && File.ReadLines(ruta).Count()-1 > existencia.Count))
                 {
                     _logger.LogDebug("Cargando Archivo a la BD (Carga Inicial diaria)......");
+                    
                     int lap = 0;
+                    int emperzardenuevo = File.ReadLines(ruta).Count() - 1 > existencia.Count ? existencia.Count+1 : 1;
                     foreach (var linea in File.ReadLines(ruta))
                     {
-                        string[] campos = linea.Split(new char[] { ';' });
-
-                        if (lap > 0)
+                        if (lap > 0 && emperzardenuevo == lap)
                         {
+                            emperzardenuevo++;
+                            string[] campos = linea.Split(new char[] { ';' });
                             CargaInicial ci = new CargaInicial
                             {
                                 RutAfiliado = campos[0],
@@ -75,11 +76,11 @@ namespace Galvarino.Web.Services.Application
                             };
                             _context.CargasIniciales.Add(ci);
 
-                            string esRM = "0";
+                            string esRM = Convert.ToString(0);
                             string oficinaProceso = _context.Oficinas.Include(x => x.OficinaProceso).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaPago).OficinaProceso.Codificacion;
                             if (_context.Oficinas.Include(x => x.Comuna).ThenInclude(x => x.Region).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaIngreso).Comuna.Region.Id == 13)
                             {
-                                esRM = "1";
+                                esRM = Convert.ToString(1);
                             }
 
                             Dictionary<string, string> _setVariables = new Dictionary<string, string>();
@@ -141,11 +142,10 @@ namespace Galvarino.Web.Services.Application
                                 incrementor++;
                             }
                             _context.ExpedientesCreditos.Add(expcred);
+                            await _context.SaveChangesAsync();
                         }
-
                         lap++;
                     }
-                    await _context.SaveChangesAsync();
                     _logger.LogDebug("Carga terminada");
                 }
                 else

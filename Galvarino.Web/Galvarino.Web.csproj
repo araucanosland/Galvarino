@@ -9,8 +9,5 @@
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
     <PackageReference Include="Rotativa.AspNetCore" Version="1.0.6" />
     <DotNetCliToolReference Include="BundlerMinifier.Core" Version="2.6.362" />
-    
-
   </ItemGroup>
-
 </Project>

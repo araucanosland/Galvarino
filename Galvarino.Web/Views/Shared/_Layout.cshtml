@@ -309,8 +309,9 @@
                                             <img class="img-circle img-md" src="/lib/img/profile-photos/5.png" alt="Profile Picture">
                                         </div>
                                         <a href="#" class="box-block collapsed">
-                                            <p class="mnp-name">@User.Claims.FirstOrDefault(x => x.Type=="Nombres").Value</p>
-                                            <span class="mnp-desc">@User.Claims.FirstOrDefault(x => x.Type=="http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Value</span>
+                                            <p class="mnp-name">@User.Identity.Name</p>
+                                            @*<p class="mnp-name">@User.Claims.FirstOrDefault(x => x.Type=="Nombres").Value</p>
+                                            <span class="mnp-desc">@User.Claims.FirstOrDefault(x => x.Type=="http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Value</span>*@
                                         </a>
                                     </div>
                                 </div>

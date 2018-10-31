@@ -1,4 +1,4 @@
-BEGIN;
+/*BEGIN;
 INSERT INTO `Transiciones` (`Id`, `EtapaActaualId`, `EtapaDestinoId`, `NamespaceValidacion`, `ClaseValidacion`, `MetodoValidacion`) 
 VALUES  ('1', '1', '2', 'DocMan.Services.Workflow.Transition', 'WorkflowApproved', 'Validar'), 
         ('2', '2', '9', 'DocMan.Services.Workflow.Transition', 'WorkflowCreditoRM', 'Validar'), 
@@ -22,4 +22,4 @@ VALUES  ('1', '1', '2', 'DocMan.Services.Workflow.Transition', 'WorkflowApproved
         ('20', '15', '9', 'DocMan.Services.Workflow.Transition', 'WorkflowApproved', 'Validar'),
         ('21', '16', '17', 'DocMan.Services.Workflow.Transition', 'WorkflowApproved', 'Validar'),
         ('22', '17', '18', 'DocMan.Services.Workflow.Transition', 'WorkflowApproved', 'Validar');
-COMMIT;
+COMMIT;*/

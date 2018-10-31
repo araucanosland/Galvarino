@@ -18,7 +18,7 @@ namespace Galvarino.Web.Controllers.Api
 {
     [Route("api/wf/v1")]
     [ApiController]
-    [Authorize]
+    
     public class WorkflowController : ControllerBase
     {
 

@@ -68,28 +68,71 @@ namespace Galvarino.Web.Controllers
             };
         }
 
-        public IActionResult DetalleValijaValorada()
+        [Route("detalle-valija-valorada/{codigoSeguimiento}")]
+        public async Task<IActionResult> DetalleValijaValorada(string codigoSeguimiento)
         {
-            return new ViewAsPdf
+            var valorada = await _context.ValijasValoradas
+                                .Include(pm => pm.Expedientes)
+                                    .ThenInclude(e => e.Credito)
+                                .Include(pm => pm.Expedientes)
+                                    .ThenInclude(e => e.Documentos)
+                                .Include(pm => pm.Oficina)
+                                .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
+
+            return new ViewAsPdf(new PdfModelHelper()
+            {
+                FechaImpresion = DateTime.Now.ToShortDateString(),
+                CodigoSeguimiento = codigoSeguimiento,
+                ValijaValorada = valorada
+            })
             {
                 PageSize = Size.Letter
             };
         }
 
-        public IActionResult DetalleCajaValorada()
+        [Route("detalle-caja-valorada/{codigoSeguimiento}")]
+        public async Task<IActionResult> DetalleCajaValorada(string codigoSeguimiento)
         {
-            return new ViewAsPdf
+            var valorada = await _context.CajasValoradas
+                                .Include(pm => pm.Expedientes)
+                                    .ThenInclude(e => e.Credito)
+                                .Include(pm => pm.Expedientes)
+                                    .ThenInclude(e => e.Documentos)
+                                .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
+
+            return new ViewAsPdf(new PdfModelHelper()
+            {
+                FechaImpresion = DateTime.Now.ToShortDateString(),
+                CodigoSeguimiento = codigoSeguimiento,
+                CajaValorada = valorada
+            })
             {
                 PageSize = Size.Letter
             };
         }
 
-        public IActionResult DetalleValijaValoradaOficina()
+        [Route("detalle-caja-valorada/{codigoSeguimiento}")]
+        public async Task<IActionResult> DetalleValijaValoradaOficina(string codigoSeguimiento)
         {
-            return new ViewAsPdf
+            var valorada = await _context.ValijasOficinas
+                                .Include(pm => pm.Expedientes)
+                                    .ThenInclude(e => e.Credito)
+                                .Include(pm => pm.Expedientes)
+                                    .ThenInclude(e => e.Documentos)
+                                .Include(pm => pm.OficinaDestino)
+                                .Include(pm => pm.OficinaEnvio)
+                                .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
+
+            return new ViewAsPdf(new PdfModelHelper()
+            {
+                FechaImpresion = DateTime.Now.ToShortDateString(),
+                CodigoSeguimiento = codigoSeguimiento,
+                ValijaOficina = valorada
+            })
             {
                 PageSize = Size.Letter
             };
         }
     }
 }
+/*TODO Revision de todos los pdf */

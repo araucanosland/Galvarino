@@ -10,5 +10,8 @@ namespace Galvarino.Web.Models.Helper
         public string FechaImpresion { get; set; }
         public string CodigoSeguimiento { get; set; }
         public PackNotaria PackNotaria { get; set; }
+        public ValijaValorada ValijaValorada { get; set; }
+        public CajaValorada CajaValorada { get; set; }
+        public ValijaOficina ValijaOficina { get; set; }
     }
 }

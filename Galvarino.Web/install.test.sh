@@ -49,6 +49,7 @@
 ## $ sudo systemctl daemon-reload
 ## $ sudo systemctl restart kestrel-docman.service
 ## $ sudo systemctl status kestrel-docman.service
+## $ sudo journalctl -f -u kestrel-docman.service
 
 
 git checkout master
