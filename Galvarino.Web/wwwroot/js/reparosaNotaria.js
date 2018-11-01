@@ -48,9 +48,6 @@ const metodos = {
                 }
             });
 
-
-            
-
         }).fail(function (errMsg) {
             $.niftyNoty({
                 type: "warning",
