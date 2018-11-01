@@ -18,7 +18,7 @@ namespace Galvarino.Web.Controllers.Api
     public class AuthController : ControllerBase
     {
 
-        private readonly Microsoft.AspNetCore.Identity.UserManager<Usuario> _userManager;
+        private readonly UserManager<Usuario> _userManager;
         private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly RoleManager<Rol> _roleManager;

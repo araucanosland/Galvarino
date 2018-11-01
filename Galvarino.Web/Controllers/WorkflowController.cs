@@ -59,6 +59,9 @@ namespace Galvarino.Web.Controllers
         [Route("envio-a-notaria")]
         public IActionResult EnvioNotaria()
         {
+            var comunaOficina = _context.Users.Include(us => us.Oficina).ThenInclude(of => of.Comuna).FirstOrDefault(usr => usr.UserName == User.Identity.Name).Oficina.Comuna;
+            var notariasComuna = _context.Notarias.Where(not => not.Comuna.Id == comunaOficina.Id).ToList();
+            ViewBag.NotariasOficina = notariasComuna;
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
@@ -145,7 +148,6 @@ namespace Galvarino.Web.Controllers
                     salida.Add(oficinaDevolucion);
                 }
             }
-            
 
             ViewBag.OficinasDevolucion = salida;
             return View();

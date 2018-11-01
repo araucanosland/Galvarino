@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Rotativa.AspNetCore;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Galvarino.Web
 {
@@ -65,7 +66,7 @@ namespace Galvarino.Web
                 options.Lockout.AllowedForNewUsers = true;
 
                 // User settings.
-                options.User.RequireUniqueEmail = false;
+                options.User.RequireUniqueEmail = true;
             });
 
 
@@ -85,6 +86,7 @@ namespace Galvarino.Web
             services.AddTransient<IWorkflowService, WorkflowService>();
             services.AddTransient<INotificationKernel, MailSender>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
+            services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);
         }

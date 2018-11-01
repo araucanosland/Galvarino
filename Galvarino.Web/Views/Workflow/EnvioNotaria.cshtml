@@ -24,7 +24,6 @@
     <div class="col-sm-6 table-toolbar-left">                      
         <div class="btn-group">
             <button class="btn btn-default" data-target="#modal-pistoleo" data-toggle="modal"><i class="glyphicon glyphicon-barcode"></i></button>
-            <button class="btn btn-default"><i class="demo-pli-recycling"></i></button>
         </div>
     </div>
 </div>
@@ -36,17 +35,17 @@
                     data-show-refresh="false"
                     data-show-toggle="false"
                     data-show-columns="false"
-                    data-sort-name="id"
+                    data-sort-name="credito.folioCredito"
                     data-page-list="[]"
                     data-page-size="20"
                     data-pagination="true" data-show-pagination-switch="false">
         <thead>
             <tr>
-                <th data-field="credito.folioCredito" data-sortable="true">Folio Credito</th>
+                <th data-field="expediente.credito.folioCredito" data-sortable="true">Folio Credito</th>
+                <th data-field="expediente.credito.rutCliente" data-align="center" data-sortable="true" >Rut Afiliado</th>
                 <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
-                <th data-field="credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
-                <th data-field="credito.montoCredito" data-align="center" data-sortable="true" >Monto Credito</th>
-                <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="true">Etapa</th>
+                <th data-field="expediente.credito.folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
+                <th data-field="expediente.credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
             </tr>
         </thead>
     </table>
@@ -78,8 +77,17 @@
 
                 <!--Modal footer-->
                 <div class="modal-footer">
+                    <div class="col-sm-6 col-md-6">
+                        <select id="notaria-destino" class="form-control">
+                            @foreach(var ntr in ViewBag.NotariasOficina)
+                            {
+                                <option value="@ntr.Id">@ntr.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                    
                     <button data-dismiss="modal" class="btn btn-default" type="button">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btn-generar-generico">Generar</button>
+                    <button type="button" class="btn btn-primary" id="btn-generar-generico">Generar Nómina</button>
                 </div>
             </form>
         </div>

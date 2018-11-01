@@ -68,8 +68,8 @@ namespace Galvarino.Web.Controllers
             };
         }
 
-        [Route("detalle-valija-valorada/{codigoSeguimiento}")]
-        public async Task<IActionResult> DetalleValijaValorada(string codigoSeguimiento)
+        [Route("detalle-valija-valorada/{codigoSeguimiento}/{marcaAvance}")]
+        public async Task<IActionResult> DetalleValijaValorada([FromRoute] string codigoSeguimiento, [FromRoute] string marcaAvance)
         {
             var valorada = await _context.ValijasValoradas
                                 .Include(pm => pm.Expedientes)
@@ -77,13 +77,14 @@ namespace Galvarino.Web.Controllers
                                 .Include(pm => pm.Expedientes)
                                     .ThenInclude(e => e.Documentos)
                                 .Include(pm => pm.Oficina)
-                                .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
+                                .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento && pn.MarcaAvance == marcaAvance);
 
             return new ViewAsPdf(new PdfModelHelper()
             {
                 FechaImpresion = DateTime.Now.ToShortDateString(),
                 CodigoSeguimiento = codigoSeguimiento,
                 ValijaValorada = valorada
+
             })
             {
                 PageSize = Size.Letter
@@ -111,7 +112,7 @@ namespace Galvarino.Web.Controllers
             };
         }
 
-        [Route("detalle-caja-valorada/{codigoSeguimiento}")]
+        [Route("detalle-valijas-oficinas/{codigoSeguimiento}")]
         public async Task<IActionResult> DetalleValijaValoradaOficina(string codigoSeguimiento)
         {
             var valorada = await _context.ValijasOficinas

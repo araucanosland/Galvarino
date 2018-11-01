@@ -81,10 +81,13 @@ const metodos = {
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Avance Tareas",
-                message: "Tarea Finalizada!!",
+                title: "Recepción Notaría",
+                message: "Tarea Finalizada con Éxito.<br/><small>Esta Tarea se ceirra en 5 Seg. y te redirige a tus solicitudes</small>",
                 closeBtn: true,
-                timer: 5000
+                timer: 5000,
+                onHidden: function () {
+                    location.href = "/wf/v1/mis-solicitudes";
+                }
             });
 
         }).fail(function (errMsg) {
@@ -96,9 +99,6 @@ const metodos = {
                 closeBtn: true,
                 timer: 5000
             });
-
-        }).always(function () {
-            location.reload();
 
         });
     }

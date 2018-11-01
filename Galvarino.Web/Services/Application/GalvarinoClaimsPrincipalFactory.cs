@@ -18,11 +18,12 @@ public class GalvarinoClaimsPrincipalFactory : UserClaimsPrincipalFactory<Usuari
 
     protected override async Task<ClaimsIdentity> GenerateClaimsAsync(Usuario user)
     {
-        user = await UserManager.Users.Include(usr => usr.Oficina).FirstOrDefaultAsync(d => d.Id == user.Id);
+        //user = await UserManager.Users.Include(usr => usr.Oficina).FirstOrDefaultAsync(d => d.Id == user.Id);
         var identity = await base.GenerateClaimsAsync(user);
-        identity.AddClaim(new Claim("Oficina", user.Oficina != null ? user.Oficina.Codificacion : ""));
-        identity.AddClaim(new Claim("Nombres", user.Nombres ?? ""));
-        identity.AddClaim(new Claim("Correo", user.NormalizedEmail ?? ""));
+        //identity.AddClaim(new Claim("Oficina", user.Oficina != null ? user.Oficina.Codificacion : ""));
+        //identity.AddClaim(new Claim("Nombres", user.Nombres ?? ""));
+        //identity.AddClaim(new Claim("Correo", user.NormalizedEmail ?? ""));
+        identity.AddClaim(new Claim(CustomClaimTypes.TipoAcceso, "login"));
         return identity;
     }
 

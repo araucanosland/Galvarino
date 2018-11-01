@@ -1,2 +1,2 @@
-const enumTipoDocumentos = new Array('Pagare', 'Fotocopia Cedula Identidad', 'Solicitud Credito', 'Liquidacion')
+const enumTipoDocumentos = new Array('Pagare', 'Fotocopia Cedula Identidad', 'Solicitud Credito', 'Liquidacion', 'Hoja de Prolongacion', 'Acuerdo de Pago')
 const enumTipoCreditos = new Array('Normal', 'Reprogramación', 'Acuerdo Pago')

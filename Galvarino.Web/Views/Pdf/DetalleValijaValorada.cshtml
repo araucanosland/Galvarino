@@ -34,6 +34,10 @@
         .pie-pagina td {
             text-align: center;
         }
+
+        .new-page {
+            page-break-before: always;
+        }
         
     </style>
 </head>
@@ -42,9 +46,30 @@
         <thead>
             <tr>
                 <th>
+                    <h2 style="text-align:center;">Envío de Valija a Oficina de Partes</h2>
+                </th>
+            </tr>
+            <tr>
+                <th style="text-align:center;"><canvas id="barcode"></canvas></th>
+            </tr>
+            <tr>
+                <th style="text-align:center;">
+                    
+                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
+                    <h4><strong>Oficina Remitente:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
+                </th>
+            </tr>
+        </thead>
+    </table>
+
+
+    <table class="tabla-orden new-page">
+        <thead>
+            <tr>
+                <th>
                     <h3>Nómina Valija Valorada</h3>
-                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.PackNotaria.Expedientes.Count</h4>
-                    <h4><strong>Oficina:</strong> @Model.PackNotaria.Oficina.Nombre</h4>
+                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
+                    <h4><strong>Oficina:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
                 </th>
                 <th style="text-align:right;"><canvas id="barcode"></canvas></th>
             </tr>
@@ -65,7 +90,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(var xfile in Model.PackNotaria.Expedientes)
+            @foreach(var xfile in Model.ValijaValorada.Expedientes)
             {
                 
                 <tr>

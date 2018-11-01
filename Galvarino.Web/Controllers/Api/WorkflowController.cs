@@ -13,6 +13,8 @@ using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Workflow;
 using Microsoft.AspNetCore.Authorization;
 using Galvarino.Web.Services.Notification;
+using Galvarino.Web.Models.Security;
+using System.Security.Claims;
 
 namespace Galvarino.Web.Controllers.Api
 {
@@ -49,9 +51,9 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("mis-solicitudes/{etapaIn?}")]
         public async Task<IActionResult> ListarMisSolicitudes(string etapaIn = ""){
 
-            var rolUsuario = User.Claims.FirstOrDefault(x => x.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Value;    
-            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;    
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && x.AsignadoA == rolUsuario && ((x.UnidadNegocioAsignada != null && x.UnidadNegocioAsignada == oficinaUsuario) || x.UnidadNegocioAsignada == null )) && x.Estado == EstadoTarea.Activada);
+            //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;    
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\","") || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(x.AsignadoA) && ((x.UnidadNegocioAsignada != null && x.UnidadNegocioAsignada == oficinaUsuario) || x.UnidadNegocioAsignada == null )) && x.Estado == EstadoTarea.Activada);
 
             if(!string.IsNullOrEmpty(etapaIn)){
                 mistareas = mistareas.Where(g => g.Etapa.NombreInterno==etapaIn);
@@ -88,7 +90,7 @@ namespace Galvarino.Web.Controllers.Api
         public async Task<IActionResult> ListarOficinasReparo(string oficina="")
         {
 
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == User.Identity.Name && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION");
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\","") && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION");
 
             var salida = new List<dynamic>();
             await mistareas.ForEachAsync(tarea =>
@@ -129,7 +131,7 @@ namespace Galvarino.Web.Controllers.Api
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
 
-            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
             var oficinaEnvio = _context.Oficinas.Include(fd => fd.OficinaProceso).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
 
             
@@ -156,7 +158,7 @@ namespace Galvarino.Web.Controllers.Api
             _context.ValijasOficinas.Add(valijaMatrix);
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             
             return Ok(valijaMatrix);
         }
@@ -174,7 +176,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
             
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_SET_LEGAL, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_SET_LEGAL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             var laValija = _context.ValijasOficinas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
             laValija.MarcaAvance = "OK";
             _context.ValijasOficinas.Update(laValija);
@@ -183,15 +185,15 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpPost("envio-a-notaria")]
-        public async Task<IActionResult> EnvioNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        public async Task<IActionResult> EnvioNotaria([FromBody] ColeccionExpedientesGenerica entrada)
         {
 
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
 
-            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
             var oficinaEnvio = _context.Oficinas.Include(ofi => ofi.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
-            var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Comuna.Id == oficinaEnvio.Comuna.Id);
+            var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Id == entrada.CodNotaria);
                         
             DateTime now = DateTime.Now;
             var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2,'0');
@@ -207,7 +209,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.PacksNotarias.Add(packNotaria);
 
-            foreach (var item in entrada)
+            foreach (var item in entrada.ExpedientesGenericos)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
                 elExpediente.PackNotaria = packNotaria;
@@ -217,7 +219,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
 
             return Ok(packNotaria);
         }
@@ -233,7 +235,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             return Ok();
         }
 
@@ -250,7 +252,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             return Ok(entrada);
         }
 
@@ -260,7 +262,7 @@ namespace Galvarino.Web.Controllers.Api
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
 
-            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
             var oficinaEnvio = _context.Oficinas.FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
             var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Comuna.Id == oficinaEnvio.Comuna.Id);
 
@@ -287,7 +289,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             return Ok(packNotaria);
         }
 
@@ -297,7 +299,7 @@ namespace Galvarino.Web.Controllers.Api
             List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
             List<string> ticketsAvanzar = new List<string>();
 
-            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
             var oficinaEnvio = _context.Oficinas.FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
             
             DateTime now = DateTime.Now;
@@ -323,7 +325,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             return Ok(valijaEnvio);
         }
 
@@ -340,7 +342,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(item.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
 
             var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
             laValija.MarcaAvance = "MS_CONTROL";
@@ -361,7 +363,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(item.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_MESA_CONTROL, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
 
             var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
             laValija.MarcaAvance = "MSC_APERTURA";
@@ -419,7 +421,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
 
 
             var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
@@ -460,7 +462,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             return Ok();
         }
 
@@ -475,7 +477,7 @@ namespace Galvarino.Web.Controllers.Api
                 _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", "1", elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             return Ok();
         }
 
@@ -511,7 +513,7 @@ namespace Galvarino.Web.Controllers.Api
 
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OF_PARTES_DEVOLUCION, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OF_PARTES_DEVOLUCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             return Ok(valijaEnvio);
         }
 
@@ -528,7 +530,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(item.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_CORRECCION, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_CORRECCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
 
             var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
             laValija.MarcaAvance = "DEVOLUCION_OP";
@@ -548,7 +550,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             return Ok();
         }
 
@@ -581,7 +583,7 @@ namespace Galvarino.Web.Controllers.Api
             
             _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
             await _context.SaveChangesAsync();
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             return Ok(cajaval);
         }
 
@@ -597,7 +599,7 @@ namespace Galvarino.Web.Controllers.Api
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_Y_CUSTODIA, ticketsAvanzar, User.Identity.Name);
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_Y_CUSTODIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
             var laCaja = _context.CajasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
             laCaja.MarcaAvance = "FN";
             _context.CajasValoradas.Update(laCaja);

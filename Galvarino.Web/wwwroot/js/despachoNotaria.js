@@ -73,11 +73,27 @@ const metodos = {
                 });
             }
         });
+        if (foliosEnvio.length == 0)
+        {
+            $.niftyNoty({
+                type: "danger",
+                container: "floating",
+                title: "Error Despacho a Notaría",
+                message: "No puedes Generar una Nómina de Envío Sin Documentos",
+                closeBtn: true,
+                timer: 5000
+            });
+            return false;
+        }
+        let objetoAvanzar = {
+            codNotaria: parseInt($('#notaria-destino').val()),
+            expedientesGenericos: foliosEnvio
+        }
 
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/envio-a-notaria`,
-            data: JSON.stringify(foliosEnvio),
+            data: JSON.stringify(objetoAvanzar),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
 
@@ -89,7 +105,6 @@ const metodos = {
                 closeBtn: true,
                 timer: 5000,
                 onHidden: function(){
-                    location.href = "/wf/v1/mis-solicitudes";
                     window.open(`/salidas/pdf/detalle-pack-notaria/${data.codigoSeguimiento}`, "_blank");
                 }
             });
@@ -105,6 +120,7 @@ const metodos = {
             });
 
         }).always(function () {
+            $("#modal-pistoleo").modal('hide');
             $('#tabla-generica').bootstrapTable('refresh');
         });
     }
@@ -164,6 +180,8 @@ $(function(){
 
     $("#modal-pistoleo").on("hidden.bs.modal", function () {
         $("#folio-shot").val("");
+        _ingresados = [];
+        metodos.render();
     });
 
     $("#frm-pistoleo").on("submit", function(event){
@@ -172,7 +190,6 @@ $(function(){
     });
 
     $("#btn-generar-generico").on("click", function(){
-        console.log('Generando')
         metodos.avanzarWf();
     });
         

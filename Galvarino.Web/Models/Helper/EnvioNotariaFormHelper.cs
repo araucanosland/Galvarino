@@ -24,6 +24,7 @@ namespace Galvarino.Web.Models.Helper
     public class ColeccionExpedientesGenerica{
 
         public string CodOficina { get; set; }
+        public int CodNotaria { get; set; }
         public IEnumerable<ExpedienteGenerico> ExpedientesGenericos { get; set; }
     }
 }

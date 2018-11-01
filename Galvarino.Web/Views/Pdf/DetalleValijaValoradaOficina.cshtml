@@ -35,10 +35,27 @@
             text-align: center;
         }
         
+        .new-page {
+            page-break-before: always;
+        }
     </style>
 </head>
 <body>
+
     <table class="tabla-orden">
+        <thead>
+            <tr>
+                <th>
+                    <h3>Nómina de envío a Notaría: @Model.PackNotaria.NotariaEnvio.Nombre</h3>
+                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.PackNotaria.Expedientes.Count</h4>
+                    @*<h4><strong>Oficina Origen:</strong> @Model.PackNotaria.OficinaEnvio.Nombre @Comax <strong>Oficina Destino:</strong> @Model.PackNotaria.OficinaDestino.Nombre</h4>*@
+                </th>
+                <th style="text-align:right;"><canvas id="barcode"></canvas></th>
+            </tr>
+        </thead>
+    </table>
+
+    <table class="tabla-orden new-page">
         <thead>
             <tr>
                 <th>

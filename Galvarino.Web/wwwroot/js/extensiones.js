@@ -142,3 +142,11 @@ function formatoFecha(valor) {
 function formatoTipoCredito(valor) {
     return enumTipoCreditos[valor];
 }
+
+function formatoListaDocumentos(val, row, inc)
+{
+    let strOut = row.expediente.documentos.map(function (val, idx) {
+        return `<strong>${val.codificacion}</strong> - ${enumTipoDocumentos[val.tipoDocumento]}`
+    });
+    return strOut.join('<br />');
+}
