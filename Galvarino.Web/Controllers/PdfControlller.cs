@@ -55,21 +55,21 @@ namespace Galvarino.Web.Controllers
                                 .Include(pm => pm.NotariaEnvio)
                                 .Include(pm => pm.Oficina)
                                 .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
-
-
+            
             return new ViewAsPdf(new PdfModelHelper()
             {
                 FechaImpresion = DateTime.Now.ToShortDateString(),
                 CodigoSeguimiento = codigoSeguimiento,
-                PackNotaria = pack
+                PackNotaria = pack,
+                MarcaDocto = codigoSeguimiento.Contains("R") ? "REPARO" : "OTRO"
             })
             {
                 PageSize = Size.Letter
             };
         }
 
-        [Route("detalle-valija-valorada/{codigoSeguimiento}/{marcaAvance}")]
-        public async Task<IActionResult> DetalleValijaValorada([FromRoute] string codigoSeguimiento, [FromRoute] string marcaAvance)
+        [Route("detalle-valija-valorada/{codigoSeguimiento}")]
+        public async Task<IActionResult> DetalleValijaValorada([FromRoute] string codigoSeguimiento)
         {
             var valorada = await _context.ValijasValoradas
                                 .Include(pm => pm.Expedientes)
@@ -77,14 +77,12 @@ namespace Galvarino.Web.Controllers
                                 .Include(pm => pm.Expedientes)
                                     .ThenInclude(e => e.Documentos)
                                 .Include(pm => pm.Oficina)
-                                .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento && pn.MarcaAvance == marcaAvance);
-
+                                .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
             return new ViewAsPdf(new PdfModelHelper()
             {
                 FechaImpresion = DateTime.Now.ToShortDateString(),
                 CodigoSeguimiento = codigoSeguimiento,
                 ValijaValorada = valorada
-
             })
             {
                 PageSize = Size.Letter

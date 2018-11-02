@@ -11,10 +11,11 @@ const metodos = {
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Entrada de Valijas",
-                message: "Valija ingresada!!",
+                title: "Check Point Valija con Reparos",
+                message: "Estamos Procesando la Valija...<br/><small>Este mensaje se cierra en 5 Seg.</small>",
                 closeBtn: true,
-                timer: 5000
+                timer: 5000,
+                
             });
 
         }).fail(function (errMsg) {

@@ -2,7 +2,6 @@
 @{
     Layout = null;
     string Separador = "- ";
-    string Comax = ", ";
     int Enumeracion = 1;
 }
 <!DOCTYPE html>
@@ -46,7 +45,16 @@
         <thead>
             <tr>
                 <th>
-                    <h2 style="text-align:center;">Envío de Valija a Oficina de Partes</h2>
+                    
+                    @if(Model.ValijaValorada.MarcaAvance == "OF_PARTES")
+                    {
+                        <h2 style="text-align:center;">Envío de Valija a Oficina de Partes</h2>
+                    }
+                    else if(Model.ValijaValorada.MarcaAvance== "DEVOLVER")
+                    {
+                        <h2 style="text-align:center;">Envío de Valija de Devoluciones</h2>
+                    }
+                    
                 </th>
             </tr>
             <tr>
@@ -54,9 +62,15 @@
             </tr>
             <tr>
                 <th style="text-align:center;">
-                    
                     <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
-                    <h4><strong>Oficina Remitente:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
+                    @if(Model.ValijaValorada.MarcaAvance == "OF_PARTES")
+                    {
+                        <h4><strong>Oficina Remitente:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
+                    }
+                    else if(Model.ValijaValorada.MarcaAvance == "DEVOLVER")
+                    {
+                        <h4><strong>Oficina Destino:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
+                    }
                 </th>
             </tr>
         </thead>
@@ -69,7 +83,14 @@
                 <th>
                     <h3>Nómina Valija Valorada</h3>
                     <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
-                    <h4><strong>Oficina:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
+                    @if(Model.ValijaValorada.MarcaAvance == "OF_PARTES")
+                    {
+                        <h4><strong>Oficina Remitente:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
+                    }
+                    else if(Model.ValijaValorada.MarcaAvance == "DEVOLVER")
+                    {
+                        <h4><strong>Oficina Destino:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
+                    }
                 </th>
                 <th style="text-align:right;"><canvas id="barcode"></canvas></th>
             </tr>

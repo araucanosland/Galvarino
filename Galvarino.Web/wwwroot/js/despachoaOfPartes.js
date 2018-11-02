@@ -38,12 +38,12 @@ const metodos = {
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Despacho a Oficina de PArtes",
+                title: "Despacho a Oficina de Partes",
                 message: "Estamos Generando la Nómina...<br/><small>Esta Tarea se ceirra en 5 Seg. y te redirige al Pdf de La Nómina de envío</small>",
                 closeBtn: true,
                 timer: 5000,
                 onHidden: function () {
-                    window.open(`/salidas/pdf/detalle-valija-valorada/${data.codigoSeguimiento}/OF_PARTES`, "_blank");
+                    window.open(`/salidas/pdf/detalle-valija-valorada/${data.codigoSeguimiento}`, "_blank");
                 }
             });
 

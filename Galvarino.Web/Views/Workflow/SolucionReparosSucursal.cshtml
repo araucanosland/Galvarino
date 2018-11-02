@@ -45,8 +45,11 @@
         <thead>
             <tr>
                 <th data-field="reparo" data-formatter="formatoReparo">Motivo</th>
-                <th data-field="expediente.credito.folioCredito" data-align="center" data-sortable="true">Folio Credito</th>
-                <th data-field="expediente.credito.fechaDesembolso" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                <th data-field="expediente.credito.folioCredito" data-sortable="true">Folio Credito</th>
+                <th data-field="expediente.credito.rutCliente" data-align="center" data-sortable="true" >Rut Afiliado</th>
+                <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                <th data-field="expediente.credito.folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
+                <th data-field="expediente.credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
                 <th data-field="expediente.valijaValorada.fechaEnvio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fec. Envío Sucursal</th>
                 <th data-field="expediente.valijaValorada.codigoSeguimiento" data-align="center" data-sortable="true">Valija</th>
             </tr>

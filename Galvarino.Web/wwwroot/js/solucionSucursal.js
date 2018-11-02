@@ -17,8 +17,8 @@ const metodos = {
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Avance Tareas",
-                message: "Tarea Finalizada!!",
+                title: "Solución de Reparos",
+                message: "Estamos procesando los reparos en los expedientes.<br/><small>Esta notificación se ceirra en 5 Seg.</small>",
                 closeBtn: true,
                 timer: 5000
             });

@@ -2,7 +2,6 @@
 @{
     Layout = null;
     string Separador = "- ";
-    string Comax = ", ";
     int Enumeracion = 1;
 }
 <!DOCTYPE html>
@@ -46,7 +45,14 @@
         <thead>
             <tr>
                 <th>
-                    <h3>Nómina de envío a Notaría: @Model.PackNotaria.NotariaEnvio.Nombre</h3>
+                    @if(Model.MarcaDocto == "REPARO")
+                    {
+                        <h3>Nómina de envío Reparos a Notaría: <br/> @Model.PackNotaria.NotariaEnvio.Nombre</h3>
+                    }
+                    else
+                    {
+                        <h3>Nómina de envío a Notaría: @Model.PackNotaria.NotariaEnvio.Nombre</h3>
+                    }
                     <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.PackNotaria.Expedientes.Count</h4>
                     <h4><strong>Oficina:</strong> @Model.PackNotaria.Oficina.Nombre</h4>
                 </th>
@@ -88,8 +94,6 @@
                             {
                                 <strong>@doc.Codificacion</strong> @Separador  @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim() <br />
                             }
-                            
-
                         }
                     </td>
                     <td>@xfile.Credito.FechaDesembolso.ToShortDateString()</td>

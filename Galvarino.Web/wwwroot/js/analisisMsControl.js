@@ -26,8 +26,8 @@ const metodos = {
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Avance Tareas",
-                message: "Tarea Finalizada!!",
+                title: "Análisis Mesa de Control",
+                message: "Documentos Procesados.<br/><small>Estamos actualizando el estado de las tareas.</small>",
                 closeBtn: true,
                 timer: 5000
             });

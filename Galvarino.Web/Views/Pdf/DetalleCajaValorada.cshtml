@@ -2,7 +2,6 @@
 @{
     Layout = null;
     string Separador = "- ";
-    string Comax = ", ";
     int Enumeracion = 1;
 }
 <!DOCTYPE html>
@@ -45,10 +44,28 @@
     <table class="tabla-orden">
         <thead>
             <tr>
-                <th>
-                    <h3>Nómina en Caja</h3>
-                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.PackNotaria.Expedientes.Count</h4>
+                <th>                    
+                    <h2 style="text-align:center;">Envío de Caja Valorada a Custodia</h2>
+                </th>
+            </tr>
+            <tr>
+                <th style="text-align:center;"><canvas id="barcode"></canvas></th>
+            </tr>
+            <tr>
+                <th style="text-align:center;">
+                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.CajaValorada.Expedientes.Count</h4>
+                </th>
+            </tr>
+        </thead>
+    </table>
 
+
+    <table class="tabla-orden new-page">
+        <thead>
+            <tr>
+                <th>
+                    <h3>Nómina Caja Valorada</h3>
+                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.CajaValorada.Expedientes.Count</h4>
                 </th>
                 <th style="text-align:right;"><canvas id="barcode"></canvas></th>
             </tr>
@@ -69,7 +86,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(var xfile in Model.PackNotaria.Expedientes)
+            @foreach(var xfile in Model.CajaValorada.Expedientes)
             {
                 
                 <tr>

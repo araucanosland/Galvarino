@@ -11,8 +11,8 @@ const metodos = {
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Entrada de Valijas",
-                message: "Valija ingresada!!",
+                title: "Recepción de Valija",
+                message: "Valija: " + codigoSeguimiento + " Ingresada.<br/><small>Estamos actualizando el estado de la valija..</small>",
                 closeBtn: true,
                 timer: 5000
             });

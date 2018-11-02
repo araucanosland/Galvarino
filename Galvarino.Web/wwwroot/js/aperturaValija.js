@@ -77,13 +77,13 @@ const metodos = {
             data: JSON.stringify(foliosEnvio),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
-
+               
 
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Avance Tareas",
-                message: "Tarea Finalizada!!",
+                title: "Apertura de Valija",
+                message: "Valija: " + folioValija + " Aperturada.<br/><small>Estamos actualizando el estado de la valija..</small>",
                 closeBtn: true,
                 timer: 5000
             });

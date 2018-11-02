@@ -90,7 +90,7 @@ namespace Galvarino.Web.Controllers.Api
         public async Task<IActionResult> ListarOficinasReparo(string oficina="")
         {
 
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\","") && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION");
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(x.AsignadoA)) && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION");
 
             var salida = new List<dynamic>();
             await mistareas.ForEachAsync(tarea =>
@@ -196,7 +196,7 @@ namespace Galvarino.Web.Controllers.Api
             var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Id == entrada.CodNotaria);
                         
             DateTime now = DateTime.Now;
-            var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2,'0');
+            var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2,Convert.ToChar(0));
             
             
             var packNotaria = new PackNotaria
@@ -263,11 +263,12 @@ namespace Galvarino.Web.Controllers.Api
             List<string> ticketsAvanzar = new List<string>();
 
             var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
-            var oficinaEnvio = _context.Oficinas.FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
-            var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Comuna.Id == oficinaEnvio.Comuna.Id);
+            var oficinaEnvio = _context.Oficinas.Include(of => of.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+            var notariaEnvio = _context.Notarias.Include(not => not.Comuna).FirstOrDefault(d => d.Comuna.Id == oficinaEnvio.Comuna.Id);
+            
 
             DateTime now = DateTime.Now;
-            var codSeg = now.Ticks.ToString() + "R" + notariaEnvio.Id.ToString().PadLeft(2, '0');
+            var codSeg = now.Ticks.ToString() + "R" + notariaEnvio.Id.ToString().PadLeft(2, Convert.ToChar(0));
 
             var packNotaria = new PackNotaria
             {
