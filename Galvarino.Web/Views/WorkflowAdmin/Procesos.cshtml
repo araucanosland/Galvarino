@@ -1,0 +1,43 @@
+
+@{
+    ViewData["Title"] = "Procesos del Sistema";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Configuraciones</li>
+    <li>Workflow</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <table id="table" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var itm in ViewBag.procesos)
+                {
+                    <tr>
+                        <td>@itm.Nombre</td>
+                        <td>
+                            <a href="/configuraciones/workflow/procesos/@itm.Id/etapas" class="detalle btn btn-primary btn-sm">Ver Etapas</a>
+                        </td>
+                    </tr>
+
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+               
+
+
+
+
+

@@ -47,6 +47,7 @@ namespace Galvarino.Web
             services.Configure<IISOptions>(options =>
             {
                 options.ForwardClientCertificate = false;
+                options.AutomaticAuthentication = true;
             });
 
 

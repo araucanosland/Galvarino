@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>@ViewData["Title"] | Galvarino Workflow, Información Analítica</title>
+    <title>@ViewData["Title"] | Galvarino Workflow v1.0, Información Analítica</title>
 
 
     <!--STYLESHEET-->
@@ -15,6 +15,7 @@
 
     <!--Open Sans Font [ OPTIONAL ]-->
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Satisfy" rel="stylesheet">
     <link href="~/css/main.min.css" rel="stylesheet">    
     @RenderSection("style", false)
     <!--=================================================-->
@@ -36,10 +37,10 @@
                 <!--Brand logo & name-->
                 <!--================================-->
                 <div class="navbar-header">
-                    <a href="index.html" class="navbar-brand">
-                        <img src="~/lib/img/logo.png" alt="Nifty Logo" class="brand-icon">
+                    <a href="/wf/v1/mis-solicitudes" class="navbar-brand">
+                        <img src="~/images/logo.png" alt="Galvarino Logo" class="brand-icon" >
                         <div class="brand-title">
-                            <span class="brand-text">GalvariFlow</span>
+                            <span class="brand-text" style="font-family: 'Satisfy', cursive; font-size: 30px;">Galvarino</span>
                         </div>
                     </a>
                 </div>
@@ -394,7 +395,6 @@
                                                 <li><a href="/wf/v1/apertura-valija">Apertura Valija</a></li>
                                                 <li><a href="/wf/v1/analisis-mesa-control">Análisis Expedientes</a></li>
                                                 <li><a href="/wf/v1/despacho-reparo-oficina-partes">Despacho Reparos Of. de Partes</a></li>
-                                                <li><a href="/wf/v1/despacho-oficina-correccion">Despacho Oficina para Corrección</a></li>
                                                 <li><a href="/wf/v1/despacho-a-custodia">Despacho a Custodia</a></li>
                                             </ul>
                                         </li>
@@ -420,6 +420,40 @@
 						            
 						
 						            <li class="list-divider"></li>
+                                    
+                                    @if(User.IsInRole("Mantenedor de Sistema") || User.IsInRole("Administrador Sistema"))
+                                    {
+                                         <li>
+                                            <a href="#">
+                                                <i class="glyphicon glyphicon-heart"></i>
+                                                <span class="menu-title">Configuraciones</span>
+                                                <i class="arrow"></i>
+                                            </a>
+                            
+                                            <!--Submenu-->
+                                            <ul class="collapse">
+                                                <li><a href="/configuraciones/roles">Roles</a></li>
+                                                <li><a href="/configuraciones/usuarios">Usuarios</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @if(User.IsInRole("Mantenedor de Sistema"))
+                                    {
+                                         <li>
+                                            <a href="#">
+                                                <i class="glyphicon glyphicon-wrench"></i>
+                                                <span class="menu-title">Herramientas Dev.</span>
+                                                <i class="arrow"></i>
+                                            </a>
+                            
+                                            <!--Submenu-->
+                                            <ul class="collapse">
+                                                <li><a href="/configuraciones/workflow/procesos">Workflow</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
                                     
                                     @*
 						            <!--Category name-->

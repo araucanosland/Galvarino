@@ -1,0 +1,158 @@
+@{
+    ViewData["Title"] = "Formulario Usuario";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Configuraciones</li>
+    <li>Usuarios</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section style{
+    <link href="~/lib/css/chosen.min.css" rel="stylesheet">
+}
+
+@section script{
+    <script src="~/lib/js/chosen.jquery.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('#rol').chosen({width:'100%'});
+            $('#oficina').chosen({width:'100%'});
+            
+
+            $("#rol").trigger("change");
+
+            $('#frm-generico').on('submit', function (e) {
+                e.preventDefault();
+                $(".submit-generico").html("Cargando...");
+                var model = $(this).serializeFormJSON();
+                if(!Array.isArray(model.Rol))
+                {
+                    if(typeof model.Rol != 'undefined')
+                    {
+                         model.Rol = new Array(model.Rol);
+                    }else{
+                         model.Rol = [];
+                    }
+                }
+                
+                $.ajax({
+                    type: "POST",
+                    url: "/api/mantenedores/usuarios",
+                    data: JSON.stringify(model),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+                    $.niftyNoty({
+                        type: "success",
+                        container : "floating",
+                        title : "Suceso Exitoso",
+                        message : "Los datos del Rol se han guardado correctamente",
+                        closeBtn : false,
+                        timer : 5000,
+                        onHide: function(){
+                            location.reload();
+                        }
+                    });
+                    $('#frm-generico')[0].reset();
+                }).fail(function (errMsg) {
+                   $.niftyNoty({
+                        type: "error",
+                        container : "floating",
+                        title : "Suceso Inesperado",
+                        message : "Los datos NO se han guardado!",
+                        closeBtn : false,
+                        timer : 5000
+                    });
+                }).always(function () {
+                    $(".submit-generico").html("Guardar");
+                });
+
+            });
+        });</script>
+}
+
+<form id="frm-generico">
+
+<div class="row mar-btm">
+    <div class="col-sm-12 col-md-4">
+        <label for="">Rut</label>
+        <div class="input-group mar-btm">
+            <span class="input-group-addon"><i class="demo-pli-male"></i></span>
+            <input type="text" value="@(ViewBag.editando ? ViewBag.usuario.Identificador : "")"  name="Identificacion" class="form-control">
+        </div>
+    </div>
+
+    <div class="col-sm-12 col-md-6">
+        <label for="">Nombres</label>
+        <div class="input-group mar-btm">
+            <span class="input-group-addon"><i class="demo-pli-male"></i></span>
+            <input type="text" value="@(ViewBag.editando ? ViewBag.usuario.Nombres : "")" name="Nombres" class="form-control">
+        </div>
+    </div>
+
+
+    <div class="col-sm-12 col-md-6">
+        <label for="correo">Correo</label>
+        <div class="input-group mar-btm">
+            <span class="input-group-addon"><i class="demo-pli-mail"></i></span>
+            <input type="text" value="@(ViewBag.editando ? ViewBag.usuario.Email : "")" name="Correo" class="form-control">
+        </div>
+    </div>
+
+    <div class="col-sm-12 col-md-6">
+        <label for="Telefono">Teléfono</label>
+        <div class="input-group mar-btm">
+            <span class="input-group-addon"><i class="demo-pli-phone"></i></span>
+            <input type="text" value="@(ViewBag.editando ? ViewBag.usuario.PhoneNumber : "")" name="Telefono" class="form-control">
+        </div>
+    </div>
+
+    <div class="col-sm-12 col-md-6">
+        <label for="Telefono">Oficina</label>
+        <select id="oficina" name="Oficina" class="form-control">
+                @foreach(var itm in ViewBag.oficinasList)
+                {
+                    @if(ViewBag.editando && ViewBag.usuario.Oficina.Id == itm.Id)
+                    {
+                    <option value="@itm.Id" selected>@itm.Nombre</option>
+                    }
+                    else
+                    {
+                    <option value="@itm.Id">@itm.Nombre</option>
+                    }
+                }  
+        </select>
+    </div>
+
+    <div class="col-sm-12 col-md-12">
+        <label for="rol">Rol</label>
+        <select id="rol" name="Rol" class="form-control" multiple>
+                @foreach(var itm in ViewBag.rolesList)
+                {
+                    @if(ViewBag.editando && ViewBag.rolUsuario.Contains(itm.Name))
+                    {
+                    <option value="@itm.Name" selected>@itm.Orzanizacion.Nombre / @itm.Name</option>
+                    }
+                    else
+                    {
+                    <option value="@itm.Name">@itm.Orzanizacion.Nombre / @itm.Name</option>
+                    }
+                }  
+        </select>
+        <p></p>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="text-right no-print">
+            <a href="/configuraciones/usuarios" class="btn btn-warning">Volver</a>
+            <button class="btn btn-primary submit-generico" id="btn-confirmar">Guardar</button>
+        </div>
+    </div>
+</div>
+
+</form>
+

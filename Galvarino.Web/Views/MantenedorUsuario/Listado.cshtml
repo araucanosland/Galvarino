@@ -1,0 +1,84 @@
+@{
+    ViewData["Title"] = "Listado Usuarios";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Configuraciones</li>
+    <li>Usuarios</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+
+    <script src="~/Assets/plugins/unitegallery/js/unitegallery.min.js"></script>
+    <script src="~/Assets/plugins/unitegallery/themes/tiles/ug-theme-tiles.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+
+            $('.elimination').on('click', function (e) {
+                e.preventDefault();
+
+                var id = $(this).data("id");
+                
+                $.ajax({
+                    type: "GET",
+                    url:`/api/mantenedores/usuario/eliminar/${id}`
+                }).done(function (data) {
+                    alert("Eliminado exitoso");
+                }).fail(function (errMsg) {
+                    console.log(errMsg);
+                }).always(function () {
+                    location.reload();
+                });
+
+            });
+
+        });</script>
+}
+
+<form id="frm-generico">
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <a href="/configuraciones/usuarios/formulario" class="btn btn-primary">Nuevo</a>
+            <div class="table-responsive mar-top">
+                <table id="table" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Rut</th>
+                            <th>Nombre</th>
+                            <th>Accion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var itm in ViewBag.usuariosList)
+                        {
+                            <tr>
+                                <td>@itm.Identificador</td>
+                                <td>@itm.Nombres</td>
+                                <td>
+                                    <a href="#" data-id="@itm.Id" class="elimination btn btn-danger btn-sm">Eliminar</a>
+                                    <a href="/configuraciones/usuarios/formulario/@itm.Id" class="edicion btn btn-primary btn-sm">Editar</a>
+                                </td>
+                            </tr>
+
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+
+
+
+
+
+

@@ -62,11 +62,34 @@ function formatoReparo(val, row, inc) {
     /*TODO: Aqui hay datos en duro */
 }
 
+function bloqueoBoton(selector, option='start')
+{
+    if(option == 'start')
+    {
+        $(selector).data("text", $(selector).text());
+        $(selector).text("Cargando...");
+        $(selector).prop({
+            disabled: true
+        });
+    }
+
+    if(option == 'end')
+    {
+        $(selector).text($(selector).data('text'));
+        $(selector).prop({
+            disabled: false
+        });
+    }
+}
+
 $(function () {
 
     
     $("#btn-generar-generico").on("click", function () {
         metodos.avanzarWf();
+        
     });
+
+    
 
 });

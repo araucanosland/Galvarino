@@ -321,6 +321,7 @@ namespace Galvarino.Web.Controllers.Api
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
                 elExpediente.ValijaValorada = valijaEnvio;
                 expedientesModificados.Add(elExpediente);
+                _wfService.AsignarVariable("USUARIO_DESPACHA_A_OF_PARTES", User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""), elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 

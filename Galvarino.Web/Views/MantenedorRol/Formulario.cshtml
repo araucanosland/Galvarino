@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Formulario Rol";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Configuraciones</li>
+    <li>Roles</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section style{
+    <link href="~/Assets/plugins/chosen/chosen.min.css" rel="stylesheet">
+}
+@section script{
+    <script type="text/javascript">
+        $(function () {
+
+            $('#frm-generico').on('submit', function (e) {
+                e.preventDefault();
+                var model = $(this).serializeFormJSON();
+                $(".submit-generico").html("Cargando...");
+                
+                
+                $.ajax({
+                    type: "POST",
+                    url: "/api/mantenedores/roles",
+                    data: JSON.stringify(model),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+                    $.niftyNoty({
+                        type: "success",
+                        container : "floating",
+                        title : "Suceso Exitoso",
+                        message : "Los datos del Rol se han guardado correctamente",
+                        closeBtn : false,
+                        timer : 5000
+                    });
+                    $('#frm-generico')[0].reset();
+                }).fail(function (errMsg) {
+                     $.niftyNoty({
+                        type: "danger",
+                        container : "floating",
+                        title : "Suceso Inesperado",
+                        message : "Los datos NO se han guardado!",
+                        closeBtn : false,
+                        timer : 5000
+                    });
+                }).always(function () {
+                    $(".submit-generico").html("Guardar");
+                });
+
+            });
+
+        });</script>
+}
+
+<form id="frm-generico">
+
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <label for="RutPaciente">Organización</label>
+            <select name="Organizacion" class="form-control">
+                    <option value="">Seleccione</option>
+                    @foreach(var itm in ViewBag.OrganicacionesList)
+                    {
+                        @if (ViewBag.editando && ViewBag.rol.Orzanizacion.Id == itm.Id)
+                        {
+                            <option value="@itm.Id" selected>@itm.Nombre</option>
+                        }
+                        else
+                        {
+                            <option value="@itm.Id">@itm.Nombre</option>
+                        }
+                        
+                    }
+            </select>
+        </div>
+        <div class="col-sm-12 col-md-6">
+            <label for="RutPaciente">Nombre</label>
+            <div class="input-group mar-btm">
+                <span class="input-group-addon"><i class="demo-pli-male"></i></span>
+                <input type="text" value="@(ViewBag.editando ? ViewBag.rol.Name : "")" id="Nombre" name="Nombre" class="form-control">
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="text-right no-print">
+                <input type="hidden" name="Id" value="@(ViewBag.editando ? ViewBag.rol.Id : "")" />
+                <a href="/configuraciones/roles" class="btn btn-warning">Volver</a>
+                <button class="btn btn-primary submit-generico" id="btn-confirmar">Guardar</button>
+            </div>
+        </div>
+    </div>        
+</form>

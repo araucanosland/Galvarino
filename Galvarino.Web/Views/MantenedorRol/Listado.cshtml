@@ -1,0 +1,82 @@
+
+@{
+    ViewData["Title"] = "Listado Roles";
+}
+
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Configuraciones</li>
+    <li>Roles</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+
+    <script src="~/Assets/plugins/unitegallery/js/unitegallery.min.js"></script>
+    <script src="~/Assets/plugins/unitegallery/themes/tiles/ug-theme-tiles.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+
+            $('.elimination').on('click', function (e) {
+                e.preventDefault();
+
+                var id = $(this).data("id");
+                
+                $.ajax({
+                    type: "GET",
+                    url:`/api/mantenedores/rol/eliminar/${id}`
+                }).done(function (data) {
+                    alert("Eliminado exitoso");
+                }).fail(function (errMsg) {
+                    console.log(errMsg);
+                }).always(function () {
+                    location.reload();
+                });
+
+            });
+
+        });</script>
+}
+
+<form id="frm-generico">
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            @if(User.IsInRole("Mantenedor de Sistema"))
+            {
+            <a href="/configuraciones/roles/formulario" class="btn btn-primary">Nuevo</a>
+            }
+            <div class="table-responsive mar-top">
+                <table id="table" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Organización</th>
+                            @if(User.IsInRole("Mantenedor de Sistema"))
+                            {
+                                <th>Accion</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var itm in ViewBag.rolesList)
+                        {
+                            <tr>
+                                <td>@itm.Name</td>
+                                <td>@itm.Orzanizacion.Nombre</td>
+                                @if(User.IsInRole("Mantenedor de Sistema"))
+                                {
+                                    <td>
+                                        <a href="/configuraciones/roles/formulario/@itm.Id" class="edicion btn btn-primary btn-sm">Editar</a>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+    </div>           
+</form>

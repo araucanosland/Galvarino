@@ -120,15 +120,17 @@ function soloNumeros(e) {
         return o;
     };
 
-
+    
     $('.solo-numeros').on('keydown', function(e){
         return soloNumeros(e);
     })
 
     let $li = $(`a[href="${location.pathname}"]`).closest("li");
     let $ul = $li.closest("ul");
-    $li.addClass("active")
+    $li.addClass("active-link")
     if ($ul.hasClass('collapse')) {
+        $parentLi = $ul.closest("li");
+        $parentLi.addClass("active-sub");
         $ul.addClass("in");
     }
 })(jQuery);

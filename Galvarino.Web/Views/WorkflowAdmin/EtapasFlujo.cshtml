@@ -1,0 +1,74 @@
+
+@{
+    ViewData["Title"] = "Etapas del Proceso: " + ViewBag.proceso.Nombre;
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Configuraciones</li>
+    <li>Workflow</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+
+@section script{
+
+    <script type="text/javascript">
+        $(function () {
+
+            $('.elimination').on('click', function (e) {
+                e.preventDefault();
+
+                var id = $(this).data("id");
+                
+                $.ajax({
+                    type: "GET",
+                    url:`/api/mantenedores/servicios/eliminar/${id}`
+                }).done(function (data) {
+                    alert("Eliminado exitoso");
+                     location.reload();
+                }).fail(function (errMsg) {
+                    console.log(errMsg);
+                }).always(function () {
+                   
+                });
+
+            });
+
+        });</script>
+}
+
+<form id="frm-generico">
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <a href="/configuraciones/workflow/procesos/@ViewBag.proceso.Id/etapas/formulario" class="btn btn-primary">Agregar Etapa</a>
+            <div class="table-responsive mar-top">
+                <table id="table" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Tipo Etapa</th>
+                            <th>Tipo Asignación</th>
+                            <th>Valor Asignación</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var itm in ViewBag.proceso.Etapas)
+                        {
+                            <tr>
+                                <td>@itm.Nombre</td>
+                                <td>@itm.TipoEtapa</td>
+                                <td>@itm.TipoUsuarioAsignado</td>
+                                <td>@itm.ValorUsuarioAsignado</td>
+                                <td>
+                                    <a href="/configuraciones/workflow/procesos/@ViewBag.proceso.Id/etapas/formulario/@itm.Id" class="detalle btn btn-primary btn-sm">Editar</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
