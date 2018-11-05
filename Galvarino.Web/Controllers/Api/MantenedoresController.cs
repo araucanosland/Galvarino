@@ -278,5 +278,52 @@ namespace Galvarino.Web.Controllers.Api
 
         #endregion
 
+        #region Configuracion Documentos
+
+        [HttpPost("configuracion-documentos")]
+        public IActionResult ConfiguracionDocumento([FromBody] FormConfigDoc entrada)
+        {
+            if (entrada == null)
+            {
+                throw new ArgumentNullException(nameof(entrada));
+            }
+
+            var tipoCredito = Enum.Parse<TipoCredito>(entrada.TipoCredito);
+            var tipoExpediente = Enum.Parse<TipoExpediente>(entrada.TipoExpediente);
+            var tipoDocumento = Enum.Parse<TipoDocumento>(entrada.TipoDocumento);
+
+            var existe = _context.ConfiguracionDocumentos.FirstOrDefault(cdoc =>    cdoc.TipoCredito == tipoCredito 
+                                                                                &&  cdoc.TipoDocumento == tipoDocumento 
+                                                                                &&  cdoc.TipoExpediente == tipoExpediente
+                                                                        );
+
+            if(existe != null && entrada.Id == 0)
+            {
+                throw new Exception("Registro Duplicado al Guardar");
+            }
+            else if(existe != null && entrada.Id > 0)
+            {
+                existe.Codificacion = entrada.Codificacion;
+                _context.ConfiguracionDocumentos.Update(existe);
+
+            }
+            else if(existe == null)
+            {
+                existe = new ConfiguracionDocumento
+                {
+                    Codificacion = entrada.Codificacion,
+                    TipoCredito = tipoCredito,
+                    TipoExpediente = tipoExpediente,
+                    TipoDocumento = tipoDocumento
+                };
+                _context.ConfiguracionDocumentos.Add(existe);
+            }
+
+            _context.SaveChanges();
+             
+
+            return Ok();
+        }
+        #endregion
     }
 }

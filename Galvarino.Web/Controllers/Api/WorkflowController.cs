@@ -73,6 +73,9 @@ namespace Galvarino.Web.Controllers.Api
                                 .Include(s => s.ValijaValorada)
                                 .FirstOrDefault(ex => ex.Credito.FolioCredito == folioCredito);      
 
+                expediente.Documentos = expediente.Documentos.OrderBy(r => r.Codificacion).ToList();
+
+
                 salida.Add(new {
                     tarea = tarea,
                     credito = credito,

@@ -436,6 +436,19 @@
                                                 <li><a href="/configuraciones/usuarios">Usuarios</a></li>
                                             </ul>
                                         </li>
+
+                                        <li>
+                                            <a href="#">
+                                                <i class="glyphicon glyphicon-stats"></i>
+                                                <span class="menu-title">Reportes</span>
+                                                <i class="arrow"></i>
+                                            </a>
+                            
+                                            <!--Submenu-->
+                                            <ul class="collapse">
+                                                <li><a href="/reportes/workflow/carga-inicial">Carga Inicial</a></li>
+                                            </ul>
+                                        </li>
                                     }
 
                                     @if(User.IsInRole("Mantenedor de Sistema"))
@@ -450,6 +463,7 @@
                                             <!--Submenu-->
                                             <ul class="collapse">
                                                 <li><a href="/configuraciones/workflow/procesos">Workflow</a></li>
+                                                <li><a href="/configuraciones/documentos">Documentos de Crédito</a></li>
                                             </ul>
                                         </li>
                                     }

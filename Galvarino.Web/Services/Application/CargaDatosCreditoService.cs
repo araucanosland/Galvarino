@@ -117,6 +117,10 @@ namespace Galvarino.Web.Services.Application
                             {
                                 cred.TipoCredito = TipoCredito.Reprogramacion;
                             }
+                            else if(ci.LineaCredito.ToLower().Contains("acuerdo de creditos castigados"))
+                            {
+                                cred.TipoCredito = TipoCredito.AcuerdoPago;
+                            }
 
                             
 
@@ -135,7 +139,7 @@ namespace Galvarino.Web.Services.Application
                             {
                                 Documento docmnt = new Documento{
                                     TipoDocumento = confItem.TipoDocumento,
-                                    Codificacion = incrementor.ToString().PadLeft(3,'0'),
+                                    Codificacion = confItem.Codificacion,
                                     Resumen = confItem.TipoDocumento.ToString("D")
                                 };
                                 expcred.Documentos.Add(docmnt);

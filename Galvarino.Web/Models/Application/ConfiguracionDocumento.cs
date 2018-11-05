@@ -11,6 +11,7 @@ namespace Galvarino.Web.Models.Application
         public TipoDocumento TipoDocumento { get; set; }
         public TipoExpediente TipoExpediente { get; set; }
         public TipoCredito TipoCredito { get; set; }
+        public string Codificacion { get; set; }
 
     }
 }
