@@ -182,6 +182,19 @@ namespace Galvarino.Web.Controllers
             
             return View();
         }
+
+
+        [Route("preparar-nomina")]
+        public IActionResult PrepararNomina()
+        {
+            var comunaOficina = _context.Users.Include(us => us.Oficina).ThenInclude(of => of.Comuna).FirstOrDefault(usr => usr.UserName == User.Identity.Name).Oficina.Comuna;
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            
+            return View();
+        }
+
+
+
         #endregion
     }
 }

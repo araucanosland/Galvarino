@@ -16,7 +16,7 @@ namespace Galvarino.Web.Services.Workflow.Transition
         public override bool Validar()
         {
             bool ret = false;
-            if (Convert.ToInt32(Variable("EXPEDIENTE_FALTANTE")) == 0)
+            if (Convert.ToInt32(Variable("ES_RM")) == 0 && Convert.ToInt32(Variable("EXPEDIENTE_FALTANTE")) == 0)
             {
                 ret = true;
             }

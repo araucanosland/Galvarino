@@ -24,9 +24,10 @@ namespace Galvarino.Web.Models.Helper
         public static readonly string ETAPA_RECEPCION_Y_CUSTODIA = "RECEPCION_Y_CUSTODIA";
         public static readonly string ETAPA_APERTURA_VALIJA = "APERTURA_VALIJA";
         public static readonly string ETAPA_DOCUMENTACION_FALTANTE = "DOCUMENTACION_FALTANTE";
-
-        
-
-
+        public static readonly string ETAPA_PREPARAR_NOMINA = "PREPARAR_NOMINA";
+        public static readonly string ETAPA_ENVIO_A_NOTARIA_RM = "ENVIO_A_NOTARIA_RM";
+        public static readonly string ETAPA_RECEPCION_DE_NOTARIA_RM = "RECEPCION_DE_NOTARIA_RM";
+        public static readonly string ETAPA_REVISION_DOCUMENTOS_NOTARIA_RM = "REVISION_DOCUMENTOS_NOTARIA_RM";
+        public static readonly string ETAPA_DEVOLUCION_REPARO_NOTARIA_RM = "DEVOLUCION_REPARO_NOTARIA_RM";
     }
 }

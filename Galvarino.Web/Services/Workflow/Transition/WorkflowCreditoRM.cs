@@ -15,12 +15,16 @@ namespace Galvarino.Web.Services.Workflow.Transition
         public override bool Validar()
         {
             bool retorno = false;
-
-            if (Variable("ES_RM").Equals("1"))
-            {
-                retorno = true;
+            try{
+                if (Convert.ToInt32(Variable("ES_RM")) == 1)
+                {
+                    retorno = true;
+                }
             }
-
+            catch(Exception)
+            {
+                retorno = false;
+            }
             return retorno;
         }
     }

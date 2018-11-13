@@ -612,5 +612,21 @@ namespace Galvarino.Web.Controllers.Api
             
             return Ok();
         }
+
+
+        [HttpPost("preparar-nomina")]
+        public async Task<IActionResult> PrepararNomina([FromBody] IEnumerable<ExpedienteGenerico> entrada)
+        {
+            List<string> ticketsAvanzar = new List<string>();
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+            
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_PREPARAR_NOMINA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+
+            return Ok();
+        }
     }
 }
