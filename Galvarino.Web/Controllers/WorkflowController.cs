@@ -194,6 +194,43 @@ namespace Galvarino.Web.Controllers
         }
 
 
+        [Route("envio-a-notaria-rm")]
+        public IActionResult EnvioNotariaRM()
+        {
+            var comunaOficina = _context.Users.Include(us => us.Oficina).ThenInclude(of => of.Comuna).FirstOrDefault(usr => usr.UserName == User.Identity.Name).Oficina.Comuna;
+            var notariasComuna = _context.Notarias.Where(not => not.Comuna.Id == comunaOficina.Id).ToList();
+            ViewBag.NotariasOficina = notariasComuna;
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+        [Route("recepciona-notaria-rm")]
+        public IActionResult RecepcionaNotariaRM()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+        [Route("revision-documentos-rm")]
+        public IActionResult RevisionDocumentosRM()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+        [Route("devolucion-reparo-notaria-rm")]
+        public IActionResult DevolucionReparoNotariaRM()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+        [Route("almacenaje-set-comercial")]
+        public IActionResult AlmacenajeSetComercial()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
 
         #endregion
     }

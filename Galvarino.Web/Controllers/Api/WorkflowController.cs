@@ -64,6 +64,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 var folioCredito = _wfService.ObtenerVariable("FOLIO_CREDITO", tarea.Solicitud.NumeroTicket);
                 var motivoDevol = _wfService.ObtenerVariable("CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL", tarea.Solicitud.NumeroTicket);
+                var reparoNotaria = _wfService.ObtenerVariable("REPARO_REVISION_DOCUMENTO_LEGALIZADO", tarea.Solicitud.NumeroTicket);
                 var documentosFaltantes = _wfService.ObtenerVariable("COLECCION_DOCUMENTOS_FALTANTES", tarea.Solicitud.NumeroTicket);
                 var credito = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito);
                 var expediente = _context.ExpedientesCreditos
@@ -81,6 +82,7 @@ namespace Galvarino.Web.Controllers.Api
                     credito = credito,
                     expediente = expediente,
                     reparo=motivoDevol.Length > 0 ? Convert.ToInt32(motivoDevol): 0,
+                    reparoNotaria = reparoNotaria,
                     documentosFaltantes
                 });
             });
@@ -627,6 +629,123 @@ namespace Galvarino.Web.Controllers.Api
             await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_PREPARAR_NOMINA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
 
             return Ok();
+        }
+
+
+        [HttpPost("envio-a-notaria-rm")]
+        public async Task<IActionResult> EnvioNotariaRM([FromBody] ColeccionExpedientesGenerica entrada)
+        {
+
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var oficinaEnvio = _context.Oficinas.Include(ofi => ofi.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+            var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Id == entrada.CodNotaria);
+
+            DateTime now = DateTime.Now;
+            var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2, Convert.ToChar(0));
+
+
+            var packNotaria = new PackNotaria
+            {
+                FechaEnvio = DateTime.Now,
+                NotariaEnvio = notariaEnvio,
+                Oficina = oficinaEnvio,
+                CodigoSeguimiento = codSeg
+            };
+
+            _context.PacksNotarias.Add(packNotaria);
+
+            foreach (var item in entrada.ExpedientesGenericos)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                elExpediente.PackNotaria = packNotaria;
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_A_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+
+            return Ok(packNotaria);
+        }
+
+        [HttpPost("recepciona-notaria-rm")]
+        public async Task<IActionResult> RecepcionaNotariaRM([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        {
+            List<string> ticketsAvanzar = new List<string>();
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_DE_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+            return Ok();
+        }
+
+        [HttpPost("revision-documentos-rm")]
+        public async Task<IActionResult> RevisionDocumentosRM([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                _wfService.AsignarVariable("REPARO_REVISION_DOCUMENTO_LEGALIZADO", item.Reparo.ToString(), elExpediente.Credito.NumeroTicket);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+            return Ok(entrada);
+        }
+
+        [HttpPost("despacho-reparo-notaria-rm")]
+        public async Task<IActionResult> DespachoReparoNotariaRM([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        {
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var oficinaEnvio = _context.Oficinas.Include(of => of.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+            var notariaEnvio = _context.Notarias.Include(not => not.Comuna).FirstOrDefault(d => d.Comuna.Id == oficinaEnvio.Comuna.Id);
+
+
+            DateTime now = DateTime.Now;
+            var codSeg = now.Ticks.ToString() + "R" + notariaEnvio.Id.ToString().PadLeft(2, Convert.ToChar(0));
+
+            var packNotaria = new PackNotaria
+            {
+                FechaEnvio = DateTime.Now,
+                NotariaEnvio = notariaEnvio,
+                Oficina = oficinaEnvio,
+                CodigoSeguimiento = codSeg
+            };
+
+            _context.PacksNotarias.Add(packNotaria);
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                elExpediente.PackNotaria = packNotaria;
+                expedientesModificados.Add(elExpediente);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+            await _context.SaveChangesAsync();
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DEVOLUCION_REPARO_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+            return Ok(packNotaria);
+        }
+
+        [HttpGet("listar-comerciales")]
+        public IActionResult ListarComerciales()
+        {
+            var comerciales = _context.ExpedientesCreditos.Include(exp => exp.AlmacenajeComercial).Include(exp => exp.Credito).Where(exp => exp.AlmacenajeComercial == null);
+            return Ok(comerciales);
         }
     }
 }

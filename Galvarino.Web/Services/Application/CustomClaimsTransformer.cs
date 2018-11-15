@@ -17,13 +17,20 @@ public class CustomClaimsTransformer : IClaimsTransformation
     {
         var idt = ((ClaimsIdentity)principal.Identity);
         var rut = idt.Name.Replace(@"LAARAUCANA\", "");
-        var user = await _userManager.Users.Include(usr => usr.Oficina).FirstOrDefaultAsync(d => d.Identificador == rut);
+        var user = await _userManager.Users
+                                .Include(usr => usr.Oficina)
+                                .ThenInclude(of => of.Comuna)
+                                .ThenInclude(cm => cm.Region)
+                                .FirstOrDefaultAsync(d => d.Identificador == rut);
+        bool isRM = user.Oficina.Comuna.Region.Id == 13;
         if(user != null)
         {
             idt.AddClaim(new Claim(CustomClaimTypes.UsuarioNombres, user.Nombres));
             idt.AddClaim(new Claim(CustomClaimTypes.OficinaCodigo, user.Oficina != null ? user.Oficina.Codificacion : ""));
             idt.AddClaim(new Claim(CustomClaimTypes.OficinaDescripcion, user.Oficina != null ? user.Oficina.Nombre : ""));
             idt.AddClaim(new Claim(CustomClaimTypes.UsuarioCorreo, user.NormalizedEmail.ToLower()));
+            idt.AddClaim(new Claim(CustomClaimTypes.EsOficinaRM, isRM.ToString()));
+
             var roles = await _userManager.GetRolesAsync(user);
             foreach (var rol in roles)
             {

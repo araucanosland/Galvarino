@@ -266,6 +266,54 @@
             "outputMode": "singleLine"
         },
         "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/despachoNotariaRM.min.js",
+        "inputFiles": [
+            "wwwroot/js/despachoNotariaRM.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/recepcionNotariaRM.min.js",
+        "inputFiles": [
+            "wwwroot/js/recepcionNotariaRM.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/reparosaNotariaRM.min.js",
+        "inputFiles": [
+            "wwwroot/js/reparosaNotariaRM.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/js/revisionDocumentosRM.min.js",
+        "inputFiles": [
+            "wwwroot/js/revisionDocumentosRM.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
     }
 
 ]

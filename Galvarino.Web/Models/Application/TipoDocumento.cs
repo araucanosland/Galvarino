@@ -12,7 +12,16 @@ namespace Galvarino.Web.Models.Application
         SolicitudCredito,
         Liquidacion,
         HojaProlongacion,
-        AcuerdoDePago
+        AcuerdoDePago,
+        ContratoCredito,
+        CertificadoVigenciaEmpleador,
+        InformeCredito,
+        AnexoSeguroDesgravamen,
+        AnexoSeguroCesantia,
+        CertificadoDomicilio,
+        AnexoEmpleador,
+        CotizacionesOFondoPensiones,
+        CertificadoDeudaOMandato
 
     }
 }

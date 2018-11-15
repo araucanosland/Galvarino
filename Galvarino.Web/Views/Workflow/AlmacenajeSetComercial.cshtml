@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Almacenaje Set Comercial";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+
+ <!--Page Script-->
+<environment include="Development">
+    <script src="~/js/analisisMsControl.js"></script>
+</environment>
+<environment exclude="Development">
+    <script src="~/js/analisisMsControl.min.js"></script>
+</environment>
+
+}
+
+<div class="row">
+    <div class="col-sm-6 table-toolbar-left">                      
+        <div class="btn-group">
+            <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Cerrar Caja</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table          id="tabla-generica"
+                    data-toggle="table"
+                    data-url="/api/wf/v1/listar-comerciales"
+                    data-search="false"
+                    data-show-refresh="false"
+                    data-show-toggle="false"
+                    data-show-columns="false"
+                    data-sort-name="expediente.credito.folioCredito"
+                    data-page-list="[]"
+                    data-page-size="20"
+                    data-pagination="false" data-show-pagination-switch="false">
+        <thead>
+            <tr>
+                <th data-field="expediente.credito.folioCredito" data-events="operateEvents" data-formatter="formatoReparo">Reparo?</th>
+                <th data-field="credito.folioCredito" data-sortable="false">Folio Credito</th>
+                <th data-field="expediente.credito.tipoCredito" data-sortable="false" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                <th data-field="credito.fechaDesembolso" data-sortable="false" data-formatter="formatoFecha">Fecha Desembolso</th>
+                <th data-field="credito.montoCredito" data-align="center" data-sortable="false" >Monto Credito</th>
+                <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="false">Etapa</th>
+            </tr>
+        </thead>
+    </table>
+</div>

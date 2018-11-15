@@ -16,6 +16,7 @@ namespace Galvarino.Web.Models.Application
         public CajaValorada CajaValorada { get; set; }
         public ValijaOficina ValijaOficina { get; set; }
         public ICollection<Documento> Documentos { get; set; }
+        public AlmacenajeComercial AlmacenajeComercial { get; set; }
         
         public ExpedienteCredito()
         {

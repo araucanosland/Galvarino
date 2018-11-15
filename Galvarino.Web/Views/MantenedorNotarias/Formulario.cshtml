@@ -1,0 +1,144 @@
+@{
+    ViewData["Title"] = "Formulario Notaría";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Configuraciones</li>
+    <li>Notarías</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section style{
+    <link href="~/Assets/plugins/chosen/chosen.min.css" rel="stylesheet">
+}
+@section script{
+    <script type="text/javascript">
+        $(function () {
+
+            $('#frm-generico').on('submit', function (e) {
+                e.preventDefault();
+                var model = $(this).serializeFormJSON();
+
+
+                console.log(model)
+
+
+
+                $(".submit-generico").html("Cargando...");
+                
+                
+                $.ajax({
+                    type: "POST",
+                    url: "/configuraciones/notarias/crud",
+                    data: JSON.stringify(model),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+                    $.niftyNoty({
+                        type: "success",
+                        container : "floating",
+                        title : "Suceso Exitoso",
+                        message : "Los datos de la Notaría se han guardado correctamente",
+                        closeBtn : false,
+                        timer : 5000
+                    });
+                    $('#frm-generico')[0].reset();
+                }).fail(function (errMsg) {
+                     $.niftyNoty({
+                        type: "danger",
+                        container : "floating",
+                        title : "Suceso Inesperado",
+                        message : "Los datos NO se han guardado!",
+                        closeBtn : false,
+                        timer : 5000
+                    });
+                }).always(function () {
+                    $(".submit-generico").html("Guardar");
+                });
+
+            });
+
+
+            $("#region").on("change", function(){
+                let region = $(this).val();
+                 $.ajax({
+                    type: "GET",
+                    url: `/configuraciones/notarias/localizacion/regiones/${region}/comunas`,
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+
+                    $('#comuna').html($('<option>').val("").text("Seleccione"))
+
+                    $(data).each(function(i, e){
+                        console.log({i, e});
+                        $('#comuna').append(
+                            $('<option>').val(e.id).text(e.nombre)
+                        );
+                    });
+                })
+            });
+
+        });</script>
+}
+
+<form id="frm-generico">
+
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <label for="region">Región</label>
+            <select id="region" class="form-control">
+                    <option value="">Seleccione</option>
+                    @foreach(var itm in ViewBag.regionesList)
+                    {
+                        @if (ViewBag.editando && ViewBag.notaria.Comuna.Region.Id == itm.Id)
+                        {
+                            <option value="@itm.Id" selected>@itm.Nombre</option>
+                        }
+                        else
+                        {
+                            <option value="@itm.Id">@itm.Nombre</option>
+                        }
+                        
+                    }
+            </select>
+        </div>
+        <div class="col-sm-12 col-md-6">
+            <label for="comuna">Comuna</label>
+            <select name="Comuna" id="comuna" class="form-control">
+                    <option value="">Seleccione</option>
+                    @if (ViewBag.editando)
+                    {
+                        @foreach(var itm in ViewBag.notaria.Comuna.Region.Comunas)
+                        {
+                            @if (ViewBag.notaria.Comuna.Id == itm.Id)
+                            {
+                                <option value="@itm.Id" selected>@itm.Nombre</option>
+                            }
+                            else
+                            {
+                                <option value="@itm.Id">@itm.Nombre</option>
+                            }
+                        }
+                    }
+            </select>
+        </div>
+        <div class="col-sm-12 col-md-6">
+            <label for="nombre">Nombre</label>
+            <div class="input-group mar-btm">
+                <span class="input-group-addon"><i class="demo-pli-male"></i></span>
+                <input type="text" value="@(ViewBag.editando ? ViewBag.notaria.Nombre : "")" id="nombre" name="Nombre" class="form-control">
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="text-right no-print">
+                <input type="hidden" name="Id" value="@(ViewBag.editando ? ViewBag.notaria.Id : "")" />
+                <a href="/configuraciones/notarias" class="btn btn-warning">Volver</a>
+                <button class="btn btn-primary submit-generico" id="btn-confirmar">Guardar</button>
+            </div>
+        </div>
+    </div>        
+</form>

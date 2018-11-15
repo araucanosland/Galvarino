@@ -1,6 +1,7 @@
 @{
-    ViewData["Title"] = "Solución de Reparos en Sucursal";
+    ViewData["Title"] = "Despacho de Expedientes con Reparo a Notaría";
 }
+
 
 @section breadcumbs{
     <li><a href="#"><i class="demo-pli-home"></i></a></li>
@@ -8,15 +9,14 @@
     <li class="active">@ViewData["Title"]</li>
 }
 
-
 @section script{
 
  <!--Page Script-->
 <environment include="Development">
-    <script src="~/js/solucionSucursal.js"></script>
+    <script src="~/js/reparosaNotariaRM.js"></script>
 </environment>
 <environment exclude="Development">
-    <script src="~/js/solucionSucursal.min.js"></script>
+    <script src="~/js/reparosaNotariaRM.min.js"></script>
 </environment>
 
 }
@@ -24,19 +24,19 @@
 <div class="row">
     <div class="col-sm-6 table-toolbar-left">                      
         <div class="btn-group">
-            <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Reparos Resueltos</button>
+            <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Generar Despacho</button>
         </div>
     </div>
 </div>
 <div class="row">
     <table          id="tabla-generica" 
                     data-toggle="table"
-                    data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL"
+                    data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_DEVOLUCION_REPARO_NOTARIA_RM"
                     data-search="true"
                     data-show-refresh="false"
                     data-show-toggle="false"
                     data-show-columns="false"
-                    data-sort-name="expediente.valijaValorada.fechaEnvio"
+                    data-sort-name="expediente.packNotaria.fechaEnvio"
                     data-page-list="[]"
                     data-page-size="40"
                     data-pagination="true" 
@@ -44,15 +44,18 @@
                     data-locale="es-CL">
         <thead>
             <tr>
-                <th data-field="reparo" data-formatter="formatoReparo">Motivo</th>
-                <th data-field="expediente.credito.folioCredito" data-sortable="true">Folio Crédito</th>
+                <th data-field="reparoNotaria" data-formatter="formatoReparo">Motivo</th>
+                <th data-field="expediente.credito.folioCredito" data-sortable="true">Folio Credito</th>
                 <th data-field="expediente.credito.rutCliente" data-align="center" data-sortable="true" >Rut Afiliado</th>
                 <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
                 <th data-field="expediente.credito.folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
-                <th data-field="expediente.credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Colocación</th>
-                <th data-field="expediente.valijaValorada.fechaEnvio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fec. Envío Sucursal</th>
-                <th data-field="expediente.valijaValorada.codigoSeguimiento" data-align="center" data-sortable="true">Valija</th>
+                <th data-field="expediente.credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                <th data-field="expediente.packNotaria.fechaEnvio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
+                <th data-field="expediente.packNotaria.codigoSeguimiento" data-align="center" data-sortable="true">Folio Envío</th>
             </tr>
         </thead>
     </table>
 </div>
+
+
+<canvas id="barcode"></canvas>
