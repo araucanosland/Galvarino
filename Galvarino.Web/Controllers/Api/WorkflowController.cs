@@ -744,6 +744,13 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("listar-comerciales")]
         public IActionResult ListarComerciales()
         {
+
+            int cantidadExpedientesPorCaja = 80;
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var laOficina = _context.Oficinas.Include(of => of.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+
+
+
             var comerciales = _context.ExpedientesCreditos.Include(exp => exp.AlmacenajeComercial).Include(exp => exp.Credito).Where(exp => exp.AlmacenajeComercial == null);
             return Ok(comerciales);
         }

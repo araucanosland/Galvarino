@@ -314,6 +314,18 @@
             "outputMode": "singleLine"
         },
         "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/lib/css/nifty.min.css",
+        "inputFiles": [
+            "wwwroot/lib/css/nifty.css"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
     }
 
 ]

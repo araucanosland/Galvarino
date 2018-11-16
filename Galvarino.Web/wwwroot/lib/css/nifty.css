@@ -3761,13 +3761,13 @@ h6,
 }
 .panel-overlay {
   position: absolute;
-  top: 0;
+  top: 0 !important;
   left: 0;
   right: 0;
   bottom: 0;
   background-color: rgba(255, 255, 255, 0.75);
   text-align: center;
-  z-index: 795;
+  z-index: 99999 !important;
 }
 .panel-overlay:before {
   content: "";

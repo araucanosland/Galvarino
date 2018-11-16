@@ -1,15 +1,9 @@
-window.operateEvents = {
-    'change .reparo': function (e, value, row, index) {
-        row.reparo = parseInt($(e.target).val());
-    }
-};
-
 const metodos = {
-    avanzarWf: function () {
+    guaradar: function () {
         let foliosEnvio = [];
         let data = $('#tabla-generica').bootstrapTable('getData');
 
-        foliosEnvio = data.map(function(element){
+        foliosEnvio = data.map(function (element) {
             return {
                 folioCredito: element.expediente.credito.folioCredito,
                 reparo: element.reparo
@@ -50,47 +44,14 @@ const metodos = {
 }
 
 
-function formatoReparo(val, row, inc) {
-    row.reparo = 0;
-    return `
-    <select class="form-control reparo" id="${inc}">
-        <option value="0">Sin Reparos</option>
-        <option value="1">Sin Firma de Notario</option>
-        <option value="2">Sin Timbre de Notario</option>
-        <option value="3">Sin Firma ni Timbre</option>
-        <option value="4">Ilegible</option>
-    </select>`;
-    /*TODO: Aqui hay datos en duro */
-}
-
-function bloqueoBoton(selector, option='start')
-{
-    if(option == 'start')
-    {
-        $(selector).data("text", $(selector).text());
-        $(selector).text("Cargando...");
-        $(selector).prop({
-            disabled: true
-        });
-    }
-
-    if(option == 'end')
-    {
-        $(selector).text($(selector).data('text'));
-        $(selector).prop({
-            disabled: false
-        });
-    }
-}
-
 $(function () {
 
-    
+
     $("#btn-generar-generico").on("click", function () {
-        metodos.avanzarWf();
-        
+        metodos.guaradar();
+
     });
 
-    
+
 
 });

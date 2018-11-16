@@ -133,7 +133,28 @@ function soloNumeros(e) {
         $parentLi.addClass("active-sub");
         $ul.addClass("in");
     }
+
+
+
+
+    
 })(jQuery);
+
+/*Cargando... */
+$(document).ajaxStart(function () {
+    var target = $("body"),
+        panelOv = $('<div id="principal-loader" class="panel-overlay"></div>');
+    target.addClass('panel-overlay-wrap'),
+        icon = '<span class="panel-overlay-icon text-main"><i class="fa fa-refresh fa-spin fa-2x"></i></span>';
+    target.data('overlayTemplate', '<div class="panel-overlay-content pad-all unselectable">' + icon + '<h4 class="panel-overlay-title"></h4><p></p></div>');
+
+    panelOv.appendTo(target).html(target.data('overlayTemplate'));
+});
+
+$(document).ajaxStop(function () {
+    $("body").removeClass('panel-overlay-wrap');
+    $("#principal-loader").hide().remove();
+});
 
 
 /* Funciones especiales para Tablas */
