@@ -11,6 +11,13 @@ namespace Galvarino.Web.Models.Application
         public DateTime Fecha { get; set; }
         public ICollection<ExpedienteCredito> Expedientes { get; set; }
         public string CodigoSeguimiento { get; set; }
+        public string RutEjecutivo { get; set; }
+        public string CodigoOficina { get; set; }
+        //public string Resumen { get; set; }
+
+        public AlmacenajeComercial(){
+            Expedientes = new List<ExpedienteCredito>();
+        }
 
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Galvarino.Web.Data.Migrations
 {
-    public partial class AlmacenajeComercial : Migration
+    public partial class AlmacenajeExpedientesComerciales : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +13,7 @@ namespace Galvarino.Web.Data.Migrations
                 nullable: true);
 
             migrationBuilder.CreateTable(
-                name: "AlmacenajeComercial",
+                name: "AlmacenajesComerciales",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
@@ -22,7 +22,7 @@ namespace Galvarino.Web.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AlmacenajeComercial", x => x.Id);
+                    table.PrimaryKey("PK_AlmacenajesComerciales", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
@@ -31,10 +31,10 @@ namespace Galvarino.Web.Data.Migrations
                 column: "AlmacenajeComercialId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_ExpedientesCreditos_AlmacenajeComercial_AlmacenajeComercialId",
+                name: "FK_ExpedientesCreditos_AlmacenajesComerciales_AlmacenajeComercialId",
                 table: "ExpedientesCreditos",
                 column: "AlmacenajeComercialId",
-                principalTable: "AlmacenajeComercial",
+                principalTable: "AlmacenajesComerciales",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }
@@ -42,11 +42,11 @@ namespace Galvarino.Web.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_ExpedientesCreditos_AlmacenajeComercial_AlmacenajeComercialId",
+                name: "FK_ExpedientesCreditos_AlmacenajesComerciales_AlmacenajeComercialId",
                 table: "ExpedientesCreditos");
 
             migrationBuilder.DropTable(
-                name: "AlmacenajeComercial");
+                name: "AlmacenajesComerciales");
 
             migrationBuilder.DropIndex(
                 name: "IX_ExpedientesCreditos_AlmacenajeComercialId",

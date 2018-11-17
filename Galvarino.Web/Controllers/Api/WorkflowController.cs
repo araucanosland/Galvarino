@@ -391,7 +391,7 @@ namespace Galvarino.Web.Controllers.Api
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.Documentos).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                _wfService.AsignarVariable("EXPEDIENTE_FALTANTE", item.Faltante ? "1" : "0", elExpediente.Credito.NumeroTicket);
+                _wfService.AsignarVariable("EXPEDIENTE_FALTANTE", item.Faltante ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
                 
                 if(item.Faltante)
                 {
@@ -448,7 +448,7 @@ namespace Galvarino.Web.Controllers.Api
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                _wfService.AsignarVariable("DEVOLUCION_A_SUCURSAL", item.Reparo > 0 ? "1":"0", elExpediente.Credito.NumeroTicket);
+                _wfService.AsignarVariable("DEVOLUCION_A_SUCURSAL", item.Reparo > 0 ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
                 if(item.Reparo > 0){
                     _wfService.AsignarVariable("CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL", item.Reparo.ToString(), elExpediente.Credito.NumeroTicket);
                     _wfService.AsignarVariable("TEXTO_MOTIVO_DEVOLUCION_A_SUCURSAL", opt[item.Reparo], elExpediente.Credito.NumeroTicket);
@@ -481,7 +481,7 @@ namespace Galvarino.Web.Controllers.Api
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", "1", elExpediente.Credito.NumeroTicket);
+                _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", 1.ToString(), elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
             await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
@@ -602,7 +602,7 @@ namespace Galvarino.Web.Controllers.Api
             foreach (var item in entrada)
             {
                 var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                _wfService.AsignarVariable("EXPEDIENTE_FALTANTE_CUSTODIA", item.Faltante ? "1": "0", elExpediente.Credito.NumeroTicket);
+                _wfService.AsignarVariable("EXPEDIENTE_FALTANTE_CUSTODIA", item.Faltante ? 1.ToString(): 0.ToString(), elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
@@ -741,18 +741,65 @@ namespace Galvarino.Web.Controllers.Api
             return Ok(packNotaria);
         }
 
-        [HttpGet("listar-comerciales")]
-        public IActionResult ListarComerciales()
+        [HttpGet("listar-comerciales/{codigoCaja?}")]
+        public async Task<IActionResult> ListarComerciales([FromRoute] string codigoCaja="")
         {
 
-            int cantidadExpedientesPorCaja = 80;
+            //int cantidadExpedientesPorCaja = 80;
             var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
-            var laOficina = _context.Oficinas.Include(of => of.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+            //var laOficina = _context.Oficinas.Include(of => of.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+            var comerciales = await _context.ExpedientesCreditos
+                                .Include(exp => exp.AlmacenajeComercial)
+                                .Include(exp => exp.Credito)
+                                .Where(exp => (codigoCaja == String.Empty) ? exp.AlmacenajeComercial == null : exp.AlmacenajeComercial.CodigoSeguimiento == codigoCaja)
+                                .Join(  _context.CargasIniciales, 
+                                        expediente => expediente.Credito.FolioCredito, 
+                                        cargainicial => cargainicial.FolioCredito,
+                                        (expediente, cargainicial) => new {
+                                            expediente, cargainicial
+                                        }
+                                ).Where(x => x.cargainicial.CodigoOficinaIngreso == codificacionOficinaLogedIn)
+                                .OrderByDescending(ord => ord.expediente.Credito.FechaDesembolso)
+                                .OrderByDescending(ord => ord.expediente.Credito.FolioCredito)
+                                .ToListAsync();
 
 
-
-            var comerciales = _context.ExpedientesCreditos.Include(exp => exp.AlmacenajeComercial).Include(exp => exp.Credito).Where(exp => exp.AlmacenajeComercial == null);
+            
             return Ok(comerciales);
         }
+
+        [HttpGet("historial-cajas-comerciales")]
+        public async Task<IActionResult> ListarHistorialCajas()
+        {
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var retorno = await _context.AlmacenajesComerciales.Where(x => x.CodigoOficina == codificacionOficinaLogedIn).ToListAsync();
+            return Ok(retorno);
+        }
+
+        [HttpPost("almacenaje-set-comercial")]
+        public async Task<IActionResult> GuardarAlamacenajeComercial([FromBody] IEnumerable<ExpedienteGenerico> entrada){
+
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            AlmacenajeComercial almacen = new AlmacenajeComercial{
+                Id = Guid.NewGuid(),
+                CodigoSeguimiento = DateTime.Now.Ticks.ToString() + codificacionOficinaLogedIn,
+                Fecha = DateTime.Now,
+                CodigoOficina = codificacionOficinaLogedIn,
+                RutEjecutivo = User.Identity.Name
+            };
+            foreach(var item in entrada)
+            {
+                var folio = item.FolioCredito;
+                var expediente = _context.ExpedientesCreditos.Include(exp => exp.Credito).FirstOrDefault(exp => exp.Credito.FolioCredito == folio);
+                almacen.Expedientes.Add(expediente);
+
+            }
+            _context.AlmacenajesComerciales.Add(almacen);
+            await _context.SaveChangesAsync();
+            
+            return Ok();
+        }
+
+
     }
 }

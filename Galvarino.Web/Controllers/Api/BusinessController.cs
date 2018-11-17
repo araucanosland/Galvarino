@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Workflow;
 using Microsoft.AspNetCore.Authorization;
+using Galvarino.Web.Models.Security;
 
 namespace Galvarino.Web.Controllers.Api
 {
@@ -59,7 +60,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("listar-valijas-enviadas-oficina/{marcavance?}")]
         public IActionResult ListarValijasOficina(string marcavance = "")
         {
-            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == "Oficina").Value;
+            var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
             var valijas = _context.ValijasOficinas
                                 .Include(v => v.Expedientes)
                                 .Include(v => v.OficinaDestino)

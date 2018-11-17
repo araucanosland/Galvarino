@@ -1,7 +1,7 @@
 const metodos = {
     avanzarWf: function () {
 
-        let data = $('#tabla-generica').bootstrapTable('getData');
+        let data = $('#tabla-generica').bootstrapTable('getSelections');
         let procesar = data.map(function(element){
             return {
                 folioCredito: element.expediente.credito.folioCredito

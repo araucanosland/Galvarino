@@ -10,14 +10,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Galvarino.Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20181115212002_AlmacenajeComercial")]
-    partial class AlmacenajeComercial
+    [Migration("20181117161024_AlmacenajeExpedientesComerciales")]
+    partial class AlmacenajeExpedientesComerciales
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasAnnotation("ProductVersion", "2.1.1-rtm-30846")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -32,7 +32,7 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AlmacenajeComercial");
+                    b.ToTable("AlmacenajesComerciales");
                 });
 
             modelBuilder.Entity("Galvarino.Web.Models.Application.CajaValorada", b =>

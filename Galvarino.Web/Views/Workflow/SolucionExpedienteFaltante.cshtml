@@ -28,6 +28,11 @@
     </div>
 </div>
 <div class="row">
+    <div class="col-sm-12">
+        <div class="alert alert-info"><strong>Recuerda!</strong> debes seleccionar los documentos que ya estan reparados para resolverlos.</div>
+    </div>
+</div>
+<div class="row">
     <table          id="tabla-generica" 
                     data-toggle="table"
                     data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE"
@@ -43,6 +48,7 @@
                     data-locale="es-CL">
         <thead>
             <tr>
+                <th data-checkbox="true">Resuelto</th>
                 <th data-field="reparo" data-formatter="formatoReparo">Doc. Faltante</th>
                 <th data-field="expediente.credito.folioCredito" data-sortable="true">Folio Crédito</th>
                 <th data-field="expediente.credito.rutCliente" data-align="center" data-sortable="true" >Rut Afiliado</th>

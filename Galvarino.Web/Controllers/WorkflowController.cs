@@ -232,6 +232,12 @@ namespace Galvarino.Web.Controllers
             return View();
         }
 
+        [Route("almacenaje-set-comercial/historial")]
+        public IActionResult HistorialAlmacenajeSetComercial()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
         #endregion
     }
 }

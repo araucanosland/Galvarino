@@ -21,29 +21,35 @@
 }
 
 <div class="row">
-    <div class="col-sm-6 table-toolbar-left">                      
-        <div class="btn-group">
-            <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Cerrar Caja</button>
+    <div class="col-sm-12 table-toolbar-left">                      
+        <div>
+            <button class="btn btn-primary " id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Cerrar Caja</button> 
+            <a class="btn btn-primary pull-right" href="/wf/v1/almacenaje-set-comercial/historial"><i class="glyphicon glyphicon-list-alt"></i> Historial de Cajas</a>
         </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="alert alert-info"><strong>Recuerda!</strong> Para cerrar una caja debes tener al menos 80 documentos en la lista.</div>
     </div>
 </div>
 <div class="row">
     <table          id="tabla-generica"
                     data-toggle="table"
-                    data-url="/api/wf/v1/listar-comerciales/zxc/"
+                    data-url="/api/wf/v1/listar-comerciales"
                     data-search="false"
                     data-show-refresh="false"
                     data-show-toggle="false"
                     data-show-columns="false"
-                    data-sort-name="expediente.credito.folioCredito"
                     data-page-list="[]"
-                    data-page-size="20"
-                    data-pagination="false" data-show-pagination-switch="false">
+                    data-page-size="80"
+                    data-pagination="true" data-show-pagination-switch="false">
         <thead>
             <tr>
-                <th data-field="credito.folioCredito" data-sortable="false">Folio Credito</th>
-                <th data-field="credito.tipoCredito" data-sortable="false" data-formatter="formatoTipoCredito">Tipo Crédito</th>
-                <th data-field="credito.fechaDesembolso" data-sortable="false" data-formatter="formatoFecha">Fecha Colocación</th>
+                <th data-field="expediente.credito.folioCredito" data-formatter="formatoIncrementor" data-sortable="false">#</th>
+                <th data-field="expediente.credito.folioCredito" data-sortable="false">Folio Credito</th>
+                <th data-field="expediente.credito.tipoCredito" data-sortable="false" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                <th data-field="expediente.credito.fechaDesembolso" data-sortable="false" data-formatter="formatoFecha">Fecha Colocación</th>
             </tr>
         </thead>
     </table>
