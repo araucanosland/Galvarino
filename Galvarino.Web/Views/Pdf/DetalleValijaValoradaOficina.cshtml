@@ -42,15 +42,22 @@
 </head>
 <body>
 
-    <table class="tabla-orden">
+     <table class="tabla-orden">
         <thead>
             <tr>
                 <th>
-                    <h3>Nómina de envío a Notaría: @Model.PackNotaria.NotariaEnvio.Nombre</h3>
-                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.PackNotaria.Expedientes.Count</h4>
-                    @*<h4><strong>Oficina Origen:</strong> @Model.PackNotaria.OficinaEnvio.Nombre @Comax <strong>Oficina Destino:</strong> @Model.PackNotaria.OficinaDestino.Nombre</h4>*@
+                    <h3 style="text-align:center;">Nómina de envío a Oficina Legalizacón</h3>
                 </th>
-                <th style="text-align:right;"><canvas id="barcode"></canvas></th>
+            </tr>
+            <tr>
+                <th style="text-align:center;"><canvas id="barcode"></canvas></th>
+            </tr>
+            <tr>
+                <th style="text-align:center;">
+                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaOficina.Expedientes.Count</h4>
+                    <h4><strong>Oficina Origen:</strong> @Model.ValijaOficina.OficinaEnvio.Nombre </h4>
+                    <h4><strong>Oficina Destino:</strong> @Model.ValijaOficina.OficinaDestino.Nombre</h4>
+                </th>
             </tr>
         </thead>
     </table>
@@ -59,9 +66,9 @@
         <thead>
             <tr>
                 <th>
-                    <h3>Nómina de envío a Notaría: @Model.PackNotaria.NotariaEnvio.Nombre</h3>
-                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.PackNotaria.Expedientes.Count</h4>
-                    @*<h4><strong>Oficina Origen:</strong> @Model.PackNotaria.OficinaEnvio.Nombre @Comax <strong>Oficina Destino:</strong> @Model.PackNotaria.OficinaDestino.Nombre</h4>*@
+                    <h3>Nómina de envío a Oficina</h3>
+                    <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaOficina.Expedientes.Count</h4>
+                    @*<h4><strong>Oficina Origen:</strong> @Model.ValijaOficina.OficinaEnvio.Nombre @Comax <strong>Oficina Destino:</strong> @Model.ValijaOficina.OficinaDestino.Nombre</h4>*@
                 </th>
                 <th style="text-align:right;"><canvas id="barcode"></canvas></th>
             </tr>
@@ -82,7 +89,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(var xfile in Model.PackNotaria.Expedientes)
+            @foreach(var xfile in Model.ValijaOficina.Expedientes)
             {
                 
                 <tr>

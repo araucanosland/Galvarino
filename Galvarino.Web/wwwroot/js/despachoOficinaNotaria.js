@@ -89,8 +89,7 @@ const metodos = {
                 timer: 5000,
                 onHidden: function () {
                     location.href = "/wf/v1/mis-solicitudes";
-                    window.open(`/salidas/pdf/detalle-pack-notaria/${data.codigoSeguimiento}`, "_blank");
-                    /*TODO Revisar que sucede aca con el link del pdf */
+                    window.open(`/salidas/pdf/detalle-valijas-oficinas/${data.codigoSeguimiento}`, "_blank");
                 }
             });
         }).fail(function (errMsg) {

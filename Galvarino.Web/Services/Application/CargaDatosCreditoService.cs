@@ -90,7 +90,7 @@ namespace Galvarino.Web.Services.Application
                             _setVariables.Add("RUT_AFILIADO", campos[0]);
                             _setVariables.Add("FECHA_VENTA", campos[10]);
                             _setVariables.Add("ES_RM", esRM);
-                            _setVariables.Add("DOCUMENTO_LEGALIZADO", "0");
+                            _setVariables.Add("DOCUMENTO_LEGALIZADO", 0.ToString());
                             _setVariables.Add("OFINA_PROCESA_NOTARIA", oficinaProceso);
 
 

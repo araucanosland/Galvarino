@@ -12,22 +12,25 @@
 
  <!--Page Script-->
 <environment include="Development">
-    <script src="~/js/almacenajeComercial.js"></script>
+    <script src="~/js/documentosLegalizados.js"></script>
 </environment>
 <environment exclude="Development">
-    <script src="~/js/almacenajeComercial.min.js"></script>
+    <script src="~/js/documentosLegalizados.min.js"></script>
 </environment>
 
 }
 
 <div class="row">
-    <div class="col-sm-12 table-toolbar-left">                      
-       <form id="form-pistoleo-maestro">
-                <div class="input-group mar-btm">
-                    <span class="input-group-addon"><i class="glyphicon glyphicon-barcode"></i></span>
-                    <input class="form-control" placeholder="Pistolear" type="text" id="codigoSeguimiento" autocomplete="off">
-                </div>
-            </form>
+    <div class="col-sm-6 table-toolbar-left">                      
+       <form id="form-pistoleo-detalle">
+            <div class="input-group mar-btm">
+                <span class="input-group-addon"><i class="glyphicon glyphicon-barcode"></i></span>
+                <input class="form-control" placeholder="Pistolear" type="text" id="folio-shot" autocomplete="off">
+            </div>
+        </form>
+    </div>
+    <div class="col-sm-6">
+        <button class="btn btn-primary" type="button" id="btn-generar-generico"><i class="fa fa-clone"></i> Procesar Expedientes</button>
     </div>
 </div>
 <div class="row">
@@ -36,22 +39,7 @@
     </div>
 </div>
 <div class="row">
-    <table          id="tabla-generica"
-                    data-toggle="table"
-                    data-search="false"
-                    data-show-refresh="false"
-                    data-show-toggle="false"
-                    data-show-columns="false"
-                    data-page-list="[]"
-                    data-page-size="80"
-                    data-pagination="true" data-show-pagination-switch="false">
-        <thead>
-            <tr>
-                <th data-field="expediente.credito.folioCredito" data-formatter="formatoIncrementor" data-sortable="false">#</th>
-                <th data-field="expediente.credito.folioCredito" data-sortable="false">Folio Credito</th>
-                <th data-field="expediente.credito.tipoCredito" data-sortable="false" data-formatter="formatoTipoCredito">Tipo Crédito</th>
-                <th data-field="expediente.credito.fechaDesembolso" data-sortable="false" data-formatter="formatoFecha">Fecha Colocación</th>
-            </tr>
-        </thead>
-    </table>
+    <div class="col-sm-12">
+        <div class="well contenedor-folios text-left"></div>
+    </div>
 </div>

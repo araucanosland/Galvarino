@@ -3,7 +3,7 @@ let variables = {
 }
 const metodos = {
     guaradar: function () {
-        let cantidadAdmitida = 70;
+        let cantidadAdmitida = 80;
         let foliosEnvio = [];
         let data = $('#tabla-generica').bootstrapTable('getData');
 

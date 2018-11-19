@@ -326,6 +326,18 @@
             "outputMode": "singleLine"
         },
         "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/lib/css/documentosLegalizados.min.js",
+        "inputFiles": [
+            "wwwroot/js/documentosLegalizados.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
     }
 
 ]
