@@ -238,6 +238,14 @@ namespace Galvarino.Web.Controllers
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
+
+
+        [Route("marcar-documentos-legalizados")]
+        public IActionResult DocumentosLegalizados()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
         #endregion
     }
 }
