@@ -19,7 +19,7 @@ namespace Galvarino.Web.Controllers
     [Authorize]
     public class WorkflowController : Controller
     {
-        private const int CantidadCaracteres = 24;
+        private const int CantidadCaracteres = 23;
         private readonly ApplicationDbContext _context;
         private readonly IWorkflowService _wfService;
         

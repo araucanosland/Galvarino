@@ -73,7 +73,6 @@ $(function () {
 
 
     $("#btn-generar-generico").on("click", function () {
-        console.log('Generando')
         metodos.avanzarWf();
     });
 

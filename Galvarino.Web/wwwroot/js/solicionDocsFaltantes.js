@@ -55,14 +55,6 @@ function formatoReparo(val, row, inc) {
     })
 
     output = output.join().replace(/,/g,', ');
-
-    
-    console.log({
-        row,
-        documentos,
-        docFaltantes,
-        output
-    })
     return output;
 }
 

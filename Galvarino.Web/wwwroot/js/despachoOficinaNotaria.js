@@ -5,16 +5,16 @@ const eventos = {
 }
 const metodos = {
     disparo: function () {
-        var codigoTipoDocumento = $("#folio-shot").val().substring(0, 3);
-        const expedientex = {
-            codigoTipoDocumento,
-            folioCredito: $("#folio-shot").val().substring(3, 15),
-            rutAfiliado: $("#folio-shot").val().substring(15, 16),
-            montoCredito: $("#folio-shot").val().substring(16, 17),
-            completado: false,
-            documentos: [codigoTipoDocumento],
-            obtenido: {}
-        }
+       var codigoTipoDocumento = $("#folio-shot").val().substring(formatoFolios.codigo.inicio, formatoFolios.codigo.fin);
+       const expedientex = {
+           codigoTipoDocumento,
+           folioCredito: $("#folio-shot").val().substring(formatoFolios.folioCredito.inicio, formatoFolios.folioCredito.fin),
+           rutAfiliado: $("#folio-shot").val().substring(formatoFolios.rutAfiliado.inicio, formatoFolios.rutAfiliado.fin),
+           completado: false,
+           documentos: [codigoTipoDocumento],
+           obtenido: {},
+           pistoleado: []
+       }
 
         var index = _ingresados.findIndex(function (x) {
             return x.folioCredito == expedientex.folioCredito
@@ -170,7 +170,6 @@ $(function () {
     });
 
     $("#btn-generar-generico").on("click", function () {
-        console.log('Generando')
         metodos.avanzarWf();
     });
 

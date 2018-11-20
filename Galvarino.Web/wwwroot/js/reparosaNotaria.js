@@ -77,13 +77,5 @@ $(function () {
 
 function formatoReparo(val, row, inc) {
 
-    let opciones = [
-        'Sin Reparos',
-        'Sin Firma de Notario',
-        'Sin Timbre de Notario',
-        'Sin Firma ni Timbre',
-        'Ilegible'
-    ]
-
-    return opciones[val];
+    return opcionesReparosNotaria[val];
 }
