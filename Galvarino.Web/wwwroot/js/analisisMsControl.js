@@ -52,15 +52,12 @@ const metodos = {
 
 function formatoReparo(val, row, inc) {
     row.reparo = 0;
-    return `
-    <select class="form-control reparo" id="${inc}">
-        <option value="0">Sin Reparos</option>
-        <option value="1">Sin Firma de Notario</option>
-        <option value="2">Sin Timbre de Notario</option>
-        <option value="3">Sin Firma ni Timbre</option>
-        <option value="4">Ilegible</option>
-    </select>`;
-    /*TODO: Aqui hay datos en duro */
+    let salida = `<select class="form-control reparo" id="${inc}">`;
+    salida = salida + opcionesReparosNotaria.map(function (val, index) {
+        return `<option value="${index}">${val}</option>`
+    });
+    salida = salida + `</select>`;
+    return salida;
 }
 
 $(function () {

@@ -328,7 +328,7 @@
         "sourceMap": true
     },
     {
-        "outputFileName": "wwwroot/lib/css/documentosLegalizados.min.js",
+        "outputFileName": "wwwroot/js/documentosLegalizados.min.js",
         "inputFiles": [
             "wwwroot/js/documentosLegalizados.js"
         ],
@@ -340,7 +340,7 @@
         "sourceMap": true
     },
     {
-        "outputFileName": "wwwroot/lib/css/almacenajeComercial.min.js",
+        "outputFileName": "wwwroot/js/almacenajeComercial.min.js",
         "inputFiles": [
             "wwwroot/js/almacenajeComercial.js"
         ],
