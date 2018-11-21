@@ -338,6 +338,18 @@
             "outputMode": "singleLine"
         },
         "sourceMap": true
+    },
+    {
+        "outputFileName": "wwwroot/lib/css/almacenajeComercial.min.js",
+        "inputFiles": [
+            "wwwroot/js/almacenajeComercial.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": true,
+            "outputMode": "singleLine"
+        },
+        "sourceMap": true
     }
 
 ]
