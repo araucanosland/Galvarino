@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Carga Masiva de Usuarios";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Configuraciones</li>
+    <li>Usuarios</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+<form id="frm-generico" enctype="multipart/form-data" method="post">
+
+<div class="row mar-btm">
+    <div class="form-group">
+        <input type="file" name="file" class="form-control" />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="text-right no-print">
+            <button class="btn btn-primary submit-generico" id="btn-confirmar">Guardar</button>
+        </div>
+    </div>
+</div>
+
+</form>
+

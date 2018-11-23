@@ -102,7 +102,7 @@ namespace Galvarino.Web.Controllers.Api
             {
 
                 var folioCredito = _wfService.ObtenerVariable("FOLIO_CREDITO", tarea.Solicitud.NumeroTicket);
-                var codigoOficinaDevolucion = _wfService.ObtenerVariable("OFINA_PROCESA_NOTARIA", tarea.Solicitud.NumeroTicket);
+                var codigoOficinaDevolucion = _wfService.ObtenerVariable("OFICINA_PROCESA_NOTARIA", tarea.Solicitud.NumeroTicket);
 
                 var oficinaDevolucion = _context.Oficinas.FirstOrDefault(o => o.Codificacion == codigoOficinaDevolucion);
                 var credito = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito);

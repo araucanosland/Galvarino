@@ -44,7 +44,7 @@ namespace Galvarino.Web.Services.Application
                 /*Todo:  Revisar Findesemanas*/
                 string nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
                 string ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
-                _logger.LogDebug(nombreArchivo);
+                _logger.LogDebug(ruta);
 
                 var existencia = _context.CargasIniciales.Where(x => x.NombreArchivoCarga == nombreArchivo).ToList();
                 if ((File.Exists(ruta) && existencia.Count == 0) || (File.Exists(ruta) && File.ReadLines(ruta).Count()-1 > existencia.Count))
@@ -78,7 +78,7 @@ namespace Galvarino.Web.Services.Application
 
                             string esRM = Convert.ToString(0);
                             string oficinaProceso = _context.Oficinas.Include(x => x.OficinaProceso).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaPago).OficinaProceso.Codificacion;
-                            if (_context.Oficinas.Include(x => x.Comuna).ThenInclude(x => x.Region).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaIngreso).Comuna.Region.Id == 13)
+                            if (_context.Oficinas.Include(x => x.Comuna).ThenInclude(x => x.Region).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaPago).Comuna.Region.Id == 13)
                             {
                                 esRM = Convert.ToString(1);
                             }
@@ -91,7 +91,7 @@ namespace Galvarino.Web.Services.Application
                             _setVariables.Add("FECHA_VENTA", campos[10]);
                             _setVariables.Add("ES_RM", esRM);
                             _setVariables.Add("DOCUMENTO_LEGALIZADO", 0.ToString());
-                            _setVariables.Add("OFINA_PROCESA_NOTARIA", oficinaProceso);
+                            _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaProceso);
 
 
                             
