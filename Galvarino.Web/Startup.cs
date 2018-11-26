@@ -49,7 +49,6 @@ namespace Galvarino.Web
             services.Configure<IISOptions>(options =>
             {
                 options.ForwardClientCertificate = false;
-                options.AutomaticAuthentication = true;
             });
 
 
@@ -63,11 +62,6 @@ namespace Galvarino.Web
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 1;
 
-                // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(500);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
-
                 // User settings.
                 options.User.RequireUniqueEmail = true;
             });
@@ -77,10 +71,10 @@ namespace Galvarino.Web
             {
                 // Cookie settings
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(500);
-
+                options.ExpireTimeSpan = TimeSpan.FromDays(20);
+                
                 options.LoginPath = "/";
-                options.AccessDeniedPath = "/acceso-denegado";
+                options.AccessDeniedPath = "/Home/SinPermiso";
                 options.SlidingExpiration = true;
             });
 

@@ -27,7 +27,7 @@ namespace Galvarino.Web.Services.Workflow
         protected string Variable(string clave)
         {
             var varu = Variables.FirstOrDefault(v => v.Clave.Equals(clave));
-            return varu.Valor;
+            return varu != null ? varu.Valor : "";
             
         }
 

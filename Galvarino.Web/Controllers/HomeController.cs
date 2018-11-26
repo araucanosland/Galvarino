@@ -7,24 +7,56 @@ using Microsoft.AspNetCore.Mvc;
 using Galvarino.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Galvarino.Web.Models.Security;
+using Microsoft.Extensions.Configuration;
 
 namespace Galvarino.Web.Controllers
 {
     public class HomeController : Controller
     {
         private readonly SignInManager<Usuario> _signInManager;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(SignInManager<Usuario> signInManager)
+        public HomeController(SignInManager<Usuario> signInManager, IConfiguration configuration)
         {
             _signInManager = signInManager;
+            _configuration = configuration;
         }
+        
         public IActionResult Index()
         {
-            if(User.Identity.IsAuthenticated)
+            string userAgent = Request.Headers["User-Agent"].ToString();
+            if(userAgent.Contains("MSIE") || userAgent.Contains("Trident"))
             {
+                return Content("Internet Explorer no soporta esta App.");
+            }
+            else
+            {
+                if (User.Identity.IsAuthenticated)
+                {
+                    return Redirect("/wf/v1/mis-solicitudes");
+                }
+                else
+                {
+                    string route = _configuration["RutaAutenticacionUsuario"] + "?code=" + _configuration["CodigoSistema"];
+                    return Redirect(route);
+                }
+            }
+            
+           
+        }
+
+        public async Task<IActionResult> SignIn(string rut)
+        {        
+            try
+            {
+                var user = await _signInManager.UserManager.FindByNameAsync(rut);
+                await _signInManager.SignInAsync(user, true);
                 return Redirect("/wf/v1/mis-solicitudes");
             }
-            return View();
+            catch (Exception ex)
+            {
+                return View("SinPermiso");
+            }
         }
 
         public IActionResult SignOut()
