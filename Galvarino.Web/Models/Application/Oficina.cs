@@ -13,5 +13,7 @@ namespace Galvarino.Web.Models.Application
         public Comuna Comuna { get; set; }
         public Oficina OficinaProceso { get; set; }
         public ICollection<PackNotaria> PacksNotaria { get; set; }
+        public bool EsRM { get; set; }
+        public bool EsMovil { get; set; }
     }
 }

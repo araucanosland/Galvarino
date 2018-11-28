@@ -17,7 +17,7 @@ namespace Galvarino.Web.Services.Workflow.Transition
         {
             bool retorno = false;
 
-            if (Variable("ES_RM").Equals("0") && Variable("OFINA_PROCESA_NOTARIA") != Variable("OFICINA_PAGO"))
+            if (Variable("ES_RM").Equals("0") && Variable("OFICINA_PROCESA_NOTARIA") != Variable("OFICINA_PAGO"))
             {
                 retorno = true;
             }

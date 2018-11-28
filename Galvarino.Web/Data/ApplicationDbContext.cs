@@ -40,6 +40,7 @@ namespace Galvarino.Web.Data
         public DbSet<Region> Regiones { get; set; }
         public DbSet<ConfiguracionDocumento> ConfiguracionDocumentos { get; set; }
         public DbSet<AlmacenajeComercial> AlmacenajesComerciales { get; set; }
+        public DbSet<AuditorReasignacion> AudicionesReasignaciones { get; set; }
         
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

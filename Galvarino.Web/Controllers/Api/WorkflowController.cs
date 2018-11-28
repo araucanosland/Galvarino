@@ -52,8 +52,14 @@ namespace Galvarino.Web.Controllers.Api
         public async Task<IActionResult> ListarMisSolicitudes(string etapaIn = ""){
 
             //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
-            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;    
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\","") || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(x.AsignadoA) && ((x.UnidadNegocioAsignada != null && x.UnidadNegocioAsignada == oficinaUsuario) || x.UnidadNegocioAsignada == null )) && x.Estado == EstadoTarea.Activada);
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value; 
+            var ObjetoOficinaUsuario = _context.Oficinas.Include(of=> of.OficinaProceso).FirstOrDefault(ofc => ofc.Codificacion == oficinaUsuario);
+            var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id && ofc.EsMovil == true);
+            var ofinales = new List<Oficina>();
+            ofinales.Add(ObjetoOficinaUsuario);
+            ofinales.AddRange(OficinasUsuario.ToList());
+
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\","") || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(x.AsignadoA) && ((x.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(x.UnidadNegocioAsignada)) || x.UnidadNegocioAsignada == null )) && x.Estado == EstadoTarea.Activada);
 
             if(!string.IsNullOrEmpty(etapaIn)){
                 mistareas = mistareas.Where(g => g.Etapa.NombreInterno==etapaIn);
@@ -89,6 +95,77 @@ namespace Galvarino.Web.Controllers.Api
             
             
             return Ok(salida);
+        }
+
+        [HttpGet("mis-solicitudes/{etapaIn}/{notaria}")]
+        public async Task<IActionResult> ListarMisSolicitudesNotaria(string etapaIn, int notaria)
+        {
+
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var ObjetoOficinaUsuario = _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefault(ofc => ofc.OficinaProceso.Codificacion == oficinaUsuario);
+            var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id);
+
+            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(x.AsignadoA) && ((x.UnidadNegocioAsignada != null && OficinasUsuario.Select(ofs => ofs.Codificacion).Contains(x.UnidadNegocioAsignada)) || x.UnidadNegocioAsignada == null)) && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == etapaIn);
+
+            
+            var salida = new List<dynamic>();
+            await mistareas.ForEachAsync(tarea =>
+            {
+
+                var folioCredito = _wfService.ObtenerVariable("FOLIO_CREDITO", tarea.Solicitud.NumeroTicket);
+                var motivoDevol = _wfService.ObtenerVariable("CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL", tarea.Solicitud.NumeroTicket);
+                var reparoNotaria = _wfService.ObtenerVariable("REPARO_REVISION_DOCUMENTO_LEGALIZADO", tarea.Solicitud.NumeroTicket);
+                var documentosFaltantes = _wfService.ObtenerVariable("COLECCION_DOCUMENTOS_FALTANTES", tarea.Solicitud.NumeroTicket);
+                var credito = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito);
+                var expediente = _context.ExpedientesCreditos
+                                .Include(f => f.Documentos)
+                                .Include(f => f.Credito)
+                                .Include(s => s.PackNotaria)
+                                .Include(s => s.ValijaValorada)
+                                .FirstOrDefault(ex => ex.Credito.FolioCredito == folioCredito && ex.PackNotaria.NotariaEnvio.Id == notaria);
+
+                expediente.Documentos = expediente.Documentos.OrderBy(r => r.Codificacion).ToList();
+
+
+                salida.Add(new
+                {
+                    tarea = tarea,
+                    credito = credito,
+                    expediente = expediente,
+                    reparo = motivoDevol.Length > 0 ? Convert.ToInt32(motivoDevol) : 0,
+                    reparoNotaria = reparoNotaria,
+                    documentosFaltantes
+                });
+            });
+
+
+            return Ok(salida);
+        }
+
+        [HttpGet("documentos-generados/{tipoDocumento}")]
+        public async Task<IActionResult> ListarMisDocumentosGenerados(string tipoDocumento)
+        {
+
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var ObjetoOficinaUsuario = await _context.Oficinas.Include(of => of.OficinaProceso).Include(of => of.PacksNotaria).ThenInclude(pn => pn.Expedientes).FirstOrDefaultAsync(ofc => ofc.OficinaProceso.Codificacion == oficinaUsuario);
+            var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id);
+
+            switch(tipoDocumento)
+            {
+                case "nomina-notaria":
+                    return Ok(ObjetoOficinaUsuario.PacksNotaria);
+                
+                case "valija-oficina":
+                    var valijaOficina = await _context.ValijasOficinas.Include(d => d.OficinaEnvio).Include(d => d.Expedientes).Where(x => x.OficinaEnvio.Codificacion == oficinaUsuario).ToListAsync();
+                    return Ok(valijaOficina);
+
+                case "valija-valorada":
+                    var valijaValodara = await _context.ValijasValoradas.Include(d => d.Oficina).Include(d => d.Expedientes).Where(x => x.Oficina.Codificacion == oficinaUsuario).ToListAsync();
+                    return Ok(valijaValodara);
+                
+                default:
+                    throw new Exception("Debes Ingresar con una opcion de mostrado");
+            }    
         }
 
         [HttpGet("solicitudes-reparo-devolicion/{oficina?}")]
@@ -201,7 +278,7 @@ namespace Galvarino.Web.Controllers.Api
             var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Id == entrada.CodNotaria);
                         
             DateTime now = DateTime.Now;
-            var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2,Convert.ToChar(0));
+            var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2, '0').ToString();
             
             
             var packNotaria = new PackNotaria
@@ -273,7 +350,7 @@ namespace Galvarino.Web.Controllers.Api
             
 
             DateTime now = DateTime.Now;
-            var codSeg = now.Ticks.ToString() + "R" + notariaEnvio.Id.ToString().PadLeft(2, Convert.ToChar(0));
+            var codSeg = now.Ticks.ToString() + "R" + notariaEnvio.Id.ToString().PadLeft(2, '0');
 
             var packNotaria = new PackNotaria
             {
@@ -643,7 +720,7 @@ namespace Galvarino.Web.Controllers.Api
             var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Id == entrada.CodNotaria);
 
             DateTime now = DateTime.Now;
-            var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2, Convert.ToChar(0));
+            var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2, '0');
 
 
             var packNotaria = new PackNotaria
@@ -715,7 +792,7 @@ namespace Galvarino.Web.Controllers.Api
 
 
             DateTime now = DateTime.Now;
-            var codSeg = now.Ticks.ToString() + "R" + notariaEnvio.Id.ToString().PadLeft(2, Convert.ToChar(0));
+            var codSeg = now.Ticks.ToString() + "R" + notariaEnvio.Id.ToString().PadLeft(2, '0');
 
             var packNotaria = new PackNotaria
             {
@@ -821,6 +898,61 @@ namespace Galvarino.Web.Controllers.Api
             return Ok();
         }
 
+        [HttpGet("reasignaciones/oficinas")]
+        public IActionResult ConsultaExpedienteReasignacion([FromQuery] string q)
+        {
+            var fdata  = from cargas in _context.CargasIniciales
+                        join comercial in _context.Oficinas on cargas.CodigoOficinaIngreso equals comercial.Codificacion
+                        join legal in _context.Oficinas on cargas.CodigoOficinaPago equals legal.Codificacion
+                        where cargas.FolioCredito == q 
+                        select new {
+                            CargaInicial = cargas,
+                            OficinaComercial = comercial,
+                            OficinaLegal = legal
+                        };
+            
+
+            return Ok(fdata.First());
+        }
+
+        [HttpPost("reasignaciones/oficinas")]
+        public IActionResult GuardarExpedienteReasignacion([FromBody] dynamic entrada)
+        {
+            using(var tran = _context.Database.BeginTransaction())
+            {
+                try{
+                    string folio = entrada.folioCredito.ToString();
+                    int codOficinaReasignacion = Convert.ToInt32(entrada.nuevaOficina);
+                    var cargaInicial = _context.CargasIniciales.FirstOrDefault(carga => carga.FolioCredito == folio);
+                    var oficinaReasigna = _context.Oficinas.Find(codOficinaReasignacion);
+                    var credito = _context.Creditos.FirstOrDefault(cred => cred.FolioCredito == folio);
+                    string opOriginal = cargaInicial.CodigoOficinaPago;
+                    cargaInicial.CodigoOficinaPago = oficinaReasigna.Codificacion;
+                    _wfService.AsignarVariable("OFICINA_PAGO", oficinaReasigna.Codificacion, credito.NumeroTicket);
+                    _wfService.AsignarVariable("OFICINA_PROCESA_NOTARIA", oficinaReasigna.Codificacion, credito.NumeroTicket);
+                    _context.CargasIniciales.Update(cargaInicial);
+                    AuditorReasignacion audit = new AuditorReasignacion
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        UsuarioAccion = User.Identity.Name,
+                        FechaAccion =  DateTime.Now,
+                        TipoReasignacion = "Reasignacion Oficina Legal",
+                        AsignacionOriginal = opOriginal,
+                        AsignacionNueva = oficinaReasigna.Codificacion
+                    };
+                    _context.AudicionesReasignaciones.Add(audit);
+                    _context.SaveChanges();
+                    tran.Commit();
+                    return Ok();
+                }
+                catch(Exception)
+                {
+                    tran.Rollback();
+                    return BadRequest();
+                }
+            }
+            
+        }
 
     }
 }

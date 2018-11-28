@@ -76,6 +76,9 @@ namespace Galvarino.Web.Controllers
         [Route("revision-documentos")]
         public IActionResult RevisionDocumentos()
         {
+            var comunaOficina = _context.Users.Include(us => us.Oficina).ThenInclude(of => of.Comuna).FirstOrDefault(usr => usr.UserName == User.Identity.Name).Oficina.Comuna;
+            var notariasComuna = _context.Notarias.Where(not => not.Comuna.Id == comunaOficina.Id).ToList();
+            ViewBag.NotariasOficina = notariasComuna;
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
@@ -244,6 +247,22 @@ namespace Galvarino.Web.Controllers
         public IActionResult DocumentosLegalizados()
         {
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+        [Route("notas-internas/generadas/{tipoDocumento}")]
+        public IActionResult DocumentosGenerados(string tipoDocumento)
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            ViewBag.tipoDocumento = tipoDocumento;
+            return View();
+        }
+
+        [Route("reasignaciones/oficinas")]
+        public IActionResult ReasignaOficina()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            ViewBag.Offices =  _context.Oficinas.ToList();
             return View();
         }
         #endregion

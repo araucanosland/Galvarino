@@ -27,6 +27,18 @@
             <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Procesar Documentos</button>
         </div>
     </div>
+    <div class="col-sm-6">
+        @if(ViewBag.NotariasOficina.Count > 1)
+        {
+            <input type="hidden" id="etapa" value="@ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS" />
+            <select id="notarias" class="form-control">  
+                @foreach (var item in ViewBag.NotariasOficina)
+                {
+                    <option value="@item.Id">@item.Nombre</option>    
+                }                  
+            </select>
+        }
+    </div>
 </div>
 <div class="row">
     <table          id="tabla-generica" 

@@ -76,12 +76,10 @@ namespace Galvarino.Web.Services.Application
                             };
                             _context.CargasIniciales.Add(ci);
 
-                            string esRM = Convert.ToString(0);
-                            string oficinaProceso = _context.Oficinas.Include(x => x.OficinaProceso).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaPago).OficinaProceso.Codificacion;
-                            if (_context.Oficinas.Include(x => x.Comuna).ThenInclude(x => x.Region).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaPago).Comuna.Region.Id == 13)
-                            {
-                                esRM = Convert.ToString(1);
-                            }
+                            
+                            var oficinaProceso = _context.Oficinas.Include(x => x.OficinaProceso).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaPago);
+                            string esRM = oficinaProceso.EsRM  ? "1" : "0";
+                            
 
                             Dictionary<string, string> _setVariables = new Dictionary<string, string>();
                             _setVariables.Add("OFICINA_PAGO", campos[4]);
@@ -90,8 +88,8 @@ namespace Galvarino.Web.Services.Application
                             _setVariables.Add("RUT_AFILIADO", campos[0]);
                             _setVariables.Add("FECHA_VENTA", campos[10]);
                             _setVariables.Add("ES_RM", esRM);
-                            _setVariables.Add("DOCUMENTO_LEGALIZADO", 0.ToString());
-                            _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaProceso);
+                            _setVariables.Add("DOCUMENTO_LEGALIZADO", "0");
+                            _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaProceso.OficinaProceso.Codificacion);
 
 
                             
@@ -108,8 +106,11 @@ namespace Galvarino.Web.Services.Application
                                 NumeroTicket = wf.NumeroTicket
                             };
 
-
-                            if (ci.LineaCredito.ToLower().Contains("credito normal") || ci.LineaCredito.ToLower().Contains("compra cartera") || ci.LineaCredito.ToLower().Contains("credito paralelo"))
+                            if(ci.LineaCredito.ToLower().Contains("credito normal") && ci.Estado.Contains("Reprogramado"))
+                            {
+                                cred.TipoCredito = TipoCredito.Reprogramacion;
+                            }
+                            else if (ci.LineaCredito.ToLower().Contains("credito normal") || ci.LineaCredito.ToLower().Contains("compra cartera") || ci.LineaCredito.ToLower().Contains("credito paralelo"))
                             {
                                 cred.TipoCredito = TipoCredito.Normal;
                             }

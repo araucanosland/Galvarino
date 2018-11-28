@@ -1,0 +1,49 @@
+
+@{
+    ViewData["Title"] = "Reporte de Movimiento de Documentos Oficinas";
+    int incrementor = 1;
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Reportes</li>
+    <li>Workflow</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="table-responsive">
+            <table id="table" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Oficina</th>
+                        <th>Etapa</th>
+                        <th>Fecha Inicio Etapa</th>
+                        <th>Folio Crédito</th>
+                        <th>Tipo Crédito</th>
+                        <th>Fecha Colocación</th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var itm in Model)
+                    {
+                        <tr>
+                            <td>@incrementor</td>
+                            <td>@itm.Oficina.Nombre</td>
+                            <td>@itm.Tarea.Etapa.Nombre</td>
+                            <td>@itm.Tarea.FechaInicio.ToString("dd-MM-yyyy")</td>
+                            <td>@itm.Expediente.Credito.FolioCredito</td>
+                            <td>@itm.Expediente.Credito.TipoCredito</td>
+                            <td>@itm.Expediente.Credito.FechaDesembolso.ToString("dd-MM-yyyy")</td>
+                            
+                        </tr>
+                        incrementor++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

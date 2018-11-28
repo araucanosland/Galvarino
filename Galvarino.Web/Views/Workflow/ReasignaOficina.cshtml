@@ -1,0 +1,147 @@
+@{
+    ViewData["Title"] = "Reasignación Oficina de Expediente";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+
+ <!--Page Script-->
+<script>
+    $(function(){
+        $("#form-busqueda").on("submit", function(event){
+            var inputBusqueda = $('#inputBusqueda').val();
+            $.ajax({
+                type: "GET",
+                url: `/api/wf/v1/reasignaciones/oficinas`,
+                data: {
+                    q : inputBusqueda
+                }
+            }).done(function(data){
+                if(typeof data != 'undefined')
+                {
+                    $('#folio-credito').val(data.cargaInicial.folioCredito)
+                    $('#datos-credito').html("")
+                        .append(`<small>Datos Credito</small>`)
+                        .append(`<h5>Folio: ${data.cargaInicial.folioCredito}</h5>`)
+                        .append(`<p> Rut: ${data.cargaInicial.rutAfiliado}<br/>F. Coloc.: ${data.cargaInicial.fechaVigencia}</p>`);
+
+                    $('#oficina-oferta').html("")
+                        .append(`<small>Oficina Evaluadora</small>`)
+                        .append(`<h5>${data.oficinaComercial.nombre}</h5>`)
+                        .append(`<p> Codigo: ${data.oficinaComercial.codificacion}</p>`);
+
+                    $('#oficina-colocacion').html("")
+                        .append(`<small>Oficina de Pago</small>`)
+                        .append(`<h5>${data.oficinaLegal.nombre}</h5>`)
+                        .append(`<p> Codigo: ${data.oficinaLegal.codificacion}</p>`);  
+                }else{
+                    $('#datos-credito').html("<h1>No encontramos lo que buscas!</h1>")
+                }
+            }).fail(function(err){
+                $('#datos-credito').html("<h1>No encontramos lo que buscas!</h1>")
+                console.log({err})
+            })
+            
+            return false;
+        });
+
+        $("#form-generico").on("submit", function(event){
+            event.preventDefault();
+            var model = {
+                folioCredito: $('#folio-credito').val(),
+                nuevaOficina: $("#nuevaOficina").val(),
+                tipo: 'Legal'
+            }
+
+            console.log({
+                model
+            })
+
+            $.ajax({
+            type: "POST",
+            url: `/api/wf/v1/reasignaciones/oficinas`,
+            data: JSON.stringify(model),
+            contentType: "application/json; charset=utf-8"
+        }).done(function (data) {
+
+            $.niftyNoty({
+                type: "success",
+                container: "floating",
+                title: "Despacho a Notaría",
+                message: "Cambios Guardados...<br/><small>Quiero decirte que hoy te ves Radiante!!!</small>",
+                closeBtn: true,
+                timer: 5000,
+                onHidden: function(){
+                    
+                }
+            });
+            
+        }).fail(function (errMsg) {
+            $.niftyNoty({
+                type: "warning",
+                container: "floating",
+                title: "Avance Tareas",
+                message: "Tarea No Finalizada, contacte a Soporte!",
+                closeBtn: true,
+                timer: 5000
+            });
+
+        })
+        });
+    });
+</script>
+}
+
+<div class="row">
+    <form id="form-busqueda" class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <input type="text" id="inputBusqueda" class="form-control" placeholder="Ingresa el Folio del Credito" autocomplete="off"/>
+
+                </div>
+            </div>
+        </div>
+    </form>
+    <form id="form-generico" class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-3 text-left" id="datos-credito">
+            </div>
+            <div class="col-sm-3 text-left hidden" id="datos-workflow">
+            </div>
+            <div class="col-sm-3 text-left" id="oficina-oferta">
+            </div>
+            <div class="col-sm-3 text-left" id="oficina-colocacion">
+            </div>
+        </div>
+
+        <div class="row mar-top">
+            <div class="col-sm-6 text-left">
+                <small>Reasignar Oficina de Pago</small>
+                <select class="form-control" id="nuevaOficina">
+                    <option value="">Selecciona</option>
+                    @foreach (var item in ViewBag.Offices)
+                    {
+                        <option value="@item.Id">@item.Nombre</option>
+                    }
+                </select>
+                <div class="btn-group mar-top">
+                    <input type="hidden" id="folio-credito" value="" />
+                    <button class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </div>
+            
+            
+        </div>
+        
+        
+    </form>
+         
+    
+   
+</div>

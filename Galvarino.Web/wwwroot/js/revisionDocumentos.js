@@ -85,4 +85,17 @@ $(function () {
         metodos.avanzarWf();
     });
 
+    $("#notarias").on("change", function(){
+
+        var etapa = $("#etapa").val();
+        var notaria = $("#notarias").val();
+        
+        $("#tabla-generica").bootstrapTable('refresh', {
+            url: `/api/wf/v1/mis-solicitudes/${etapa}/${notaria}`
+        });
+    })
+
+
+    
+
 });
