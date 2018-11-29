@@ -27,11 +27,22 @@
             <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Generar Despacho</button>
         </div>
     </div>
+    <div class="col-sm-6">
+        @if(ViewBag.NotariasOficina.Count > 1)
+        {
+            <input type="hidden" id="etapa" value="@ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA" />
+            <select id="notarias" class="form-control">  
+                @foreach (var item in ViewBag.NotariasOficina)
+                {
+                    <option value="@item.Id">@item.Nombre</option>    
+                }                  
+            </select>
+        }
+    </div>
 </div>
 <div class="row">
     <table          id="tabla-generica" 
                     data-toggle="table"
-                    data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA"
                     data-search="true"
                     data-show-refresh="false"
                     data-show-toggle="false"

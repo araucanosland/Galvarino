@@ -96,6 +96,6 @@ $(function () {
     })
 
 
-    
+    $("#notarias").trigger("change");
 
 });

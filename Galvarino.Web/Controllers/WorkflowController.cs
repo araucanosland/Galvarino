@@ -86,6 +86,9 @@ namespace Galvarino.Web.Controllers
         [Route("despacho-reparo-notaria")]
         public IActionResult DespachoReparoNotaria()
         {
+            var comunaOficina = _context.Users.Include(us => us.Oficina).ThenInclude(of => of.Comuna).FirstOrDefault(usr => usr.UserName == User.Identity.Name).Oficina.Comuna;
+            var notariasComuna = _context.Notarias.Where(not => not.Comuna.Id == comunaOficina.Id).ToList();
+            ViewBag.NotariasOficina = notariasComuna;
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }

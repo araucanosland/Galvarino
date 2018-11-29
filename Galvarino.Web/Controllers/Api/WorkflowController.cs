@@ -109,7 +109,8 @@ namespace Galvarino.Web.Controllers.Api
 
             
             var salida = new List<dynamic>();
-            await mistareas.ForEachAsync(tarea =>
+            //await mistareas.ForEachAsync(tarea =>
+            foreach(Tarea tarea in mistareas)
             {
 
                 var folioCredito = _wfService.ObtenerVariable("FOLIO_CREDITO", tarea.Solicitud.NumeroTicket);
@@ -121,22 +122,27 @@ namespace Galvarino.Web.Controllers.Api
                                 .Include(f => f.Documentos)
                                 .Include(f => f.Credito)
                                 .Include(s => s.PackNotaria)
+                                .ThenInclude(pn => pn.NotariaEnvio)
                                 .Include(s => s.ValijaValorada)
                                 .FirstOrDefault(ex => ex.Credito.FolioCredito == folioCredito && ex.PackNotaria.NotariaEnvio.Id == notaria);
 
-                expediente.Documentos = expediente.Documentos.OrderBy(r => r.Codificacion).ToList();
 
 
-                salida.Add(new
-                {
-                    tarea = tarea,
-                    credito = credito,
-                    expediente = expediente,
-                    reparo = motivoDevol.Length > 0 ? Convert.ToInt32(motivoDevol) : 0,
-                    reparoNotaria = reparoNotaria,
-                    documentosFaltantes
-                });
-            });
+                if(expediente != null){
+                    expediente.Documentos = expediente.Documentos.OrderBy(r => r.Codificacion).ToList();
+                    salida.Add(new
+                    {
+                        tarea = tarea,
+                        credito = credito,
+                        expediente = expediente,
+                        reparo = motivoDevol.Length > 0 ? Convert.ToInt32(motivoDevol) : 0,
+                        reparoNotaria = reparoNotaria,
+                        documentosFaltantes
+                    });
+                }
+                
+            }
+            //);
 
 
             return Ok(salida);
