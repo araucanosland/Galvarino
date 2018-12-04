@@ -1,5 +1,8 @@
 @{
     ViewData["Title"] = "Devolución Reparo a Notaría";
+    var DatUrl = ViewBag.NotariasOficina.Count == 1 ? "data-url=\"/api/wf/v1/mis-solicitudes/@@ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA\"" : "";
+    DatUrl = DatUrl.Replace("@@ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA",ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA);
+    var nDatUrl = Html.Raw(DatUrl);
 }
 
 
@@ -20,7 +23,7 @@
 </environment>
 
 }
-
+ 
 <div class="row">
     <div class="col-sm-6 table-toolbar-left">                      
         <div class="btn-group">
@@ -43,6 +46,7 @@
 <div class="row">
     <table          id="tabla-generica" 
                     data-toggle="table"
+                    @nDatUrl
                     data-search="true"
                     data-show-refresh="false"
                     data-show-toggle="false"

@@ -1,0 +1,124 @@
+@model Galvarino.Web.Models.Application.AlmacenajeComercial
+@{
+    Layout = null;
+    string Separador = "- ";
+    int Enumeracion = 1;
+    DateTime FechaImpresion = DateTime.Now;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="~/lib/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <script src="~/lib/js/jsBArcode.all.min.js"></script>
+    <style type="text/css">
+        .tabla-orden{
+            width: 100%;
+        }
+        .tabla-orden th{
+            vertical-align: top;
+            padding-top: 6px !important;
+        }
+        .alright {
+            text-align: right;
+        }
+
+        .pie-pagina{
+            vertical-align: bottom;
+            width: 100%;
+        }
+
+        .pie-pagina td {
+            text-align: center;
+        }
+
+        .new-page {
+            page-break-before: always;
+        }
+
+        thead { display: table-header-group; }
+        tfoot { display: table-row-group; }
+        tr { page-break-inside: avoid; }
+        
+    </style>
+</head>
+<body>
+    <table class="tabla-orden">
+        <thead>
+            <tr>
+                <th>                    
+                    <h2 style="text-align:center;">Almacenaje de Caja Comercial</h2>
+                </th>
+            </tr>
+            <tr>
+                <th style="text-align:center;"><canvas id="barcode"></canvas></th>
+            </tr>
+            <tr>
+                <th style="text-align:center;">
+                    <h4><strong>Fecha:</strong> @FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.Expedientes.Count</h4>
+                </th>
+            </tr>
+        </thead>
+    </table>
+
+
+    <table class="tabla-orden new-page">
+        <thead>
+            <tr>
+                <th>
+                    <h3>Nómina Caja Comercial</h3>
+                    <h4><strong>Fecha:</strong> @FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.Expedientes.Count</h4>
+                </th>
+                <th style="text-align:right;"><canvas id="barcode"></canvas></th>
+            </tr>
+        </thead>
+    </table>
+    
+    <table class="table">
+        <thead class="head">
+            <tr>
+                <th>#</th>
+                <th>Folio</th>
+                <th>Rut</th>
+                <th>Tipo</th>
+                <th>Fecha Otorgamiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var xfile in Model.Expedientes)
+            {
+                
+                <tr>
+                    <td>@Enumeracion</td>
+                    <td>@xfile.Credito.FolioCredito</td>
+                    <td>@xfile.Credito.RutCliente</td>
+                    <td>@xfile.Credito.TipoCredito</td>
+                    <td>@xfile.Credito.FechaDesembolso.ToShortDateString()</td>
+                </tr>
+                Enumeracion++;
+            }
+            
+        </tbody>
+
+    </table>
+
+    <br/><br/><br/>
+    <footer>
+        <table class="pie-pagina">
+            <tr>
+                <td>
+                    ______________________<br/>
+                    Almacenado Por
+                </td>
+            </tr>
+        </table>
+    </footer>
+        
+
+    <script type="text/javascript">
+    JsBarcode("#barcode", "@Model.CodigoSeguimiento");</script>
+</body>
+</html>

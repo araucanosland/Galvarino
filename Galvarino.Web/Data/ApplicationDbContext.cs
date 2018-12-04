@@ -41,6 +41,8 @@ namespace Galvarino.Web.Data
         public DbSet<ConfiguracionDocumento> ConfiguracionDocumentos { get; set; }
         public DbSet<AlmacenajeComercial> AlmacenajesComerciales { get; set; }
         public DbSet<AuditorReasignacion> AudicionesReasignaciones { get; set; }
+        public DbSet<PagareSinCustodia> PagaresSinCustodia { get; set; }
+        public DbSet<GestionPagareSinCustodia> GestionPagaresSinCustodia { get; set; }
         
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

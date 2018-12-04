@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Tubo Pagarés En proceso";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Legacy</li>
+    <li>Pagaré</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section style{
+    <link href="~/Assets/plugins/chosen/chosen.min.css" rel="stylesheet">
+}
+@section script{
+    <script type="text/javascript">
+        $(function () {
+
+            $('#frm-busqueda').on('submit', function (e) {
+                e.preventDefault();
+                var folioCredito = $('#folio-credito').val();
+                console.log(folioCredito);
+                $.getJSON(`/legacy/tubo-pagares-im/busqueda/${folioCredito}`, function(json){
+                    $('#estado-credito').val('Estado Inicial: ' + json.pagare.estadoproceso);
+
+                    $.each(json.gestiones, function(i, e){
+                        $('#the-status').append(`
+                            <div class="input-group mar-btm">
+                                <span class="input-group-addon">${e.fechaGestion.toString().toFecha()}</span>
+                                <input type="text" value="Estado: ${e.estado}" id="estado-credito" class="form-control" readonly>
+                            </div>`);
+
+                    })
+
+                    
+
+
+                });
+
+            });
+
+            $('#frm-generico').on('submit', function(e){
+                e.preventDefault();
+                var model = $(this).serializeFormJSON();
+                model.folioCredito = $('#folio-credito').val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/legacy/tubo-pagares-im",
+                    data: JSON.stringify(model),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (response) {
+                    $.niftyNoty({
+                        type: "success",
+                        container : "floating",
+                        title : "Suceso Exitoso",
+                        message : "Los datos se han guardado correctamente",
+                        closeBtn : false,
+                        timer : 5000
+                    });
+                    $('#frm-generico')[0].reset();
+                });
+            });
+
+        });</script>
+}
+
+
+<form id="frm-busqueda">
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <label for="folio-credito">Folio Credito</label>
+            <div class="input-group mar-btm">
+                <span class="input-group-addon"><i class="demo-pli-male"></i></span>
+                <input type="text" value="" id="folio-credito" name="FolioCredito" class="form-control">
+            </div>
+        </div>
+        
+    </div>
+</form>
+<div class="row">
+    <div class="col-sm-12 col-md-6" id="the-status">
+        <label for="folio-credito">Estados Pagaré</label>
+        <div class="input-group mar-btm">
+            <span class="input-group-addon"><i class="demo-pli-home"></i></span>
+            <input type="text" value="" id="estado-credito" class="form-control" readonly>
+        </div>
+    </div>
+</div>
+<form id="frm-generico">
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <label for="nuevo-estado">Nuevo Estado</label>
+            <div class="input-group mar-btm">
+                <span class="input-group-addon"><i class="fa fa-code-fork"></i></span>
+                <select id="nuevo-estado" name="nuevoEstado" class="form-control">
+                    <option value="">Selecciona</option>
+                    <option value="OPT1">Opcion 1</option>
+                </select>    
+            </div>
+        </div>        
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="text-right no-print">
+                <button class="btn btn-primary submit-generico" id="btn-confirmar">Guardar</button>
+            </div>
+        </div>
+    </div>        
+</form>

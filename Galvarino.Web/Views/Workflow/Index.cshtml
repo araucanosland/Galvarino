@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Mis Solicitudes";
+    ViewData["Title"] = "Mis Resumen";
 }
 
 @section breadcumbs{
@@ -30,7 +30,7 @@
 
 
 <table id="tabla-generica" data-toggle="table"
-                data-url="/api/wf/v1/mis-solicitudes"
+                data-url="/api/wf/v1/mi-resumen"
                 data-search="true"
                 data-show-refresh="false"
                 data-show-toggle="false"
@@ -41,11 +41,9 @@
                 data-pagination="true" data-show-pagination-switch="false">
     <thead>
         <tr>
-            <th data-field="expediente.credito.folioCredito" data-align="center" data-sortable="true">Folio Crédito</th>
-            <th data-field="expediente.credito.rutCliente" data-align="center" data-sortable="true">Rut Afiliado</th>
-            <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-align="center" data-formatter="formatoTipoCredito">Tipo Crédito</th>
-            <th data-field="expediente.credito.fechaDesembolso" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Colocación</th>
-            <th data-field="tarea.etapa.nombre" data-align="center" data-sortable="true">Etapa</th>
+            <th data-field="tarea" data-align="center" data-sortable="true">Tarea</th>
+            <th data-field="total" data-align="center" data-sortable="true">Cantidad de Expedientes</th>
+            
         </tr>
     </thead>
 </table>

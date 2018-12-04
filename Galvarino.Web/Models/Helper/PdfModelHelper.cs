@@ -16,4 +16,12 @@ namespace Galvarino.Web.Models.Helper
         public CajaValorada CajaValorada { get; set; }
         public ValijaOficina ValijaOficina { get; set; }
     }
+
+    public class ReporteValija
+    {
+        public string folioValija { get; set; }
+        public string oficina { get; set; }
+        public int cantidadExpedientes { get; set; }
+        public DateTime? fechaPistoleo { get; set; }
+    }
 }

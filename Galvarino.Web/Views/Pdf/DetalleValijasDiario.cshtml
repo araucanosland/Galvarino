@@ -1,0 +1,89 @@
+@{
+    Layout = null;
+    string Separador = "- ";
+    int Enumeracion = 1;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="~/lib/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <script src="~/lib/js/jsBArcode.all.min.js"></script>
+    <style type="text/css">
+        .tabla-orden{
+            width: 100%;
+        }
+        .tabla-orden th{
+            vertical-align: top;
+            padding-top: 6px !important;
+        }
+        .alright {
+            text-align: right;
+        }
+
+        .pie-pagina{
+            vertical-align: bottom;
+            width: 100%;
+        }
+
+        .pie-pagina td {
+            text-align: center;
+        }
+
+        .new-page {
+            page-break-before: always;
+        }
+        
+    </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">Reporte de Entrega de Valijas</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Seguimiento</th>
+                <th>Oficina Remitente</th>
+                <th>Cantidad Expedientes</th>
+                <th>Fecha Pistoleo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model)
+            {
+                
+                <tr>
+                    <td>@Enumeracion</td>
+                    <td>@item.folioValija</td>
+                    <td>@item.oficina</td>
+                    <td>@item.cantidadExpedientes</td>
+                    <td>@item.fechaPistoleo</td>
+                </tr>
+                Enumeracion++;
+            }
+            
+        </tbody>
+
+    </table>
+
+    <br/><br/><br/>
+    <footer>
+        <table class="pie-pagina">
+            <tr>
+                <td>
+                    ______________________<br/>
+                    Firma Emisor
+                </td>
+                <td>
+                    ______________________<br/>
+                    Firma Receptor
+                </td>
+            </tr>
+        </table>
+    </footer>
+</body>
+</html>

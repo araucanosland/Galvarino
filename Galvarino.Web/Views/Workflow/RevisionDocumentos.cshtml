@@ -1,5 +1,9 @@
 @{
     ViewData["Title"] = "Revisión de Documentos";
+
+    var DatUrl = ViewBag.NotariasOficina.Count == 1 ? "data-url=\"/api/wf/v1/mis-solicitudes/@@ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS\"" : "";
+    DatUrl = DatUrl.Replace("@@ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS",ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS);
+    var nDatUrl = Html.Raw(DatUrl);
 }
 
 
@@ -43,6 +47,7 @@
 <div class="row">
     <table          id="tabla-generica" 
                     data-toggle="table"
+                    @nDatUrl
                     data-search="true"
                     data-show-refresh="false"
                     data-show-toggle="false"

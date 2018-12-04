@@ -13,5 +13,6 @@ namespace Galvarino.Web.Models.Application
         public string TipoReasignacion { get; set; }
         public string AsignacionOriginal { get; set; }
         public string AsignacionNueva { get; set; }
+        public string FolioCredito { get; set; }
     }
 }

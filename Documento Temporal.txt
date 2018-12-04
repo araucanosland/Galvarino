@@ -1,0 +1,115 @@
+01082001732607112587365
+02082001732607112587365
+
+
+01082001732608067726022
+02082001732608067726022
+
+
+
+
+-------------------------
+01293000064970079685151
+02293000064970079685151
+
+0129300006498009036569K
+0229300006498009036569K
+
+01293000064986092233863
+02293000064986092233863
+
+01293000065001092996069
+02293000065001092996069
+-----------------------------
+
+
+01088000059705058185035
+02088000059705058185035
+
+------------------------------
+
+
+public string FolioCreditoStr	{get; set;}
+public string CodigoOficina	{get; set;}	
+public string NombreOficina	{get; set;}
+public string Zona		{get; set;}
+public string FolioCredito		{get; set;}
+public string LineaCredito		{get; set;}
+public string TipoCredito		{get; set;}
+public string RutAfiliado		{get; set;}
+public string DvAfiliado		{get; set;}
+public string Segmento		{get; set;}
+public string FechaColocacion		{get; set;}
+public string Ano		{get; set;}
+public string Mes		{get; set;}
+public string Plazo		{get; set;}
+public string Castigo		{get; set;}
+public string KEfectivo		{get; set;}
+public string IDevMensual		{get; set;}
+public string MontoBruto		{get; set;}
+public string MontoNeto		{get; set;}
+public string KCalculado		{get; set;}
+public string SaldoMigrado		{get; set;}
+public string MesesMorosos		{get; set;}
+public string NumCuotasMorosas		{get; set;}
+public string NumCuotasCastigadas		{get; set;}
+public string TipoFinanciamiento		{get; set;}
+public string Estado		{get; set;}
+public string MarcaRenRep		{get; set;}
+public string Estadodocto		{get; set;}
+public string Estadoproceso		{get; set;}
+public string Estado1		{get; set;}
+public string CodigoSucursalPago		{get; set;}
+public string NombreSucursalPago		{get; set;}
+public string FolioCorregido	{get; set;}
+
+
+---------------------------------
+Create 
+
+CREATE TABLE [PagaresSinCustodia] (
+    [Id] nvarchar(450) NOT NULL,
+    [FolioCreditoStr] nvarchar(max) NULL,
+    [CodigoOficina] nvarchar(max) NULL,
+    [NombreOficina] nvarchar(max) NULL,
+    [Zona] nvarchar(max) NULL,
+    [FolioCredito] nvarchar(max) NULL,
+    [LineaCredito] nvarchar(max) NULL,
+    [TipoCredito] nvarchar(max) NULL,
+    [RutAfiliado] nvarchar(max) NULL,
+    [DvAfiliado] nvarchar(max) NULL,
+    [Segmento] nvarchar(max) NULL,
+    [FechaColocacion] nvarchar(max) NULL,
+    [Ano] nvarchar(max) NULL,
+    [Mes] nvarchar(max) NULL,
+    [Plazo] nvarchar(max) NULL,
+    [Castigo] nvarchar(max) NULL,
+    [KEfectivo] nvarchar(max) NULL,
+    [IDevMensual] nvarchar(max) NULL,
+    [MontoBruto] nvarchar(max) NULL,
+    [MontoNeto] nvarchar(max) NULL,
+    [KCalculado] nvarchar(max) NULL,
+    [SaldoMigrado] nvarchar(max) NULL,
+    [MesesMorosos] nvarchar(max) NULL,
+    [NumCuotasMorosas] nvarchar(max) NULL,
+    [NumCuotasCastigadas] nvarchar(max) NULL,
+    [TipoFinanciamiento] nvarchar(max) NULL,
+    [Estado] nvarchar(max) NULL,
+    [MarcaRenRep] nvarchar(max) NULL,
+    [Estadodocto] nvarchar(max) NULL,
+    [Estadoproceso] nvarchar(max) NULL,
+    [Estado1] nvarchar(max) NULL,
+    [CodigoSucursalPago] nvarchar(max) NULL,
+    [NombreSucursalPago] nvarchar(max) NULL,
+    [FolioCorregido] nvarchar(max) NULL,
+    CONSTRAINT [PK_PagaresSinCustodia] PRIMARY KEY ([Id])
+);
+
+
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20181130154011_PagaresSinCustodia', N'2.1.4-rtm-31024');
+
+
+
+dotnet msbuild Galvarino.sln /p:Configuration=Debug /p:Platform="Any CPU"

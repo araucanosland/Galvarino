@@ -4,14 +4,16 @@ using Galvarino.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Galvarino.Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181130154011_PagaresSinCustodia")]
+    partial class PagaresSinCustodia
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,8 +49,6 @@ namespace Galvarino.Web.Data.Migrations
                     b.Property<string>("AsignacionOriginal");
 
                     b.Property<DateTime>("FechaAccion");
-
-                    b.Property<string>("FolioCredito");
 
                     b.Property<string>("TipoReasignacion");
 
@@ -239,31 +239,6 @@ namespace Galvarino.Web.Data.Migrations
                     b.ToTable("ExpedientesCreditos");
                 });
 
-            modelBuilder.Entity("Galvarino.Web.Models.Application.GestionPagareSinCustodia", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(40);
-
-                    b.Property<string>("EjecutadoPor")
-                        .HasMaxLength(50);
-
-                    b.Property<string>("Estado");
-
-                    b.Property<DateTime>("FechaGestion");
-
-                    b.Property<string>("PagareSinCustodiaId");
-
-                    b.Property<string>("Resumen")
-                        .HasMaxLength(500);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PagareSinCustodiaId");
-
-                    b.ToTable("GestionPagaresSinCustodia");
-                });
-
             modelBuilder.Entity("Galvarino.Web.Models.Application.Notaria", b =>
                 {
                     b.Property<int>("Id")
@@ -333,82 +308,6 @@ namespace Galvarino.Web.Data.Migrations
                     b.HasIndex("OficinaId");
 
                     b.ToTable("PacksNotarias");
-                });
-
-            modelBuilder.Entity("Galvarino.Web.Models.Application.PagareSinCustodia", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Ano");
-
-                    b.Property<string>("Castigo");
-
-                    b.Property<string>("CodigoOficina");
-
-                    b.Property<string>("CodigoSucursalPago");
-
-                    b.Property<string>("DvAfiliado");
-
-                    b.Property<string>("Estado");
-
-                    b.Property<string>("Estado1");
-
-                    b.Property<string>("Estadodocto");
-
-                    b.Property<string>("Estadoproceso");
-
-                    b.Property<string>("FechaColocacion");
-
-                    b.Property<string>("FolioCorregido");
-
-                    b.Property<string>("FolioCredito");
-
-                    b.Property<string>("FolioCreditoStr");
-
-                    b.Property<string>("IDevMensual");
-
-                    b.Property<string>("KCalculado");
-
-                    b.Property<string>("KEfectivo");
-
-                    b.Property<string>("LineaCredito");
-
-                    b.Property<string>("MarcaRenRep");
-
-                    b.Property<string>("Mes");
-
-                    b.Property<string>("MesesMorosos");
-
-                    b.Property<string>("MontoBruto");
-
-                    b.Property<string>("MontoNeto");
-
-                    b.Property<string>("NombreOficina");
-
-                    b.Property<string>("NombreSucursalPago");
-
-                    b.Property<string>("NumCuotasCastigadas");
-
-                    b.Property<string>("NumCuotasMorosas");
-
-                    b.Property<string>("Plazo");
-
-                    b.Property<string>("RutAfiliado");
-
-                    b.Property<string>("SaldoMigrado");
-
-                    b.Property<string>("Segmento");
-
-                    b.Property<string>("TipoCredito");
-
-                    b.Property<string>("TipoFinanciamiento");
-
-                    b.Property<string>("Zona");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PagaresSinCustodia");
                 });
 
             modelBuilder.Entity("Galvarino.Web.Models.Application.Region", b =>
@@ -896,6 +795,82 @@ namespace Galvarino.Web.Data.Migrations
                     b.ToTable("TokensUsuarios");
                 });
 
+            modelBuilder.Entity("PagareSinCustodia", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Ano");
+
+                    b.Property<string>("Castigo");
+
+                    b.Property<string>("CodigoOficina");
+
+                    b.Property<string>("CodigoSucursalPago");
+
+                    b.Property<string>("DvAfiliado");
+
+                    b.Property<string>("Estado");
+
+                    b.Property<string>("Estado1");
+
+                    b.Property<string>("Estadodocto");
+
+                    b.Property<string>("Estadoproceso");
+
+                    b.Property<string>("FechaColocacion");
+
+                    b.Property<string>("FolioCorregido");
+
+                    b.Property<string>("FolioCredito");
+
+                    b.Property<string>("FolioCreditoStr");
+
+                    b.Property<string>("IDevMensual");
+
+                    b.Property<string>("KCalculado");
+
+                    b.Property<string>("KEfectivo");
+
+                    b.Property<string>("LineaCredito");
+
+                    b.Property<string>("MarcaRenRep");
+
+                    b.Property<string>("Mes");
+
+                    b.Property<string>("MesesMorosos");
+
+                    b.Property<string>("MontoBruto");
+
+                    b.Property<string>("MontoNeto");
+
+                    b.Property<string>("NombreOficina");
+
+                    b.Property<string>("NombreSucursalPago");
+
+                    b.Property<string>("NumCuotasCastigadas");
+
+                    b.Property<string>("NumCuotasMorosas");
+
+                    b.Property<string>("Plazo");
+
+                    b.Property<string>("RutAfiliado");
+
+                    b.Property<string>("SaldoMigrado");
+
+                    b.Property<string>("Segmento");
+
+                    b.Property<string>("TipoCredito");
+
+                    b.Property<string>("TipoFinanciamiento");
+
+                    b.Property<string>("Zona");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PagaresSinCustodia");
+                });
+
             modelBuilder.Entity("Galvarino.Web.Models.Application.Comuna", b =>
                 {
                     b.HasOne("Galvarino.Web.Models.Application.Region", "Region")
@@ -937,13 +912,6 @@ namespace Galvarino.Web.Data.Migrations
                     b.HasOne("Galvarino.Web.Models.Application.ValijaValorada", "ValijaValorada")
                         .WithMany("Expedientes")
                         .HasForeignKey("ValijaValoradaId");
-                });
-
-            modelBuilder.Entity("Galvarino.Web.Models.Application.GestionPagareSinCustodia", b =>
-                {
-                    b.HasOne("Galvarino.Web.Models.Application.PagareSinCustodia", "PagareSinCustodia")
-                        .WithMany()
-                        .HasForeignKey("PagareSinCustodiaId");
                 });
 
             modelBuilder.Entity("Galvarino.Web.Models.Application.Notaria", b =>

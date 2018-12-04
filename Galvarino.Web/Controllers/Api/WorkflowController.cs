@@ -97,6 +97,32 @@ namespace Galvarino.Web.Controllers.Api
             return Ok(salida);
         }
 
+        [HttpGet("mi-resumen")]
+        public IActionResult MiResumen()
+        {
+            var salida = new List<dynamic>();
+            //User.IsInRole("")
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var oficinas = _context.Oficinas.Include(d => d.OficinaProceso).Where(ofi => ofi.Id == ofi.OficinaProceso.Id && ofi.Codificacion == oficinaUsuario);
+            var tareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => x.Estado == EstadoTarea.Activada);
+            var expedientes = _context.ExpedientesCreditos
+                                .Include(f => f.Documentos)
+                                .Include(f => f.Credito);
+
+            var offices = from off in oficinas
+                          join tar in tareas on off.Codificacion equals tar.UnidadNegocioAsignada
+                          join exp in expedientes on tar.Solicitud.NumeroTicket equals exp.Credito.NumeroTicket
+                          group new { tar, exp } by new {Tarea = tar.Etapa.Nombre } into grp
+                          select new
+                          {
+                              Tarea = grp.Key.Tarea,
+                              Total = grp.Count()
+                          };
+
+            //var ret = await offices.ToArrayAsync();
+            return Ok(offices);            
+        }
+
         [HttpGet("mis-solicitudes/{etapaIn}/{notaria}")]
         public async Task<IActionResult> ListarMisSolicitudesNotaria(string etapaIn, int notaria)
         {
@@ -918,7 +944,7 @@ namespace Galvarino.Web.Controllers.Api
                         };
             
 
-            return Ok(fdata.First());
+            return Ok(fdata.FirstOrDefault());
         }
 
         [HttpPost("reasignaciones/oficinas")]
@@ -933,9 +959,32 @@ namespace Galvarino.Web.Controllers.Api
                     var oficinaReasigna = _context.Oficinas.Find(codOficinaReasignacion);
                     var credito = _context.Creditos.FirstOrDefault(cred => cred.FolioCredito == folio);
                     string opOriginal = cargaInicial.CodigoOficinaPago;
+                    var lasolicitud = _context.Solicitudes.Include(sol=>sol.Tareas).FirstOrDefault(sl => sl.NumeroTicket == credito.NumeroTicket);
+                    var latarea = lasolicitud.Tareas.FirstOrDefault(tar => tar.Estado == EstadoTarea.Activada);
+                    var laoforig = _context.Oficinas.FirstOrDefault(of => of.Codificacion == opOriginal);
+
+
                     cargaInicial.CodigoOficinaPago = oficinaReasigna.Codificacion;
                     _wfService.AsignarVariable("OFICINA_PAGO", oficinaReasigna.Codificacion, credito.NumeroTicket);
                     _wfService.AsignarVariable("OFICINA_PROCESA_NOTARIA", oficinaReasigna.Codificacion, credito.NumeroTicket);
+
+                    if(!laoforig.EsRM && oficinaReasigna.EsRM)
+                    {
+                        latarea.Etapa = _context.Etapas.FirstOrDefault(eta => eta.NombreInterno == ProcesoDocumentos.ETAPA_PREPARAR_NOMINA);
+                        latarea.UnidadNegocioAsignada = oficinaReasigna.Codificacion;
+                        _wfService.AsignarVariable("ES_RM", "1", credito.NumeroTicket);
+                        _context.Tareas.Update(latarea);
+                    }
+                    else if(laoforig.EsRM && !oficinaReasigna.EsRM)
+                    {
+                        latarea.Etapa = _context.Etapas.FirstOrDefault(eta => eta.NombreInterno == ProcesoDocumentos.ETAPA_ENVIO_NOTARIA);
+                        latarea.UnidadNegocioAsignada = oficinaReasigna.Codificacion;
+                        _wfService.AsignarVariable("ES_RM", "0", credito.NumeroTicket);
+
+                        _context.Tareas.Update(latarea);
+                    }     
+
+                    
                     _context.CargasIniciales.Update(cargaInicial);
                     AuditorReasignacion audit = new AuditorReasignacion
                     {
@@ -944,7 +993,8 @@ namespace Galvarino.Web.Controllers.Api
                         FechaAccion =  DateTime.Now,
                         TipoReasignacion = "Reasignacion Oficina Legal",
                         AsignacionOriginal = opOriginal,
-                        AsignacionNueva = oficinaReasigna.Codificacion
+                        AsignacionNueva = oficinaReasigna.Codificacion,
+                        FolioCredito = credito.FolioCredito
                     };
                     _context.AudicionesReasignaciones.Add(audit);
                     _context.SaveChanges();

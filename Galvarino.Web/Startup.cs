@@ -84,8 +84,7 @@ namespace Galvarino.Web
             services.AddTransient<INotificationKernel, MailSender>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
-            services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
-
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);
         }
 

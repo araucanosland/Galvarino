@@ -3,7 +3,7 @@ let variables = {
 }
 const metodos = {
     guaradar: function () {
-        let cantidadAdmitida = 80;
+        let cantidadAdmitida = parseInt($('#cantidad-expedientes').val());
         let foliosEnvio = [];
         let data = $('#tabla-generica').bootstrapTable('getData');
 
@@ -14,7 +14,7 @@ const metodos = {
                 type: "danger",
                 container: "floating",
                 title: "Validación de Negocio!",
-                message: "Deben haber al menos 80 expedientes en la lista para poder cerrar una caja.",
+                message: "Debes ordenar los expedientes en el mismo orden que aparecen en la nomina",
                 closeBtn: true,
                 timer: 5000
             });
@@ -77,6 +77,19 @@ $(function () {
 
 
     $("#btn-generar-generico").on("click", function () {
+        if ($('#cantidad-expedientes').val().length == 0)
+        {
+            $.niftyNoty({
+                type: "danger",
+                container: "floating",
+                title: "Error de Usuario",
+                message: "Debes Ingresar una cantidad de Expedientes a Guardar",
+                closeBtn: true,
+                timer: 5000
+            });
+
+            return false;
+        }
         metodos.guaradar();
 
     });
@@ -89,4 +102,8 @@ $(function () {
 function formatoIncrementor(val, row, inc){
     let mostrar = inc+1;
     return `<span>${mostrar}</span>`;
+}
+
+function formatoLinked(val, row, inc){
+    return `<a class="btn btn-link" target="_blank" href="/salidas/pdf/detalle-caja-comercial/${row.codigoSeguimiento}">${row.codigoSeguimiento}</a>`;
 }

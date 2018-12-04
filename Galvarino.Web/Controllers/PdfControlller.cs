@@ -113,6 +113,8 @@ namespace Galvarino.Web.Controllers
         [Route("detalle-valijas-oficinas/{codigoSeguimiento}")]
         public async Task<IActionResult> DetalleValijaValoradaOficina(string codigoSeguimiento)
         {
+
+
             var valorada = await _context.ValijasOficinas
                                 .Include(pm => pm.Expedientes)
                                     .ThenInclude(e => e.Credito)
@@ -128,6 +130,46 @@ namespace Galvarino.Web.Controllers
                 CodigoSeguimiento = codigoSeguimiento,
                 ValijaOficina = valorada
             })
+            {
+                PageSize = Size.Letter
+            };
+        }
+
+        [Route("detalle-valijas-diario")]
+        public async Task<IActionResult> DetalleValijasDiario()
+        {
+            var model = from valija in _context.ValijasValoradas
+                            .Include(vl => vl.Oficina)
+                            .Include(val => val.Expedientes)
+                            .ThenInclude(exp => exp.Credito)
+                        join tarea in _context.Tareas   
+                        .Include(tr => tr.Solicitud)
+                        .Include(tr => tr.Etapa) on valija.Expedientes.FirstOrDefault().Credito.NumeroTicket equals tarea.Solicitud.NumeroTicket
+                        where tarea.Etapa.NombreInterno == ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_OFICINA_PARTES
+                        && tarea.Estado == EstadoTarea.Finalizada
+                        && tarea.FechaTerminoFinal.Value.Date  ==  DateTime.Now.Date
+                        select new ReporteValija{
+                            folioValija = valija.CodigoSeguimiento,
+                            oficina = valija.Oficina.Nombre,
+                            cantidadExpedientes = valija.Expedientes.Count,
+                            fechaPistoleo = tarea.FechaTerminoFinal
+                        };
+            var toshow = model.Distinct();
+            return new ViewAsPdf(toshow)
+            {
+                PageSize = Size.Letter
+            };
+        }
+
+        [Route("detalle-caja-comercial/{codigoSeguimiento}")]
+        public IActionResult DetalleCajaComercial([FromRoute] string codigoSeguimiento)
+        {
+            var model =  _context.AlmacenajesComerciales
+                        .Include(valc => valc.Expedientes)
+                        .ThenInclude(exp => exp.Credito)
+                        .FirstOrDefault(df => df.CodigoSeguimiento == codigoSeguimiento);
+                            
+            return new ViewAsPdf(model)
             {
                 PageSize = Size.Letter
             };
