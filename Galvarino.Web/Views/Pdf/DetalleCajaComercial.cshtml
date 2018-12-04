@@ -58,7 +58,9 @@
             </tr>
             <tr>
                 <th style="text-align:center;">
-                    <h4><strong>Fecha:</strong> @FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.Expedientes.Count</h4>
+                    <h3><strong>Fecha Emisión:</strong> @FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.Expedientes.Count</h3>
+                    <h3><strong>Fecha Colocación desde:</strong> @Model.Expedientes.LastOrDefault().Credito.FechaDesembolso.ToShortDateString()
+                    <strong>hasta:</strong> @Model.Expedientes.FirstOrDefault().Credito.FechaDesembolso.ToShortDateString()</h3>
                 </th>
             </tr>
         </thead>
@@ -72,7 +74,6 @@
                     <h3>Nómina Caja Comercial</h3>
                     <h4><strong>Fecha:</strong> @FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.Expedientes.Count</h4>
                 </th>
-                <th style="text-align:right;"><canvas id="barcode"></canvas></th>
             </tr>
         </thead>
     </table>

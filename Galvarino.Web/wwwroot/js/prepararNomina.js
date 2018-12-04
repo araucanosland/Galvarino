@@ -162,8 +162,8 @@ $(function () {
             $.niftyNoty({
                 type: "danger",
                 container: "floating",
-                title: "Suceso Erroneo",
-                message: "Error al Pistolear:  " + $("#folio-shot").val(),
+                title: "Error al Pistolear:  " + $("#folio-shot").val(),
+                message: errMsg.responseText + "<br/><small>Reporta este incidente con tu Especialista.</small>",
                 closeBtn: true,
                 timer: 5000
             });

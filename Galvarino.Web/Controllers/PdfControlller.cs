@@ -154,7 +154,7 @@ namespace Galvarino.Web.Controllers
                             cantidadExpedientes = valija.Expedientes.Count,
                             fechaPistoleo = tarea.FechaTerminoFinal
                         };
-            var toshow = model.Distinct();
+            var toshow = model.Distinct().OrderBy(x => x.fechaPistoleo);
             return new ViewAsPdf(toshow)
             {
                 PageSize = Size.Letter
@@ -168,7 +168,8 @@ namespace Galvarino.Web.Controllers
                         .Include(valc => valc.Expedientes)
                         .ThenInclude(exp => exp.Credito)
                         .FirstOrDefault(df => df.CodigoSeguimiento == codigoSeguimiento);
-                            
+            
+            model.Expedientes = model.Expedientes.OrderByDescending(x => x.Credito.FechaDesembolso).ThenByDescending(x => x.Credito.FolioCredito).ToList();
             return new ViewAsPdf(model)
             {
                 PageSize = Size.Letter

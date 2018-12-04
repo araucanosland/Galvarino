@@ -41,6 +41,21 @@
 
             $('#frm-generico').on('submit', function(e){
                 e.preventDefault();
+
+                if($('#nuevo-estado').val() == '')
+                {
+                    $.niftyNoty({
+                        type: "danger",
+                        container : "floating",
+                        title : "Error",
+                        message : "Nuevo estado no puede ser vacío",
+                        closeBtn : false,
+                        timer : 5000
+                    });
+
+                    return false;
+                }
+
                 var model = $(this).serializeFormJSON();
                 model.folioCredito = $('#folio-credito').val();
 
@@ -95,7 +110,10 @@
                 <span class="input-group-addon"><i class="fa fa-code-fork"></i></span>
                 <select id="nuevo-estado" name="nuevoEstado" class="form-control">
                     <option value="">Selecciona</option>
-                    <option value="OPT1">Opcion 1</option>
+                    <option value="RECEPCIONADO">RECEPCIONADO</option>
+                    <option value="DESPACHADO A NOTARIO">DESPACHADO A NOTARIO</option>
+                    <option value="RECEPCIONADO DE NOTARIO">RECEPCIONADO DE NOTARIO</option>
+                    <option value="DESPACHADO A CUSTODIA">DESPACHADO A CUSTODIA</option>
                 </select>    
             </div>
         </div>        

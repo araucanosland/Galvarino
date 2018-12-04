@@ -38,13 +38,17 @@ namespace Galvarino.Web.Controllers.Api
         public IActionResult ObtenerXpediente([FromRoute] string folioCredito)
         {
             var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito);
-            if (expediente.Documentos.Count() > 0)
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var ofipago = _wfService.ObtenerVariable("OFICINA_PAGO", expediente.Credito.NumeroTicket);
+
+            if (expediente.Documentos.Count() > 0 && ofipago == oficinaUsuario)
             {
                 return Ok(expediente);
             }
             else
             {
-                return NotFound("No hay mano");
+                var ofiObject = _context.Oficinas.FirstOrDefault(of => of.Codificacion == ofipago);
+                return NotFound("Carga del Expediente en: " + ofiObject.Nombre);
             }
         }
 
@@ -868,8 +872,7 @@ namespace Galvarino.Web.Controllers.Api
                                             expediente, cargainicial
                                         }
                                 ).Where(x => x.cargainicial.CodigoOficinaIngreso == codificacionOficinaLogedIn)
-                                .OrderByDescending(ord => ord.expediente.Credito.FechaDesembolso)
-                                .OrderByDescending(ord => ord.expediente.Credito.FolioCredito)
+                                .OrderByDescending(ord => ord.expediente.Credito.FechaDesembolso).ThenByDescending(ord => ord.expediente.Credito.FolioCredito)
                                 .ToListAsync();
 
 
@@ -952,16 +955,18 @@ namespace Galvarino.Web.Controllers.Api
         {
             using(var tran = _context.Database.BeginTransaction())
             {
+
+
                 try{
                     string folio = entrada.folioCredito.ToString();
                     int codOficinaReasignacion = Convert.ToInt32(entrada.nuevaOficina);
                     var cargaInicial = _context.CargasIniciales.FirstOrDefault(carga => carga.FolioCredito == folio);
-                    var oficinaReasigna = _context.Oficinas.Find(codOficinaReasignacion);
+                    var oficinaReasigna = _context.Oficinas.Include(f => f.OficinaProceso).FirstOrDefault(d => d.Id == codOficinaReasignacion);
                     var credito = _context.Creditos.FirstOrDefault(cred => cred.FolioCredito == folio);
                     string opOriginal = cargaInicial.CodigoOficinaPago;
                     var lasolicitud = _context.Solicitudes.Include(sol=>sol.Tareas).FirstOrDefault(sl => sl.NumeroTicket == credito.NumeroTicket);
                     var latarea = lasolicitud.Tareas.FirstOrDefault(tar => tar.Estado == EstadoTarea.Activada);
-                    var laoforig = _context.Oficinas.FirstOrDefault(of => of.Codificacion == opOriginal);
+                    var laoforig = _context.Oficinas.Include(f => f.OficinaProceso).FirstOrDefault(of => of.Codificacion == opOriginal);
 
 
                     cargaInicial.CodigoOficinaPago = oficinaReasigna.Codificacion;
@@ -983,6 +988,9 @@ namespace Galvarino.Web.Controllers.Api
 
                         _context.Tareas.Update(latarea);
                     }     
+                    /*else if (oficinaReasigna.OficinaProceso.Id != oficinaReasigna.Id){
+
+                    }*/
 
                     
                     _context.CargasIniciales.Update(cargaInicial);
