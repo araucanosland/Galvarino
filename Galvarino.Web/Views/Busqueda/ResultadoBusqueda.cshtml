@@ -1,0 +1,77 @@
+@model Galvarino.Web.Controllers.ModeloBusqueda
+@{
+    ViewData["Title"] = "Resultado datos seguimiento de Crédito";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Búsquedas</li>
+    <li>Créditos</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+
+
+<div class="row">
+    <div class="col-lg-4">
+        <h4>Datos del Credito</h4>
+        <table class="table text-left">
+            <tr>
+                <td><strong>Folio</strong></td>
+                <td>@Model.Credito.FolioCredito</td>
+            </tr>
+            <tr>
+                <td><strong>Rut Afiliado</strong></td>
+                <td>@Model.Credito.RutCliente</td>
+            </tr>
+            <tr>
+                <td><strong>Oficina de Evaluación</strong></td>
+                <td>@Model.OficinaComercial.Nombre</td>
+            </tr>
+            <tr>
+                <td><strong>Oficina de Pago</strong></td>
+                <td>@Model.OficinaLegal.Nombre</td>
+            </tr>
+
+            @if(!Model.OficinaLegal.EsRM)
+            {
+                <tr>
+                    <td><strong>Oficina de Legalización</strong></td>
+                    <td>@Model.OficinaLegalizacion.Nombre</td>
+                </tr>
+            }
+            
+        </table>
+    </div>
+    <div class="col-lg-7 col-lg-offset-1">
+        <h4>Seguimiento Workflow</h4>
+        <!-- Timeline -->
+        <!--===================================================-->
+        <div class="timeline">
+            
+            @foreach (var entry in Model.Solicitud.Tareas.OrderByDescending(d => d.FechaInicio))
+            {
+                <div class="timeline-entry">
+                    <div class="timeline-stat">
+                        <div class="timeline-icon @(entry.Estado == EstadoTarea.Activada ? "bg-success" : "")"></div>
+                        <div class="timeline-time">@entry.FechaInicio.ToShortDateString()</div>
+                    </div>
+                    <div class="timeline-label text-left">
+                        <p class="text-bold text-warning">@entry.Etapa.Nombre</p>
+                        <p class="mar-no pad-btm"><strong>Asignado a:</strong> @entry.AsignadoA</p>
+                        @if(entry.Estado == EstadoTarea.Finalizada)
+                        {
+                            <p class="mar-no pad-btm"><strong>Ejecutado Por:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Nombres : entry.EjecutadoPor)</p>
+                            <p class="mar-no pad-btm"><strong>Oficina:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Oficina.Nombre : entry.EjecutadoPor)</p>                            
+                        }
+                    </div>
+                </div>
+            }
+
+            
+        </div>
+        <!--===================================================-->
+        <!-- End Timeline -->
+
+    </div>
+</div>

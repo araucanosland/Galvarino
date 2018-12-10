@@ -136,7 +136,11 @@ function soloNumeros(e) {
 
 
 
-
+    $('#form-busqueda-general').on('submit', function(e){
+        e.preventDefault();
+        var folioCredito = $('#search-input').val();
+        location.href = `/busqueda/resultado-busqueda/${folioCredito}`;
+    });
     
 })(jQuery);
 

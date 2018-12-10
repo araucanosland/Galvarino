@@ -14,7 +14,7 @@ const metodos = {
                 type: "danger",
                 container: "floating",
                 title: "Validación de Negocio!",
-                message: "Debes ordenar los expedientes en el mismo orden que aparecen en la nomina",
+                message: "Debes tener almenos la cantidad de expedientes que pretendes guardar",
                 closeBtn: true,
                 timer: 5000
             });
@@ -52,7 +52,11 @@ const metodos = {
                 title: "Control Documentos Comerciales",
                 message: "Documentos Procesados.<br/><small>Estamos actualizando el listado de Documentos.</small>",
                 closeBtn: true,
-                timer: 5000
+                timer: 5000,
+                onHidden: function()
+                {
+                    window.open(`/salidas/pdf/detalle-caja-comercial/${data.codigoSeguimiento}`, "_blank");
+                }
             });
 
         }).fail(function (errMsg) {

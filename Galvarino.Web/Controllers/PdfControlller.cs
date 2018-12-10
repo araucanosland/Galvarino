@@ -169,7 +169,7 @@ namespace Galvarino.Web.Controllers
                         .ThenInclude(exp => exp.Credito)
                         .FirstOrDefault(df => df.CodigoSeguimiento == codigoSeguimiento);
             
-            model.Expedientes = model.Expedientes.OrderByDescending(x => x.Credito.FechaDesembolso).ThenByDescending(x => x.Credito.FolioCredito).ToList();
+            model.Expedientes = model.Expedientes.OrderBy(x => x.Credito.FechaDesembolso).ThenBy(x => x.Credito.FolioCredito).ToList();
             return new ViewAsPdf(model)
             {
                 PageSize = Size.Letter

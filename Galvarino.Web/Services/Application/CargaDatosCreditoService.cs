@@ -40,10 +40,29 @@ namespace Galvarino.Web.Services.Application
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogDebug("Ejecutando tarea en segundo plano");
-
+                string ruta="";
+                string nombreArchivo = "";    
                 /*Todo:  Revisar Findesemanas*/
-                string nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
-                string ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
+                if(DateTime.Now.DayOfWeek == DayOfWeek.Monday)
+                {
+                    nombreArchivo = "Carga" + DateTime.Now.AddDays(-3).ToString("ddMMyyyy");
+                    ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
+                }
+                else if(
+                    DateTime.Now.DayOfWeek == DayOfWeek.Thursday ||
+                    DateTime.Now.DayOfWeek == DayOfWeek.Wednesday ||
+                    DateTime.Now.DayOfWeek == DayOfWeek.Tuesday ||
+                    DateTime.Now.DayOfWeek == DayOfWeek.Friday
+                )
+                {
+                    nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
+                    ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
+                }
+                else {
+                    break;
+                }
+                
+                
                 _logger.LogDebug(ruta);
 
                 var existencia = _context.CargasIniciales.Where(x => x.NombreArchivoCarga == nombreArchivo).ToList();

@@ -59,8 +59,8 @@
             <tr>
                 <th style="text-align:center;">
                     <h3><strong>Fecha Emisión:</strong> @FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.Expedientes.Count</h3>
-                    <h3><strong>Fecha Colocación desde:</strong> @Model.Expedientes.LastOrDefault().Credito.FechaDesembolso.ToShortDateString()
-                    <strong>hasta:</strong> @Model.Expedientes.FirstOrDefault().Credito.FechaDesembolso.ToShortDateString()</h3>
+                    <h3><strong>Fecha Colocación desde:</strong> @Model.Expedientes.FirstOrDefault().Credito.FechaDesembolso.ToShortDateString()
+                    <strong>hasta:</strong> @Model.Expedientes.LastOrDefault().Credito.FechaDesembolso.ToShortDateString()</h3>
                 </th>
             </tr>
         </thead>
