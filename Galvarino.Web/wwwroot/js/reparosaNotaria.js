@@ -21,8 +21,7 @@ const metodos = {
 
         $.each(data, function (index, element) {
             _procesar.push({
-                FolioCredito: element.expediente.credito.folioCredito,
-                Reparo: element.reparo
+                FolioCredito: element.expediente.credito.folioCredito
             });
         });
 

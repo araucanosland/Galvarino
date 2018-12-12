@@ -20,9 +20,13 @@ namespace Galvarino.Web.Data.Configurtations.Workflow
                     v => (EstadoTarea)Enum.Parse(typeof(EstadoTarea), v))
                 )
                 .IsRequired();
+                
 
             builder.Property(d => d.Estado)
                .HasMaxLength(200);
+
+            builder.HasIndex(field => new {field.AsignadoA, field.Estado, field.UnidadNegocioAsignada});
+            
         }
     }
 }

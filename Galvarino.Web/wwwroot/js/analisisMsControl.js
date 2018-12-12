@@ -52,6 +52,9 @@ const metodos = {
 
 function formatoReparo(val, row, inc) {
     row.reparo = 0;
+
+    console.log({row});
+    
     let salida = `<select class="form-control reparo" id="${inc}">`;
     salida = salida + opcionesReparosNotaria.map(function (val, index) {
         return `<option value="${index}">${val}</option>`
@@ -67,7 +70,4 @@ $(function () {
         metodos.avanzarWf();
         
     });
-
-    
-
 });

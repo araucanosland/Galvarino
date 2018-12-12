@@ -37,6 +37,7 @@ namespace Galvarino.Web.Data.Configurtations.Workflow
 
             builder.Property(s => s.Estado)
                 .HasMaxLength(200);
+
         }
     }
 }

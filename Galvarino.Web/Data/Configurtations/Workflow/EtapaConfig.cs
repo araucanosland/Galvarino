@@ -54,6 +54,8 @@ namespace Galvarino.Web.Data.Configurtations.Workflow
             builder.Property(s => s.ValorUsuarioAsignado)
                 .IsRequired();
 
+            builder.HasIndex(field => new {field.NombreInterno, field.TipoEtapa, field.TipoUsuarioAsignado});
+
 
         }
     }

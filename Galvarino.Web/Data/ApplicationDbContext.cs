@@ -78,6 +78,8 @@ namespace Galvarino.Web.Data
             builder.ApplyConfiguration(new RegionConfig());
             builder.ApplyConfiguration(new ValijaValoradaConfig());
             builder.ApplyConfiguration(new CajaValoradaConfig());
+            builder.ApplyConfiguration(new CreditoConfig());
+            builder.ApplyConfiguration(new VariablesConfig());
 
             
 
