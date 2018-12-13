@@ -16,7 +16,7 @@ const metodos = {
         $.each(data, function (index, element) {
             _procesar.push({
                 folioCredito: element.expediente.credito.folioCredito,
-                reparo: element.reparo
+                reparo: element.reparo != null ? element.reparo : 0
             });
         });
 

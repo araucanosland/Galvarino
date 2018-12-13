@@ -21,11 +21,6 @@ const metodos = {
             return x.folioCredito == expedientex.folioCredito
         });
 
-        console.log({
-            expedientex,
-            _ingresados
-        })
-
 
         if (index > -1 && typeof _ingresados[index] != 'undefined' && _ingresados[index].documentos.indexOf(codigoTipoDocumento) > -1) {
 

@@ -81,7 +81,6 @@ namespace Galvarino.Web.Controllers.Api
                       )
                 select new {
                     tarea = tarea,
-                    credito = expediente.Credito,
                     expediente = expediente,
                     reparo = _context.Variables.FirstOrDefault(vari => vari.NumeroTicket==tarea.Solicitud.NumeroTicket && vari.Clave == "CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL").Valor,
                     reparoNotaria = _context.Variables.FirstOrDefault(vari => vari.NumeroTicket == tarea.Solicitud.NumeroTicket && vari.Clave == "REPARO_REVISION_DOCUMENTO_LEGALIZADO").Valor,

@@ -12,7 +12,7 @@ const metodos = {
         foliosEnvio = data.map(function(element){
             return {
                 folioCredito: element.expediente.credito.folioCredito,
-                reparo: element.reparo
+                reparo: element.reparo != null ? element.reparo : 0
             }
         });
 
@@ -52,9 +52,6 @@ const metodos = {
 
 function formatoReparo(val, row, inc) {
     row.reparo = 0;
-
-    console.log({row});
-    
     let salida = `<select class="form-control reparo" id="${inc}">`;
     salida = salida + opcionesReparosNotaria.map(function (val, index) {
         return `<option value="${index}">${val}</option>`
@@ -64,8 +61,6 @@ function formatoReparo(val, row, inc) {
 }
 
 $(function () {
-
-    
     $("#btn-generar-generico").on("click", function () {
         metodos.avanzarWf();
         

@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Helper;
 using Microsoft.Extensions.Configuration;
+using System.Globalization;
 
 namespace Galvarino.Web.Services.Application
 {
@@ -78,6 +79,7 @@ namespace Galvarino.Web.Services.Application
                         {
                             emperzardenuevo++;
                             string[] campos = linea.Split(new char[] { ';' });
+                            DateTime ferchaCorresponde = DateTime.ParseExact(campos[10], "ddMMyyyy", CultureInfo.InvariantCulture);
                             CargaInicial ci = new CargaInicial
                             {
                                 RutAfiliado = campos[0],
@@ -90,7 +92,7 @@ namespace Galvarino.Web.Services.Application
                                 CanalVenta = campos[9],
                                 FechaVigencia = campos[10],
                                 FechaCarga = DateTime.Now,
-                                FechaCorresponde = DateTime.Now.AddDays(-1),
+                                FechaCorresponde = ferchaCorresponde,
                                 NombreArchivoCarga = nombreArchivo
                             };
                             _context.CargasIniciales.Add(ci);
@@ -117,7 +119,7 @@ namespace Galvarino.Web.Services.Application
                             
                             Credito cred = new Credito
                             {
-                                FechaDesembolso = DateTime.Now.AddDays(-1),
+                                FechaDesembolso = ferchaCorresponde,
                                 FechaFormaliza = DateTime.Now.AddDays(-1),
                                 FolioCredito = ci.FolioCredito,
                                 MontoCredito = 0,
