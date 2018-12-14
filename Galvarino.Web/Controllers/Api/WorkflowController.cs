@@ -52,7 +52,8 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpGet("mis-solicitudes/{etapaIn?}")]
-        public async Task<IActionResult> ListarMisSolicitudes([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit=20){
+        public async Task<IActionResult> ListarMisSolicitudes([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit=20)
+        {
 
             //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
             var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value; 
@@ -62,30 +63,43 @@ namespace Galvarino.Web.Controllers.Api
             ofinales.Add(ObjetoOficinaUsuario);
             ofinales.AddRange(OficinasUsuario.ToList());
 
-            /*Nueva consulta para que este optimizada */
+
+            /*Optimizando */
             var laSalida = from tarea in _context.Tareas
-                                    .Include(d => d.Etapa)
-                                    .Include(f => f.Solicitud) 
-                        join expediente in _context.ExpedientesCreditos
-                                .Include(f => f.Documentos)
-                                .Include(f => f.Credito)
-                                .Include(s => s.PackNotaria)
-                                .Include(s => s.ValijaValorada)
-                                on tarea.Solicitud.NumeroTicket equals expediente.Credito.NumeroTicket
+                            join etapa in _context.Etapas on tarea.Etapa equals etapa
+                            join solicitud in _context.Solicitudes on tarea.Solicitud equals solicitud
+                            join credito in _context.Creditos on solicitud.NumeroTicket equals credito.NumeroTicket
+                            join expediente in _context.ExpedientesCreditos.Include(exp => exp.Documentos) on credito equals expediente.Credito
+                            join packnota in _context.PacksNotarias on expediente.PackNotaria equals packnota into pks
+                            join valijaval in _context.ValijasValoradas on expediente.ValijaValorada equals valijaval into vljs
+                            from packnota in pks.DefaultIfEmpty()
+                            from valijaval in vljs.DefaultIfEmpty()
+
+
                 where (
-                            ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || tarea.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
-                                && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null)) 
-                                
-                            && tarea.Estado == EstadoTarea.Activada 
-                            && ((!string.IsNullOrEmpty(etapaIn) && tarea.Etapa.NombreInterno == etapaIn) || (string.IsNullOrEmpty(etapaIn)))
-                      )
-                select new {
-                    tarea = tarea,
-                    expediente = expediente,
-                    reparo = _context.Variables.FirstOrDefault(vari => vari.NumeroTicket==tarea.Solicitud.NumeroTicket && vari.Clave == "CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL").Valor,
+                                ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
+                                    && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null))
+
+                                && tarea.Estado == EstadoTarea.Activada
+                                && ((!string.IsNullOrEmpty(etapaIn) && etapa.NombreInterno == etapaIn) || (string.IsNullOrEmpty(etapaIn)))
+                            )
+                select new
+                {
+                    
+                    credito.FolioCredito,
+                    credito.RutCliente,
+                    credito.TipoCredito,
+                    expediente.Documentos,
+                    credito.FechaDesembolso,
+                    seguimientoNotaria = packnota !=null ? packnota.CodigoSeguimiento : "",
+                    fechaEnvioNotaria = packnota != null ? packnota.FechaEnvio : DateTime.MinValue,
+                    seguimientoValija = valijaval != null ? valijaval.CodigoSeguimiento : "",
+                    fechaEnvioValija = valijaval != null ? valijaval.FechaEnvio : DateTime.MinValue,
+                    reparo = _context.Variables.FirstOrDefault(vari => vari.NumeroTicket == tarea.Solicitud.NumeroTicket && vari.Clave == "CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL").Valor,
                     reparoNotaria = _context.Variables.FirstOrDefault(vari => vari.NumeroTicket == tarea.Solicitud.NumeroTicket && vari.Clave == "REPARO_REVISION_DOCUMENTO_LEGALIZADO").Valor,
                     documentosFaltantes = _context.Variables.FirstOrDefault(vari => vari.NumeroTicket == tarea.Solicitud.NumeroTicket && vari.Clave == "COLECCION_DOCUMENTOS_FALTANTES").Valor
                 };
+
             
             var salida = await laSalida.ToListAsync();
             var lida = new {
@@ -93,6 +107,54 @@ namespace Galvarino.Web.Controllers.Api
                 rows = salida.Skip(offset).Take(limit).ToList()
             };
             
+            return Ok(lida);
+        }
+
+        [HttpGet("mis-solicitudes-mesa-control/{etapaIn?}")]
+        public async Task<IActionResult> ListarMisSolicitudesMSC([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20)
+        {
+
+            //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var ObjetoOficinaUsuario = _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefault(ofc => ofc.Codificacion == oficinaUsuario);
+            var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id && ofc.EsMovil == true);
+            var ofinales = new List<Oficina>();
+            ofinales.Add(ObjetoOficinaUsuario);
+            ofinales.AddRange(OficinasUsuario.ToList());
+
+
+            /*Optimizando */
+            var laSalida = from tarea in _context.Tareas
+                           join etapa in _context.Etapas on tarea.Etapa equals etapa
+                           join solicitud in _context.Solicitudes on tarea.Solicitud equals solicitud
+                           join credito in _context.Creditos on solicitud.NumeroTicket equals credito.NumeroTicket
+                           join expediente in _context.ExpedientesCreditos.Include(exp => exp.Documentos) on credito equals expediente.Credito
+                           
+
+                           where (
+                                           ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
+                                               && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null))
+
+                                           && tarea.Estado == EstadoTarea.Activada
+                                           && ((!string.IsNullOrEmpty(etapaIn) && etapa.NombreInterno == etapaIn) || (string.IsNullOrEmpty(etapaIn)))
+                                       )
+                           select new
+                           {
+                               credito.FolioCredito,
+                               credito.RutCliente,
+                               credito.TipoCredito,
+                               expediente.Documentos,
+                               credito.FechaDesembolso
+                           };
+
+
+            var salida = await laSalida.ToListAsync();
+            var lida = new
+            {
+                total = salida.Count(),
+                rows = salida.Skip(offset).Take(limit).ToList()
+            };
+
             return Ok(lida);
         }
 
@@ -188,14 +250,16 @@ namespace Galvarino.Web.Controllers.Api
         {
 
             var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
-            var ObjetoOficinaUsuario = await _context.Oficinas.Include(of => of.OficinaProceso).Include(of => of.PacksNotaria).ThenInclude(pn => pn.Expedientes).FirstOrDefaultAsync(ofc => ofc.OficinaProceso.Codificacion == oficinaUsuario);
+            var ObjetoOficinaUsuario = await _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefaultAsync(ofc => ofc.OficinaProceso.Codificacion == oficinaUsuario);
             var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id);
 
-            switch(tipoDocumento)
+            switch (tipoDocumento)
             {
                 case "nomina-notaria":
+
+                    var packNotaria = await _context.PacksNotarias.Include(p => p.Expedientes).Include(p => p.Oficina).Where(p => p.Oficina.Codificacion == oficinaUsuario).ToListAsync();
                     return Ok(ObjetoOficinaUsuario.PacksNotaria);
-                
+
                 case "valija-oficina":
                     var valijaOficina = await _context.ValijasOficinas.Include(d => d.OficinaEnvio).Include(d => d.Expedientes).Where(x => x.OficinaEnvio.Codificacion == oficinaUsuario).ToListAsync();
                     return Ok(valijaOficina);
@@ -203,10 +267,10 @@ namespace Galvarino.Web.Controllers.Api
                 case "valija-valorada":
                     var valijaValodara = await _context.ValijasValoradas.Include(d => d.Oficina).Include(d => d.Expedientes).Where(x => x.Oficina.Codificacion == oficinaUsuario).ToListAsync();
                     return Ok(valijaValodara);
-                
+
                 default:
                     throw new Exception("Debes Ingresar con una opcion de mostrado");
-            }    
+            }
         }
 
         [HttpGet("solicitudes-reparo-devolicion/{oficina?}")]

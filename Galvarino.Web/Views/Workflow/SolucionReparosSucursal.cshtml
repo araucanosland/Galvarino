@@ -37,11 +37,11 @@
     <table          id="tabla-generica" 
                     data-toggle="table"
                     data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL"
-                    data-search="true"
+                    data-search="false"
                     data-show-refresh="false"
                     data-show-toggle="false"
                     data-show-columns="false"
-                    data-sort-name="expediente.valijaValorada.fechaEnvio"
+                    data-sort-name="fechaEnvioValija"
                     data-page-list="[]"
                     data-page-size="40"
                     data-pagination="true" 
@@ -52,13 +52,13 @@
             <tr>
                 <th data-field="reparo" data-checkbox="true">Resuelto</th>
                 <th data-field="reparo" data-formatter="formatoReparo">Motivo</th>
-                <th data-field="expediente.credito.folioCredito" data-sortable="true">Folio Crédito</th>
-                <th data-field="expediente.credito.rutCliente" data-align="center" data-sortable="true" >Rut Afiliado</th>
-                <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
-                <th data-field="expediente.credito.folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
-                <th data-field="expediente.credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Colocación</th>
-                <th data-field="expediente.valijaValorada.fechaEnvio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fec. Envío Sucursal</th>
-                <th data-field="expediente.valijaValorada.codigoSeguimiento" data-align="center" data-sortable="true">Valija</th>
+                <th data-field="folioCredito" data-sortable="true">Folio Crédito</th>
+                <th data-field="rutCliente" data-align="center" data-sortable="true" >Rut Afiliado</th>
+                <th data-field="tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                <th data-field="folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
+                <th data-field="fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Colocación</th>
+                <th data-field="fechaEnvioValija" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fec. Envío Sucursal</th>
+                <th data-field="seguimientoValija" data-align="center" data-sortable="true">Valija</th>
             </tr>
         </thead>
     </table>

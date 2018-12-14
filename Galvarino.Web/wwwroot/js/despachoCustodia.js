@@ -6,7 +6,7 @@ const metodos = {
         let data = $('#tabla-generica').bootstrapTable('getData');
         let foliosEnvio = data.map(function (exp) {
             return {
-                folioCredito: exp.credito.folioCredito
+                folioCredito: exp.folioCredito
             }
         });
 

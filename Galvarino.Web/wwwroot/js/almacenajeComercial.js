@@ -28,7 +28,7 @@ const metodos = {
             if(indx < cantidadAdmitida)
             {
                 return {
-                    folioCredito: element.expediente.credito.folioCredito,
+                    folioCredito: element.folioCredito,
                 }
             }
         });
@@ -37,7 +37,6 @@ const metodos = {
             return el != null;
           });
 
-        console.log({foliosEnvio, data})
 
         $.ajax({
             type: "POST",

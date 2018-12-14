@@ -58,7 +58,7 @@ namespace Galvarino.Web.Controllers
             
             return new ViewAsPdf(new PdfModelHelper()
             {
-                FechaImpresion = DateTime.Now.ToShortDateString(),
+                FechaImpresion = pack.FechaEnvio.ToShortDateString(),
                 CodigoSeguimiento = codigoSeguimiento,
                 PackNotaria = pack,
                 MarcaDocto = codigoSeguimiento.Contains("R") ? "REPARO" : "OTRO"
@@ -80,7 +80,7 @@ namespace Galvarino.Web.Controllers
                                 .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
             return new ViewAsPdf(new PdfModelHelper()
             {
-                FechaImpresion = DateTime.Now.ToShortDateString(),
+                FechaImpresion = valorada.FechaEnvio.ToShortDateString(),
                 CodigoSeguimiento = codigoSeguimiento,
                 ValijaValorada = valorada
             })
@@ -101,7 +101,7 @@ namespace Galvarino.Web.Controllers
 
             return new ViewAsPdf(new PdfModelHelper()
             {
-                FechaImpresion = DateTime.Now.ToShortDateString(),
+                FechaImpresion = valorada.FechaEnvio.ToShortDateString(),
                 CodigoSeguimiento = codigoSeguimiento,
                 CajaValorada = valorada
             })
@@ -126,7 +126,7 @@ namespace Galvarino.Web.Controllers
 
             return new ViewAsPdf(new PdfModelHelper()
             {
-                FechaImpresion = DateTime.Now.ToShortDateString(),
+                FechaImpresion = valorada.FechaEnvio.ToShortDateString(),
                 CodigoSeguimiento = codigoSeguimiento,
                 ValijaOficina = valorada
             })

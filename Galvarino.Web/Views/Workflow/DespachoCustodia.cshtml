@@ -31,7 +31,7 @@
     <table          id="tabla-generica"
                     data-toggle="table"
                     data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA"
-                    data-search="true"
+                    data-search="false"
                     data-show-refresh="false"
                     data-show-toggle="false"
                     data-show-columns="false"
@@ -42,11 +42,11 @@
                     data-pagination="true" data-show-pagination-switch="false">
         <thead>
            <tr>
-                <th data-field="expediente.credito.folioCredito" data-sortable="true">Folio Crédito</th>
-                <th data-field="expediente.credito.rutCliente" data-align="center" data-sortable="true" >Rut Afiliado</th>
-                <th data-field="expediente.credito.tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
-                <th data-field="expediente.credito.folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
-                <th data-field="expediente.credito.fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                <th data-field="folioCredito" data-sortable="true">Folio Crédito</th>
+                <th data-field="rutCliente" data-align="center" data-sortable="true" >Rut Afiliado</th>
+                <th data-field="tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                <th data-field="folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
+                <th data-field="fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
             </tr>
         </thead>
     </table>

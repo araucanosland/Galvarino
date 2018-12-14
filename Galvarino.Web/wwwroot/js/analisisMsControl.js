@@ -11,11 +11,11 @@ const metodos = {
 
         foliosEnvio = data.map(function(element){
             return {
-                folioCredito: element.expediente.credito.folioCredito,
+                folioCredito: element.folioCredito,
                 reparo: element.reparo != null ? element.reparo : 0
             }
         });
-
+        
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/analisis-mesa-control`,
