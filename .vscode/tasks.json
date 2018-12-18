@@ -33,7 +33,7 @@
         },
         {
             "label": "publish",
-            "dependsOn":["clean"],
+            //"dependsOn":["clean", "build"],
             "command": "dotnet",
             "type": "process",
             "args": [

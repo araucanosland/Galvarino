@@ -66,5 +66,10 @@ namespace Galvarino.Web.Services
         {
             return _kernel.QuienCerroEtapa(nombreInternoProceso, nombreInternoEtapa, numeroTicket);
         }
+
+        public Tarea OntenerTareaActual(string nombreInternoProceso, string numeroTicket)
+        {
+            return _kernel.ObtenerTareaByTicket(nombreInternoProceso, numeroTicket);
+        }
     }
 }

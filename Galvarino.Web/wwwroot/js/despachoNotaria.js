@@ -120,6 +120,7 @@ const metodos = {
             });
 
         }).always(function () {
+            _ingresados = [];
             $("#modal-pistoleo").modal('hide');
             $('#tabla-generica').bootstrapTable('refresh');
         });
@@ -133,10 +134,11 @@ $(function(){
     $(document).on(eventos.pistolaDisparada, function (event, params) {
         
         let expediente = params;
+        let etapa = $("#etapa-actual").val();
 
         $.ajax({
             type: "GET",
-            url: `/api/wf/v1/obtener-expediente/${expediente.folioCredito}`
+            url: `/api/wf/v1/obtener-expediente/${expediente.folioCredito}/${etapa}`
         }).done(function (data) {
 
             expediente.obtenido = data;

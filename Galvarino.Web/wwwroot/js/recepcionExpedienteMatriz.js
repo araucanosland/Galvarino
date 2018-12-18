@@ -98,6 +98,8 @@ const metodos = {
                 closeBtn: true,
                 timer: 5000
             });
+        }).always(function () {
+            _ingresados = [];
         });
     }
 }

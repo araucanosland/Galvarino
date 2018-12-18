@@ -8,6 +8,8 @@ const metodos = {
         let data = $('#tabla-generica').bootstrapTable('getData');
 
 
+        
+
         if(data.length < cantidadAdmitida)
         {
             $.niftyNoty({
@@ -28,15 +30,14 @@ const metodos = {
             if(indx < cantidadAdmitida)
             {
                 return {
-                    folioCredito: element.folioCredito,
+                    folioCredito: element.expediente.credito.folioCredito,
                 }
             }
         });
 
         foliosEnvio = foliosEnvio.filter(function (el) {
             return el != null;
-          });
-
+        });
 
         $.ajax({
             type: "POST",

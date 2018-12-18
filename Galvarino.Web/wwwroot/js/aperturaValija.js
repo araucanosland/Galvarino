@@ -100,6 +100,7 @@ const metodos = {
             });
 
         }).always(function () {
+            _ingresados = [];
             $('#tabla-generica').bootstrapTable('refresh');
         });
     }

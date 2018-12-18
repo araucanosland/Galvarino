@@ -313,5 +313,13 @@ namespace Galvarino.Web.Services.Workflow
             return _context.Users.FirstOrDefault(us => us.Identificador == ss.EjecutadoPor);
 
         }
+
+        public Tarea ObtenerTareaByTicket(string nombreInternoProceso, string numeroTicket)
+        {
+            return _context.Tareas
+                            .Include(tar => tar.Etapa)
+                            .Include(tar => tar.Solicitud)
+                            .FirstOrDefault(d => d.Solicitud.NumeroTicket == numeroTicket && d.Estado == EstadoTarea.Activada);
+        }
     }
 }

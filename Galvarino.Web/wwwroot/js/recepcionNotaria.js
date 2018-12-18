@@ -100,6 +100,8 @@ const metodos = {
                 timer: 5000
             });
 
+        }).allways(function(){
+           _ingresados = [];
         });
     }
 }
@@ -109,10 +111,11 @@ $(function () {
     $(document).on(eventos.pistolaDisparada, function (event, params) {
 
         let expediente = params;
+        let etapa = $("#etapa-actual").val();
 
         $.ajax({
             type: "GET",
-            url: `/api/wf/v1/obtener-expediente/${expediente.folioCredito}`
+            url: `/api/wf/v1/obtener-expediente/${expediente.folioCredito}/${etapa}`
         }).done(function (data) {
 
             expediente.obtenido = data;
@@ -139,11 +142,12 @@ $(function () {
             $.niftyNoty({
                 type: "danger",
                 container: "floating",
-                title: "Suceso Erroneo",
-                message: "Error al Pistolear",
+                title: "Error al Pistolear:  " + $("#folio-shot").val(),
+                message: errMsg.responseText,
                 closeBtn: true,
                 timer: 5000
             });
+            $("#folio-shot").val("");
         })
 
     });

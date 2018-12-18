@@ -30,7 +30,7 @@ const metodos = {
             
             $.ajax({
                 type: "GET",
-                url: `/api/wf/v1/obtener-expediente/${expedientex.folioCredito}`
+                url: `/api/wf/v1/obtener-expediente/${expediente.folioCredito}`
             }).done(function (data) {
 
                 expedientex.obtenido = data;
@@ -131,8 +131,6 @@ const metodos = {
         }
 
 
-        
-
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/ingreso-expedientes-legalizados`,
@@ -155,10 +153,12 @@ const metodos = {
                 type: "warning",
                 container: "floating",
                 title: "Ingreso de Expedientes ya Legalizados",
-                message: "Tarea No Finalizada, contacte a Soporte!",
+                message: "Tarea No Finalizada, contacte a Soporte! <small></small>",
                 closeBtn: true,
                 timer: 5000
             });
+        }).always(function () {
+            _ingresados = [];
         });
     }
 }

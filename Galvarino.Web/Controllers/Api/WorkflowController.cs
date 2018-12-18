@@ -34,16 +34,35 @@ namespace Galvarino.Web.Controllers.Api
             _mailService = mailService;
         }
 
-        [HttpGet("obtener-expediente/{folioCredito}")]
-        public IActionResult ObtenerXpediente([FromRoute] string folioCredito)
+        [HttpGet("obtener-expediente/{folioCredito}/{etapaSolicitud?}")]
+        public IActionResult ObtenerXpediente([FromRoute] string folioCredito, [FromRoute] string etapaSolicitud = "")
         {
+            /* TODO Validar que sea de la oficina y que este en la etapa correcta de solicitud*/
             var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito);
             var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
             var ofipago = _wfService.ObtenerVariable("OFICINA_PAGO", expediente.Credito.NumeroTicket);
             var laOficinaPago = _context.Oficinas.Include(k => k.OficinaProceso).FirstOrDefault(ofi => ofi.Codificacion == ofipago);
+
+
+
             if (expediente.Documentos.Count() > 0 && (ofipago == oficinaUsuario || laOficinaPago.OficinaProceso.Codificacion == oficinaUsuario))
             {
-                return Ok(expediente);
+                if (!string.IsNullOrEmpty(etapaSolicitud))
+                {
+                    var etapaActual = _wfService.OntenerTareaActual("PROCESS", expediente.Credito.NumeroTicket);
+                    if(etapaActual.Etapa.NombreInterno == etapaSolicitud)
+                    {
+                        return Ok(expediente);
+                    }
+                    else
+                    {
+                        return NotFound("Este Expediente esta en la siguiente tarea: <strong>" + etapaActual.Etapa.Nombre + "</strong>");
+                    }
+                }
+                else
+                {
+                    return Ok(expediente);
+                }
             }
             else
             {

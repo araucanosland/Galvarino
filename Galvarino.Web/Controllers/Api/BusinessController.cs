@@ -28,6 +28,7 @@ namespace Galvarino.Web.Controllers.Api
             _context = context;
         }
 
+        /*Deprecated */
         [HttpGet("obtener-expediente/{folioCredito}")]
         public IActionResult ObtenerXpediente([FromRoute] string folioCredito)
         {
