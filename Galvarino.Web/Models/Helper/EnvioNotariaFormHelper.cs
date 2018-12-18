@@ -7,12 +7,19 @@ namespace Galvarino.Web.Models.Helper
     public class EnvioNotariaFormHelper{
         public string FolioCredito { get; set; }
         public int Reparo { get; set; }
+       
 
         public EnvioNotariaFormHelper()
         {
             FolioCredito = string.Empty;
             Reparo = 0;
         }
+    }
+
+    public class ColeccionEnvioNotariaFormHelper
+    {
+        public int Notaria { get; set; }
+        public IEnumerable<EnvioNotariaFormHelper> Expedientes { get; set; }
     }
 
     public class ExpedienteGenerico{

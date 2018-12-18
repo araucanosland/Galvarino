@@ -214,54 +214,61 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpGet("mis-solicitudes/{etapaIn}/{notaria}")]
-        public async Task<IActionResult> ListarMisSolicitudesNotaria(string etapaIn, int notaria)
+        public async Task<IActionResult> ListarMisSolicitudesNotaria([FromRoute] string etapaIn, [FromRoute] int notaria, [FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {
 
+            //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
             var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
-            var ObjetoOficinaUsuario = _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefault(ofc => ofc.OficinaProceso.Codificacion == oficinaUsuario);
-            var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id);
+            var ObjetoOficinaUsuario = _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefault(ofc => ofc.Codificacion == oficinaUsuario);
+            var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id && ofc.EsMovil == true);
+            var ofinales = new List<Oficina>();
+            ofinales.Add(ObjetoOficinaUsuario);
+            ofinales.AddRange(OficinasUsuario.ToList());
 
-            var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(x.AsignadoA) && ((x.UnidadNegocioAsignada != null && OficinasUsuario.Select(ofs => ofs.Codificacion).Contains(x.UnidadNegocioAsignada)) || x.UnidadNegocioAsignada == null)) && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == etapaIn);
 
-            
-            var salida = new List<dynamic>();
-            //await mistareas.ForEachAsync(tarea =>
-            foreach(Tarea tarea in mistareas)
+            /*Optimizando */
+            var laSalida = from tarea in _context.Tareas
+                           join etapa in _context.Etapas on tarea.Etapa equals etapa
+                           join solicitud in _context.Solicitudes on tarea.Solicitud equals solicitud
+                           join credito in _context.Creditos on solicitud.NumeroTicket equals credito.NumeroTicket
+                           join expediente in _context.ExpedientesCreditos.Include(exp => exp.Documentos) on credito equals expediente.Credito
+                           join packnota in _context.PacksNotarias.Include(p => p.NotariaEnvio) on expediente.PackNotaria equals packnota
+                           
+
+                           where (
+                                           ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
+                                               && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null))
+                                       )
+                                && tarea.Estado == EstadoTarea.Activada
+                                && etapa.NombreInterno == etapaIn
+                                && packnota.NotariaEnvio.Id == notaria
+                               
+                           select new
+                           {
+
+                               credito.FolioCredito,
+                               credito.RutCliente,
+                               credito.TipoCredito,
+                               expediente.Documentos,
+                               credito.FechaDesembolso,
+                               seguimientoNotaria = packnota != null ? packnota.CodigoSeguimiento : "",
+                               fechaEnvioNotaria = packnota != null ? packnota.FechaEnvio : DateTime.MinValue,
+                               seguimientoValija = "",
+                               fechaEnvioValija = DateTime.MinValue,
+                               reparo = _context.Variables.FirstOrDefault(vari => vari.NumeroTicket == tarea.Solicitud.NumeroTicket && vari.Clave == "CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL").Valor,
+                               reparoNotaria = _context.Variables.FirstOrDefault(vari => vari.NumeroTicket == tarea.Solicitud.NumeroTicket && vari.Clave == "REPARO_REVISION_DOCUMENTO_LEGALIZADO").Valor,
+                               documentosFaltantes = _context.Variables.FirstOrDefault(vari => vari.NumeroTicket == tarea.Solicitud.NumeroTicket && vari.Clave == "COLECCION_DOCUMENTOS_FALTANTES").Valor
+                           };
+
+
+            var salida = await laSalida.ToListAsync();
+            var lida = new
             {
+                total = salida.Count(),
+                rows = salida.Skip(offset).Take(limit).ToList()
+            };
 
-                var folioCredito = _wfService.ObtenerVariable("FOLIO_CREDITO", tarea.Solicitud.NumeroTicket);
-                var motivoDevol = _wfService.ObtenerVariable("CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL", tarea.Solicitud.NumeroTicket);
-                var reparoNotaria = _wfService.ObtenerVariable("REPARO_REVISION_DOCUMENTO_LEGALIZADO", tarea.Solicitud.NumeroTicket);
-                var documentosFaltantes = _wfService.ObtenerVariable("COLECCION_DOCUMENTOS_FALTANTES", tarea.Solicitud.NumeroTicket);
-                var credito = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito);
-                var expediente = _context.ExpedientesCreditos
-                                .Include(f => f.Documentos)
-                                .Include(f => f.Credito)
-                                .Include(s => s.PackNotaria)
-                                .ThenInclude(pn => pn.NotariaEnvio)
-                                .Include(s => s.ValijaValorada)
-                                .FirstOrDefault(ex => ex.Credito.FolioCredito == folioCredito && ex.PackNotaria.NotariaEnvio.Id == notaria);
-
-
-
-                if(expediente != null){
-                    expediente.Documentos = expediente.Documentos.OrderBy(r => r.Codificacion).ToList();
-                    salida.Add(new
-                    {
-                        tarea = tarea,
-                        credito = credito,
-                        expediente = expediente,
-                        reparo = motivoDevol.Length > 0 ? Convert.ToInt32(motivoDevol) : 0,
-                        reparoNotaria = reparoNotaria,
-                        documentosFaltantes
-                    });
-                }
-                
-            }
-            //);
-
-
-            return Ok(salida);
+            return Ok(lida);
         }
 
         [HttpGet("documentos-generados/{tipoDocumento}")]
@@ -513,7 +520,7 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpPost("despacho-reparo-notaria")]
-        public async Task<IActionResult> DespachoReparoNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        public async Task<IActionResult> DespachoReparoNotaria([FromBody] ColeccionEnvioNotariaFormHelper entrada)
         {
             var tran = _context.Database.BeginTransaction();
             try
@@ -523,7 +530,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
                 var oficinaEnvio = _context.Oficinas.Include(of => of.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
-                var notariaEnvio = _context.Notarias.Include(not => not.Comuna).FirstOrDefault(d => d.Comuna.Id == oficinaEnvio.Comuna.Id);
+                var notariaEnvio = entrada.Notaria > 0 ? _context.Notarias.FirstOrDefault(not=> not.Id == entrada.Notaria) : _context.Notarias.Include(nt => nt.Comuna).FirstOrDefault(not => not.Comuna.Id == oficinaEnvio.Comuna.Id);
                 
 
                 DateTime now = DateTime.Now;
@@ -539,7 +546,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 _context.PacksNotarias.Add(packNotaria);
 
-                foreach (var item in entrada)
+                foreach (var item in entrada.Expedientes)
                 {
                     var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
                     elExpediente.PackNotaria = packNotaria;

@@ -25,12 +25,17 @@ const metodos = {
             });
         });
 
+        let _oenviar = {
+            notaria: $("#notarias").val(),
+            expedientes: _procesar
+        }
+
 
 
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/despacho-reparo-notaria`,
-            data: JSON.stringify(_procesar),
+            data: JSON.stringify(_oenviar),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
 
