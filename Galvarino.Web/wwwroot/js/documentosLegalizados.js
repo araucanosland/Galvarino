@@ -30,7 +30,7 @@ const metodos = {
             
             $.ajax({
                 type: "GET",
-                url: `/api/wf/v1/obtener-expediente/${expediente.folioCredito}`
+                url: `/api/wf/v1/obtener-expediente/${expedientex.folioCredito}`
             }).done(function (data) {
 
                 expedientex.obtenido = data;
