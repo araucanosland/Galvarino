@@ -83,7 +83,7 @@ const metodos = {
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Despacho Of. de Partes",
+                title: "Despacho Of. Matríz",
                 message: "Estamos Generando la Nómina...<br/><small>Esta Tarea se ceirra en 5 Seg. y te redirige al Pdf de La Nómina de envío</small>",
                 closeBtn: true,
                 timer: 5000,
@@ -96,8 +96,8 @@ const metodos = {
             $.niftyNoty({
                 type: "warning",
                 container: "floating",
-                title: "Avance Tareas",
-                message: "Tarea No Finalizada, contacte a Soporte!",
+                title: "Error al Generar Nomina, favor contacta a Especialista.",
+                message: errMsg.responseText,
                 closeBtn: true,
                 timer: 5000
             });
@@ -121,7 +121,7 @@ $(function () {
             type: "GET",
             url: `/api/wf/v1/obtener-expediente/${expediente.folioCredito}/${etapa}`
         }).done(function (data) {
-
+            $("#btn-generar-generico").prop("disabled", true);
             expediente.obtenido = data;
 
             let index = _ingresados.findIndex(function (expedientey) {

@@ -12,5 +12,6 @@ namespace Galvarino.Web.Models.Application
         public ICollection<ExpedienteCredito> Expedientes { get; set; }
         public string CodigoSeguimiento { get; set; }
         public string MarcaAvance { get; set; }
+        public string Usuario { get; set; }
     }
 }

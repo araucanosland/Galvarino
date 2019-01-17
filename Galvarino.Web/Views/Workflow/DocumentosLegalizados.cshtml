@@ -21,15 +21,33 @@
 }
 
 <div class="row">
-    <div class="col-sm-6 table-toolbar-left">                      
+    <div class="col-sm-9 table-toolbar-left">                      
        <form id="form-pistoleo-detalle">
-            <div class="input-group mar-btm">
-                <span class="input-group-addon"><i class="glyphicon glyphicon-barcode"></i></span>
-                <input class="form-control" placeholder="Pistolear" type="text" id="folio-shot" autocomplete="off">
+            <div class="form-group pad-ver">
+                <div class="col-md-12">
+                    <div class="radio">
+
+                        <input id="radio-documentos-legalizados" class="magic-radio" type="radio" name="TipoMarca" checked="">
+                        <label for="radio-documentos-legalizados">Documentos Legalizados</label>
+
+                        <input id="radio-acuerdo-pago-total" class="magic-radio" type="radio" name="TipoMarca">
+                        <label for="radio-acuerdo-pago-total">Acuerdos de Pago Totales</label>
+
+                    </div>
+                </div>
             </div>
+
+            <div class="form-group pad-ver">
+                <div class="input-group mar-btm">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-barcode"></i></span>
+                    <input class="form-control" placeholder="Pistolear" type="text" id="folio-shot" autocomplete="off">
+                </div>
+            </div>
+
+            
         </form>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-3">
         <button class="btn btn-primary" type="button" id="btn-generar-generico"><i class="fa fa-clone"></i> Procesar Expedientes</button>
     </div>
 </div>

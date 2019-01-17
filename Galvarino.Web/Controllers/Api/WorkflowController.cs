@@ -916,8 +916,8 @@ namespace Galvarino.Web.Controllers.Api
             }
         }
 
-        [Route("despacho-a-custodia")]
-        public async Task<IActionResult> DespachoCustodia([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        [Route("despacho-a-custodia/{codigoCaja}")]
+        public async Task<IActionResult> DespachoCustodia([FromRoute] string codigoCaja)
         {
             var tran = _context.Database.BeginTransaction();
             try
@@ -927,33 +927,151 @@ namespace Galvarino.Web.Controllers.Api
                 DateTime now = DateTime.Now;
                 var codSeg = now.Ticks.ToString() + "CV" ;
 
-                CajaValorada cajaval = new CajaValorada{
-                    FechaEnvio = DateTime.Now,
-                    CodigoSeguimiento = codSeg,
-                    MarcaAvance = "DESPACUST"
-                };
-                _context.CajasValoradas.Add(cajaval);
+                var cajaval = _context.CajasValoradas.FirstOrDefault(d => d.CodigoSeguimiento == codigoCaja && d.Usuario == User.Identity.Name);
+                var folios = _context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name).GroupBy(d => d.FolioCredito).Select(d => d.Key).ToList();
 
-                foreach (var item in entrada)
+                foreach (var item in folios)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item);
                     elExpediente.CajaValorada = cajaval;
                     expedientesModificados.Add(elExpediente);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                    //_wfService.AsignarVariable("FOLIO_CAJA_VALORADA", cajaval.CodigoSeguimiento, elExpediente.Credito.NumeroTicket);
                 }
-
-                
+                //Sacar la caja del estado buffer
+                cajaval.MarcaAvance = "DESPACUST";
+                _context.CajasValoradas.Update(cajaval);
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
                 await _context.SaveChangesAsync();
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+
+                _context.PasosValijasValoradas.RemoveRange(_context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name));
+                await _context.SaveChangesAsync();
                 tran.Commit();
-                return Ok(cajaval);
+                return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 tran.Rollback();
-                return BadRequest();
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("despacho-a-custodia/generar-caja-valorada")]
+        public async Task<IActionResult> GenerarCajaValorada()
+        {
+            try
+            {
+                var existe = _context.CajasValoradas.FirstOrDefault(ca => ca.Usuario == User.Identity.Name && ca.MarcaAvance == "BUFFER");
+                if(existe == null)
+                {
+                    List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+                    List<string> ticketsAvanzar = new List<string>();
+                    DateTime now = DateTime.Now;
+
+                    var codSeg = now.Ticks.ToString() + "CV";
+
+                    CajaValorada cajaval = new CajaValorada
+                    {
+                        FechaEnvio = DateTime.Now,
+                        CodigoSeguimiento = codSeg,
+                        MarcaAvance = "BUFFER",
+                        Usuario = User.Identity.Name
+                    };
+                    _context.CajasValoradas.Add(cajaval);
+                    await _context.SaveChangesAsync();
+                    return Ok(cajaval);
+                }
+                else
+                {
+
+                    var documentos = from pasoval in _context.PasosValijasValoradas
+                                    where pasoval.CodigoCajaValorada == existe.CodigoSeguimiento && pasoval.Usuario == User.Identity.Name
+                                    group pasoval by pasoval.FolioCredito into slt
+                                    from exps in _context.ExpedientesCreditos.Include(ex => ex.Documentos).Include(ex => ex.Credito)
+                                    where exps.Credito.FolioCredito == slt.Key
+                                    select new
+                                    {
+                                        Folio = slt.Key,
+                                        Pistoleados = slt.Count(),
+                                        Total = exps.Documentos.Count
+                                    };
+
+
+                    var salida = new
+                    {
+                        caja = existe,
+                        documentos
+                    };
+                    return Ok(salida);
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("despacho-a-custodia/caja-valorada/{codigoCaja}/agregar-documento/{folioDocumento}")]
+        public async Task<IActionResult> AgregarDocumentoCajaValorada([FromRoute] string codigoCaja, [FromRoute] string folioDocumento)
+        {
+            try
+            {
+                /*Variables*/
+                string codigoDocumento = folioDocumento.Substring(0, 2);
+                string folioCredito = folioDocumento.Substring(2, 12);
+
+                /*Obtener la caja valorada para agregar documento*/
+                var cajaBuffer = _context.CajasValoradas.FirstOrDefault(cv => cv.CodigoSeguimiento == codigoCaja && cv.Usuario == User.Identity.Name && cv.MarcaAvance == "BUFFER");
+                if (cajaBuffer == null)
+                {
+                    throw new Exception("Caja Valorada No existe en este contexto");
+                }
+
+                /*Valido quer no pistolee el mismo dos veces*/
+                var existeDocumento = _context.PasosValijasValoradas.Any(pvv => pvv.FolioDocumento == folioDocumento);
+                if (existeDocumento)
+                {
+                    throw new Exception("Documento ya Pistoleado");
+                }
+
+
+                //Se registra el nuevo folio dentro de la tabla de paso
+                var registra = new PasoValijaValorada
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    CodigoCajaValorada = codigoCaja,
+                    FolioCredito = folioCredito,
+                    FolioDocumento = folioDocumento,
+                    Usuario = User.Identity.Name
+                };
+
+                _context.PasosValijasValoradas.Add(registra);
+                await _context.SaveChangesAsync();
+
+                
+
+                var salida = from pasoval in _context.PasosValijasValoradas
+                             where pasoval.CodigoCajaValorada == codigoCaja && pasoval.Usuario == User.Identity.Name
+                             group pasoval by pasoval.FolioCredito into slt
+                             from exps in _context.ExpedientesCreditos.Include(ex => ex.Documentos).Include(ex => ex.Credito)
+                             where exps.Credito.FolioCredito == slt.Key
+                             select new
+                             {
+                                 Folio = slt.Key,
+                                 Pistoleados = slt.Count(),
+                                 Total = exps.Documentos.Count
+                             };
+
+
+
+
+                return Ok(salida.ToList());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

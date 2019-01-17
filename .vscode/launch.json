@@ -31,7 +31,7 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "GALVARINO_SECURITY_KEY": "DESARROLLO:LAUTARO"
+                "GALVARINO_SECURITY_KEY": "DESARROLLO:GALVARO"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Galvarino.Web/Views"

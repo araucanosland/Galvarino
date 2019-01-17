@@ -71,6 +71,8 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<string>("MarcaAvance");
 
+                    b.Property<string>("Usuario");
+
                     b.HasKey("Id");
 
                     b.ToTable("CajasValoradas");
@@ -411,6 +413,24 @@ namespace Galvarino.Web.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PagaresSinCustodia");
+                });
+
+            modelBuilder.Entity("Galvarino.Web.Models.Application.PasoValijaValorada", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("CodigoCajaValorada");
+
+                    b.Property<string>("FolioCredito");
+
+                    b.Property<string>("FolioDocumento");
+
+                    b.Property<string>("Usuario");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PasosValijasValoradas");
                 });
 
             modelBuilder.Entity("Galvarino.Web.Models.Application.Region", b =>

@@ -24,6 +24,7 @@ using Rotativa.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using Microsoft.AspNetCore.Server.IISIntegration;
 
 namespace Galvarino.Web
 {
@@ -48,7 +49,8 @@ namespace Galvarino.Web
 
             services.Configure<IISOptions>(options =>
             {
-                options.ForwardClientCertificate = false;
+                options.ForwardClientCertificate = true;
+                options.AutomaticAuthentication = true;
             });
 
 
@@ -77,6 +79,8 @@ namespace Galvarino.Web
                 options.AccessDeniedPath = "/Home/SinPermiso";
                 options.SlidingExpiration = true;
             });
+
+            //services.AddAuthentication(IISDefaults.AuthenticationScheme);
 
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
             services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();

@@ -8,6 +8,8 @@ using Galvarino.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Galvarino.Web.Models.Security;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 
 namespace Galvarino.Web.Controllers
 {
@@ -23,6 +25,7 @@ namespace Galvarino.Web.Controllers
         }
         
         public IActionResult Index()
+
         {
             string userAgent = Request.Headers["User-Agent"].ToString();
             if(userAgent.Contains("MSIE") || userAgent.Contains("Trident"))
@@ -51,7 +54,15 @@ namespace Galvarino.Web.Controllers
             {
                 var user = await _signInManager.UserManager.FindByNameAsync(rut);
                 await _signInManager.SignInAsync(user, true);
-                return Redirect("/wf/v1/mis-solicitudes");
+                if(User.Identity.IsAuthenticated)
+                {
+                    return Redirect("/wf/v1/mis-solicitudes");
+                }
+                else
+                {
+                    return View("SinPermiso");
+                }
+                
             }
             catch (Exception ex)
             {

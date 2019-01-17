@@ -45,7 +45,7 @@ function formatoReparo(val, row, inc) {
     let documentos = JSON.parse(row.documentosFaltantes.replace(/\"/g, "\""));
 
     let docFaltantes = documentos.map(function(codificacion){
-        return row.expediente.documentos.find(function (item) {
+        return row.documentos.find(function (item) {
             return item.codificacion == codificacion;
         });
     });
