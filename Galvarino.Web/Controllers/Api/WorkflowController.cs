@@ -979,7 +979,13 @@ namespace Galvarino.Web.Controllers.Api
                     };
                     _context.CajasValoradas.Add(cajaval);
                     await _context.SaveChangesAsync();
-                    return Ok(cajaval);
+
+                    var salida = new
+                    {
+                        caja = cajaval,
+                        documentos = new List<string>()
+                    };
+                    return Ok(salida);
                 }
                 else
                 {
