@@ -81,7 +81,7 @@ namespace Galvarino.Web.Services.Application
                             string[] campos = linea.Split(new char[] { ';' });
                             var existenciaCredito = _context.CargasIniciales.FirstOrDefault(ci => ci.FolioCredito == campos[1] && ci.RutAfiliado == campos[0]);
                             
-                            if(existenciaCredito != null)
+                            if(existenciaCredito == null)
                             {
                                 DateTime ferchaCorresponde = DateTime.ParseExact(campos[10], "ddMMyyyy", CultureInfo.InvariantCulture);
                                 CargaInicial ci = new CargaInicial
