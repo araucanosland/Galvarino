@@ -67,7 +67,7 @@ const metodos = {
                 type: "warning",
                 container: "floating",
                 title: "Error al generar Caja",
-                message: errMsg,
+                message: errMsg.responseText,
                 closeBtn: true,
                 timer: 5000
             });
