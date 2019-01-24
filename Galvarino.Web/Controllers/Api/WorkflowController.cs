@@ -45,7 +45,7 @@ namespace Galvarino.Web.Controllers.Api
 
 
 
-            if (expediente.Documentos.Count() > 0 && (ofipago == oficinaUsuario || laOficinaPago.OficinaProceso.Codificacion == oficinaUsuario))
+            if (expediente.Documentos.Count() > 0 && ((oficinaUsuario == "A000") || (ofipago == oficinaUsuario || laOficinaPago.OficinaProceso.Codificacion == oficinaUsuario)))
             {
                 if (!string.IsNullOrEmpty(etapaSolicitud))
                 {
@@ -1040,6 +1040,13 @@ namespace Galvarino.Web.Controllers.Api
                 if (existeDocumento)
                 {
                     throw new Exception("Documento ya Pistoleado");
+                }
+
+                var numeroTicket = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito).NumeroTicket;
+                var etapaDocumento = _wfService.OntenerTareaActual(ProcesoDocumentos.NOMBRE_PROCESO, numeroTicket);
+                if(etapaDocumento.Etapa.NombreInterno != ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA)
+                {
+                    throw new Exception("Etapa de documento no corresponde");
                 }
 
 
