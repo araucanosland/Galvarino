@@ -121,7 +121,6 @@ $(function () {
             type: "GET",
             url: `/api/wf/v1/obtener-expediente/${expediente.folioCredito}/${etapa}`
         }).done(function (data) {
-            $("#btn-generar-generico").prop("disabled", true);
             expediente.obtenido = data;
 
             let index = _ingresados.findIndex(function (expedientey) {
