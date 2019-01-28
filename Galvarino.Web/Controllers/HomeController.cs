@@ -54,14 +54,14 @@ namespace Galvarino.Web.Controllers
             {
                 var user = await _signInManager.UserManager.FindByNameAsync(rut);
                 await _signInManager.SignInAsync(user, true);
-                if(User.Identity.IsAuthenticated)
-                {
-                    return Redirect("/wf/v1/mis-solicitudes");
-                }
-                else
-                {
-                    return View("SinPermiso");
-                }
+                //if(User.Identity.IsAuthenticated)
+                //{
+                return Redirect("/wf/v1/mis-solicitudes");
+                //}
+                //else
+                //{
+                //    return View("SinPermiso");
+                //}
                 
             }
             catch (Exception ex)
