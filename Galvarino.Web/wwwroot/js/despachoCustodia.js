@@ -58,8 +58,8 @@ const metodos = {
             url: `/api/wf/v1/despacho-a-custodia/caja-valorada/${codigoCaja}/agregar-documento/${folioDocumento}`,
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
-            console.log(data);
-            metodos.render(data);
+            //console.log(data);
+            //metodos.render(data);
             
         }).fail(function (errMsg) {
             console.log(errMsg);
