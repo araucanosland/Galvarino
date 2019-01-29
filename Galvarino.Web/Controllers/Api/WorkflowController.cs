@@ -1063,8 +1063,10 @@ namespace Galvarino.Web.Controllers.Api
                 _context.PasosValijasValoradas.Add(registra);
                 await _context.SaveChangesAsync();
 
-                
 
+
+                /* 
+                
                 var salida = from pasoval in _context.PasosValijasValoradas
                              where pasoval.CodigoCajaValorada == codigoCaja && pasoval.Usuario == User.Identity.Name
                              group pasoval by pasoval.FolioCredito into slt
@@ -1077,10 +1079,12 @@ namespace Galvarino.Web.Controllers.Api
                                  Total = exps.Documentos.Count
                              };
 
+                    salida.ToList()
 
 
-
-                return Ok(salida.ToList());
+                
+                */
+                return Ok();
             }
             catch (Exception ex)
             {
