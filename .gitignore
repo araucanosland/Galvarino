@@ -6,6 +6,9 @@ project.lock.json
 nupkg/
 
 # Visual Studio Code
+.vs/*
+.vscode/*
+*.ide-wal
 .vs/
 .vscode/
 
