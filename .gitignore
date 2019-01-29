@@ -6,7 +6,8 @@ project.lock.json
 nupkg/
 
 # Visual Studio Code
-.vs
+.vs/
+.vscode/
 
 # User-specific files
 *.suo
