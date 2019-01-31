@@ -922,13 +922,13 @@ namespace Galvarino.Web.Controllers.Api
             var tran = _context.Database.BeginTransaction();
             try
             {
-                List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
-                List<string> ticketsAvanzar = new List<string>();
-                DateTime now = DateTime.Now;
-                var codSeg = now.Ticks.ToString() + "CV" ;
+                //List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+                //List<string> ticketsAvanzar = new List<string>();
+                //DateTime now = DateTime.Now;
+                //var codSeg = now.Ticks.ToString() + "CV" ;
 
                 var cajaval = _context.CajasValoradas.FirstOrDefault(d => d.CodigoSeguimiento == codigoCaja && d.Usuario == User.Identity.Name);
-                var folios = _context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name).GroupBy(d => d.FolioCredito).Select(d => d.Key).ToList();
+                /*var folios = _context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name).GroupBy(d => d.FolioCredito).Select(d => d.Key).ToList();
 
                 foreach (var item in folios)
                 {
@@ -936,16 +936,16 @@ namespace Galvarino.Web.Controllers.Api
                     elExpediente.CajaValorada = cajaval;
                     expedientesModificados.Add(elExpediente);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                }
+                }*/
                 //Sacar la caja del estado buffer
-                cajaval.MarcaAvance = "DESPACUST";
+                cajaval.MarcaAvance = "READYTOPROCESS";
                 _context.CajasValoradas.Update(cajaval);
-                _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+                //_context.ExpedientesCreditos.UpdateRange(expedientesModificados);
                 await _context.SaveChangesAsync();
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+                //await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
 
-                _context.PasosValijasValoradas.RemoveRange(_context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name));
-                await _context.SaveChangesAsync();
+                //_context.PasosValijasValoradas.RemoveRange(_context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name));
+                //await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
             }
@@ -990,23 +990,32 @@ namespace Galvarino.Web.Controllers.Api
                 else
                 {
 
-                    var documentos = from pasoval in _context.PasosValijasValoradas
-                                    where pasoval.CodigoCajaValorada == existe.CodigoSeguimiento && pasoval.Usuario == User.Identity.Name
-                                    group pasoval by pasoval.FolioCredito into slt
-                                    from exps in _context.ExpedientesCreditos.Include(ex => ex.Documentos).Include(ex => ex.Credito)
-                                    where exps.Credito.FolioCredito == slt.Key
-                                    select new
-                                    {
-                                        Folio = slt.Key,
-                                        Pistoleados = slt.Count(),
-                                        Total = exps.Documentos.Count
+                    var documentos = from pasoval in 
+                                            from mono in _context.PasosValijasValoradas 
+                                            join credit in _context.Creditos on mono.FolioCredito equals credit.FolioCredito
+                                            select new
+                                            {
+                                                mono.FolioCredito,
+                                                mono.CodigoCajaValorada,
+                                                mono.Usuario,
+                                                TotalDocumentos = credit.TipoCredito == TipoCredito.Normal ? 2 : 1
+                                            }
+                                     where pasoval.CodigoCajaValorada == existe.CodigoSeguimiento && pasoval.Usuario == User.Identity.Name
+                                     group pasoval by new { pasoval.FolioCredito, pasoval.TotalDocumentos } into slt
+                                     //from exps in _context.ExpedientesCreditos.Include(ex => ex.Documentos).Include(ex => ex.Credito)
+                                     //where exps.Credito.FolioCredito == slt.Key
+                                     select new
+                                     {
+                                         Folio = slt.Key.FolioCredito,
+                                         Pistoleados = slt.Count(),
+                                         Total = slt.Key.TotalDocumentos
                                     };
 
 
                     var salida = new
                     {
                         caja = existe,
-                        documentos
+                        documentos = await documentos.OrderBy(d => d.Pistoleados).ToListAsync()
                     };
                     return Ok(salida);
                 }
@@ -1084,7 +1093,31 @@ namespace Galvarino.Web.Controllers.Api
 
                 
                 */
-                return Ok();
+
+
+                var documentos = from pasoval in
+                                     from mono in _context.PasosValijasValoradas
+                                     join credit in _context.Creditos on mono.FolioCredito equals credit.FolioCredito
+                                     select new
+                                     {
+                                         mono.FolioCredito,
+                                         mono.CodigoCajaValorada,
+                                         mono.Usuario,
+                                         TotalDocumentos = credit.TipoCredito == TipoCredito.Normal ? 2 : 1
+                                     }
+                                 where pasoval.CodigoCajaValorada == codigoCaja && pasoval.Usuario == User.Identity.Name
+                                 group pasoval by new { pasoval.FolioCredito, pasoval.TotalDocumentos } into slt
+                                 //from exps in _context.ExpedientesCreditos.Include(ex => ex.Documentos).Include(ex => ex.Credito)
+                                 //where exps.Credito.FolioCredito == slt.Key
+                                 select new
+                                 {
+                                     Folio = slt.Key.FolioCredito,
+                                     Pistoleados = slt.Count(),
+                                     Total = slt.Key.TotalDocumentos
+                                 };
+
+                var salida = await documentos.OrderBy(d => d.Pistoleados).ToListAsync();
+                return Ok(salida);
             }
             catch (Exception ex)
             {

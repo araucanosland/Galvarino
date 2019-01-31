@@ -25,6 +25,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Server.IISIntegration;
+using Galvarino.Web.Workers;
+using Galvarino.Web.Hubs;
 
 namespace Galvarino.Web
 {
@@ -88,7 +90,10 @@ namespace Galvarino.Web
             services.AddTransient<INotificationKernel, MailSender>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
-            
+            services.AddHostedService<CierreCajaValoradaWorker>();
+
+            services.AddSignalR();
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);
         }
 
@@ -114,6 +119,12 @@ namespace Galvarino.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();
+
+            app.UseSignalR(r =>
+            {
+                r.MapHub<NotificacionCajaCerradaHub>("/caja-cerrada-hub");
+            });
+
 
             app.UseMvc(routes =>
             {

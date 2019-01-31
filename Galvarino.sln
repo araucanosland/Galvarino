@@ -3,9 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Galvarino.Web", "Galvarino.Web\Galvarino.Web.csproj", "{8CB95ABA-273F-42EE-B140-7F857F0FF83E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Galvarino.Web", "Galvarino.Web\Galvarino.Web.csproj", "{8CB95ABA-273F-42EE-B140-7F857F0FF83E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Galvarino.Test", "Galvarino.Test\Galvarino.Test.csproj", "{E789221D-A89F-470D-B58F-3EFF28BC1478}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Galvarino.Test", "Galvarino.Test\Galvarino.Test.csproj", "{E789221D-A89F-470D-B58F-3EFF28BC1478}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C6E1D4E1-CAE5-413A-ACA1-B324AE6B403B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{E8B150AA-5F8B-4B08-871F-56FB5E827221}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "app", "app", "{A58BC5C8-92BA-4AD7-94C8-5A8821D4414E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workers", "workers", "{F32D3CE4-E5E7-49DA-876D-84CA0C8A3216}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{8CB95ABA-273F-42EE-B140-7F857F0FF83E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -44,5 +49,17 @@ Global
 		{E789221D-A89F-470D-B58F-3EFF28BC1478}.Release|x64.Build.0 = Release|Any CPU
 		{E789221D-A89F-470D-B58F-3EFF28BC1478}.Release|x86.ActiveCfg = Release|Any CPU
 		{E789221D-A89F-470D-B58F-3EFF28BC1478}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8CB95ABA-273F-42EE-B140-7F857F0FF83E} = {A58BC5C8-92BA-4AD7-94C8-5A8821D4414E}
+		{E789221D-A89F-470D-B58F-3EFF28BC1478} = {E8B150AA-5F8B-4B08-871F-56FB5E827221}
+		{A58BC5C8-92BA-4AD7-94C8-5A8821D4414E} = {C6E1D4E1-CAE5-413A-ACA1-B324AE6B403B}
+		{F32D3CE4-E5E7-49DA-876D-84CA0C8A3216} = {C6E1D4E1-CAE5-413A-ACA1-B324AE6B403B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AFA1362C-EB9A-428B-AA3C-01DD7A6B01FE}
 	EndGlobalSection
 EndGlobal

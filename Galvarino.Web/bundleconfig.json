@@ -198,7 +198,8 @@
     {
         "outputFileName": "wwwroot/js/despachoCustodia.min.js",
         "inputFiles": [
-            "wwwroot/js/despachoCustodia.js"
+          "wwwroot/lib/js/signar.js"  ,
+          "wwwroot/js/despachoCustodia.js"
         ],
         "minify": {
             "enabled": true,

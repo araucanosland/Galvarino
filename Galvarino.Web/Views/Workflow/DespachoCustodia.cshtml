@@ -12,6 +12,7 @@
 
     <!--Page Script-->
     <environment include="Development">
+        <script src="~/lib/js/signalr.js"></script>
         <script src="~/js/despachoCustodia.js"></script>
     </environment>
     <environment exclude="Development">
@@ -52,6 +53,12 @@
         </thead>
     </table>*@
 </div>
+<div class="row">
+    <div class="col-sm-12" id="message-placeholder">
+        <div class="alert alert-info"><strong>Muchos Registos!</strong> Hay muchos registros en esta vista y no se vera por temas de rendimiento.</div>
+    </div>
+</div>
+
 <!--Default Bootstrap Modal-->
 <!--===================================================-->
 <div class="modal fade" id="modal-pistoleo" role="dialog" tabindex="-1" aria-labelledby="modal-pistoleo" aria-hidden="true">
@@ -70,6 +77,7 @@
                     <div class="form-group">
                         <label class="control-label">Pistolea el documento</label>
                         <input type="text" id="folio-shot" class="form-control solo-numeros" maxlength="@ViewBag.CantidadCaracteresFolio" placeholder="Pistolea el documento" autocomplete="off" />
+                        <label class="mar-top" id="total-expedientes"></label>
                     </div>
                     <div class="well contenedor-folios">
 

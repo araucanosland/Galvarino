@@ -1,7 +1,8 @@
 
 const metodos = {
     render: function (_ingresados = []) {
-
+        $("#total-expedientes").html(`Expedientes pistoleados: <strong>${_ingresados.length}</strong>`);
+        
         $('.contenedor-folios').html("");
         $.each(_ingresados, function (i, exp) {
             
@@ -25,7 +26,7 @@ const metodos = {
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
 
-            $.niftyNoty({
+            /*$.niftyNoty({
                 type: "success",
                 container: "floating",
                 title: "Despacho a Custodia",
@@ -35,7 +36,17 @@ const metodos = {
                 onHidden: function () {
                     window.open(`/salidas/pdf/detalle-caja-valorada/${codigoCaja}`, "_blank");
                 }
-            });
+            });*/
+            //<div class="alert alert-info"><strong>Muchos Registos!</strong> Hay muchos registros en esta vista y no se vera por temas de rendimiento.</div>
+
+            $('#modal-pistoleo').modal("hide");
+            
+            var message = $('<div>').addClass(`alert alert-warning mar-btm mensahe-${codigoCaja}`)
+                .append($('<strong>').text('Procesando caja en segundo plano!'))
+                .append(" ..Se está procesando la caja en segundo plano, cuando esté lista se habilitará el link para ver la nomina.");
+
+
+            $('#message-placeholder').prepend(message);
 
         }).fail(function (errMsg) {
             $.niftyNoty({
@@ -48,7 +59,7 @@ const metodos = {
             });
 
         }).always(function () {
-            $('#tabla-generica').bootstrapTable('refresh');
+            //$('#tabla-generica').bootstrapTable('refresh');
         });
     },
     pistoleo: function (codigoCaja, folioDocumento) {
@@ -58,8 +69,10 @@ const metodos = {
             url: `/api/wf/v1/despacho-a-custodia/caja-valorada/${codigoCaja}/agregar-documento/${folioDocumento}`,
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
-            //console.log(data);
-            //metodos.render(data);
+            console.log({
+                data
+            })
+            metodos.render(data);
             
         }).fail(function (errMsg) {
             console.log(errMsg);
@@ -119,4 +132,30 @@ $(function () {
         $('#folio-shot').val("");
     });
 
+});
+
+
+//SignalR - Live connection
+
+var connection = new signalR.HubConnectionBuilder().withUrl("/caja-cerrada-hub").build();
+
+connection.on("NotificarCajaCerrada", function (codigo) {
+
+
+    console.log({
+        codigo,
+        nombre: "NotificarCajaCerrada"
+    });
+    $(`.mensahe-${codigo}`).removeClass('alert-warning').addClass("alert-success").html("")
+        .append($('<strong>').text('Caja Procesada!'))
+        .append(`Ahora puedes ver la nomina de la caja en el siguiente link: <a class="btn-link" href="/salidas/pdf/detalle-caja-valorada/${codigo}" target="_blank">Caja: ${codigo}</a>.`);
+});
+
+
+connection.start().then(function () {
+    console.log({
+        connection
+    });
+}).catch(function (err) {
+    return console.error(err.toString());
 });
