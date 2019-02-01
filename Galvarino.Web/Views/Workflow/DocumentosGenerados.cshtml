@@ -36,32 +36,41 @@
                     data-pagination="true" 
                     data-show-pagination-switch="false"
                     data-locale="es-CL">
-        <thead>
-            @if(ViewBag.tipoDocumento == "nomina-notaria")
-            {
-                <tr>
-                    <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="linkFolio">Folio Crédito</th>
-                    <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="nroExpedientes">Nro. Expedientes</th>
-                    <th data-field="fechaEnvio" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
-                </tr>
-            }
-            else if(ViewBag.tipoDocumento == "valija-oficina")
-            {
-                <tr>
-                    <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="linkFolio">Folio Crédito</th>
-                    <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="nroExpedientes">Nro. Expedientes</th>
-                    <th data-field="fechaEnvio" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
-                </tr>
-            }
-            else if(ViewBag.tipoDocumento == "valija-valorada")
-            {
-                <tr>
-                    <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="linkFolio">Folio Crédito</th>
-                    <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="nroExpedientes">Nro. Expedientes</th>
-                    <th data-field="fechaEnvio" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
-                </tr>
-            }
-        </thead>
+             <thead>
+                 @if (ViewBag.tipoDocumento == "nomina-notaria")
+                 {
+                     <tr>
+                         <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="linkFolio">Folio Crédito</th>
+                         <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="nroExpedientes">Nro. Expedientes</th>
+                         <th data-field="fechaEnvio" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
+                     </tr>
+                 }
+                 else if (ViewBag.tipoDocumento == "valija-oficina")
+                 {
+                     <tr>
+                         <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="linkFolio">Folio Crédito</th>
+                         <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="nroExpedientes">Nro. Expedientes</th>
+                         <th data-field="fechaEnvio" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
+                     </tr>
+                 }
+                 else if (ViewBag.tipoDocumento == "valija-valorada")
+                 {
+                     <tr>
+                         <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="linkFolio">Folio Crédito</th>
+                         <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="nroExpedientes">Nro. Expedientes</th>
+                         <th data-field="fechaEnvio" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
+                     </tr>
+                 }
+                 else if (ViewBag.tipoDocumento == "caja-valorada")
+                 {
+                     <tr>
+                         <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="linkFolio">Folio Crédito</th>
+                         <th data-field="codigoSeguimiento" data-sortable="true" data-formatter="nroExpedientes">Nro. Expedientes</th>
+                         <th data-field="fechaEnvio" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
+                         <th data-field="usuario" data-sortable="true">Usuario</th>
+                     </tr>
+                 }
+             </thead>
     </table>
     
    

@@ -13,6 +13,9 @@ function linkFolio(val, row, inc) {
         case "valija-valorada":
             link = `/salidas/pdf/detalle-valija-valorada/${val}`;
         break;
+        case "caja-valorada":
+            link = `/salidas/pdf/detalle-caja-valorada/${val}`;
+        break;
     }
     return `<a class="btn btn-link" href="${link}" target="_blank">${val}</button>`;
 }

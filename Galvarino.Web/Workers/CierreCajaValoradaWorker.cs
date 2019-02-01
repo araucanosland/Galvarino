@@ -12,18 +12,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Galvarino.Web.Workers
 {
-    internal class CierreCajaValoradaWorker : IHostedService, IDisposable
+    internal class CierreCajaValoradaWorker : BackgroundService
     {
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private readonly IHubContext<NotificacionCajaCerradaHub> _notificion;
-        private Timer _timer;
         private readonly IServiceScope _scope;
         private IWorkflowService _wfservice;
         
@@ -33,16 +33,24 @@ namespace Galvarino.Web.Workers
             _notificion = notificion;
             _configuration = configuration;
             _scope = services.CreateScope();
+
             
+
         }
-        
-        public async Task StartAsync(CancellationToken cancellationToken)
+       
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Timed Background Service is starting.");
-            var _context = _scope.ServiceProvider.GetService<ApplicationDbContext>();
+
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                    .UseSqlServer(new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
+                    .Options;
+
+            var _context = new ApplicationDbContext(options);
+            //var _context = _scope.ServiceProvider.GetService<ApplicationDbContext>();
             //_timer = new Timer(DoWork, _context, TimeSpan.Zero,TimeSpan.FromSeconds(15));
             _wfservice = new WorkflowService(new DefaultWorkflowKernel(_context));
-
+            
             while (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Vuelta!!");
@@ -104,89 +112,8 @@ namespace Galvarino.Web.Workers
 
                 }
 
-                await Task.Delay(60000, cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             }
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Timed Background Service is stopping.");
-            //_timer?.Change(Timeout.Infinite, 0);
-            return Task.CompletedTask;
-        }
-
-        private async void DoWork(object state)
-        {
-            _logger.LogInformation("Timed Background Service is working.");
-
-            var _context = (ApplicationDbContext)state;
-            
-            _wfservice = new WorkflowService(new DefaultWorkflowKernel(_context));
-            var caja = await _context.CajasValoradas.OrderBy(d => d.CodigoSeguimiento).AsNoTracking().FirstOrDefaultAsync(d => d.MarcaAvance == "READYTOPROCESS");
-
-            if (caja != null)
-            {
-                caja.MarcaAvance = "INPROCCES";
-                _context.CajasValoradas.Update(caja);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Agarramos la caja: " + caja.CodigoSeguimiento);
-
-
-                var transa = _context.Database.BeginTransaction();
-                try
-                {
-
-                    List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
-                    List<string> ticketsAvanzar = new List<string>();
-                    var folios = _context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == caja.CodigoSeguimiento).GroupBy(d => d.FolioCredito).Select(d => d.Key).ToList();
-
-                    foreach (var item in folios)
-                    {
-                        var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item);
-                        elExpediente.CajaValorada = caja;
-                        expedientesModificados.Add(elExpediente);
-                        ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                    }
-
-                    _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                    await _context.SaveChangesAsync();
-                    await _wfservice.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, caja.Usuario);
-
-                    /*Delete entries form box*/
-                    _context.PasosValijasValoradas.RemoveRange(_context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == caja.CodigoSeguimiento && c.Usuario == caja.Usuario));
-
-
-                    caja.MarcaAvance = "DESPACUST";
-                    _context.CajasValoradas.Update(caja);
-                    await _context.SaveChangesAsync();
-
-                    var usr = _context.Users.FirstOrDefault(du => du.Identificador == caja.Usuario);
-                    await _notificion.Clients.User(usr.Id).SendAsync("NotificarCajaCerrada", caja.CodigoSeguimiento);
-
-                    transa.Commit();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogInformation("Transa lanzo error. " + ex.Message);
-                    transa.Rollback();
-
-                    if (caja != null)
-                    {
-                        caja.MarcaAvance = "READYTOPROCESS";
-                        _context.CajasValoradas.Update(caja);
-                        _context.SaveChanges();
-                    }
-                }
-
-            }
-             
-
-            
-        }
-
-        public void Dispose()
-        {
-            _timer?.Dispose();
         }
     }
 }

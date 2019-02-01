@@ -42,26 +42,27 @@ namespace Galvarino.Web.Services.Workflow
             _context.Entry(solicitud).State = EntityState.Modified;
             _context.Entry(tarea).State = EntityState.Modified;
 
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
         }
 
-        public async Task<int> AbortarSolicitudAsync(string NumeroTicket)
+        public async Task AbortarSolicitudAsync(string NumeroTicket)
         {
             DateTime momentoCierre = DateTime.Now;
 
-            Solicitud solicitud = _context.Solicitudes.FirstOrDefault(s => s.NumeroTicket == NumeroTicket);
+            Solicitud solicitud = await _context.Solicitudes.FirstOrDefaultAsync(s => s.NumeroTicket == NumeroTicket);
             solicitud.FechaTermino = momentoCierre;
             solicitud.Estado = EstadoSolicitud.Abortada;
 
-            Tarea tarea = _context.Tareas.FirstOrDefault(x => x.Solicitud.NumeroTicket == NumeroTicket && x.Estado == EstadoTarea.Iniciada && x.FechaTerminoFinal == null);
+            Tarea tarea = await _context.Tareas.FirstOrDefaultAsync(x => x.Solicitud.NumeroTicket == NumeroTicket && x.Estado == EstadoTarea.Iniciada && x.FechaTerminoFinal == null);
             tarea.FechaTerminoFinal = momentoCierre;
             tarea.Estado = EstadoTarea.Abortada;
 
             _context.Entry(solicitud).State = EntityState.Modified;
             _context.Entry(tarea).State = EntityState.Modified;
 
-            return await _context.SaveChangesAsync();
+            //return Task.CompletedTask;
+            //return await _context.SaveChangesAsync();
             
         }
 
@@ -108,7 +109,7 @@ namespace Galvarino.Web.Services.Workflow
             }
             
             _context.Tareas.Add(tarea);
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
             if(etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Boot)
             {
@@ -119,7 +120,7 @@ namespace Galvarino.Web.Services.Workflow
         public async void ActivarTareaAsync(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
             //Primero obtengo el proceso
-            Proceso proceso = _context.Procesos.FirstOrDefault(x => x.NombreInterno == nombreInternoProceso);
+            Proceso proceso = await _context.Procesos.FirstOrDefaultAsync(x => x.NombreInterno == nombreInternoProceso);
 
             //Segundo Obtengo la etapa
             Etapa etapa = proceso.Etapas.FirstOrDefault(x => x.NombreInterno == nombreInternoEtapa);
@@ -164,7 +165,7 @@ namespace Galvarino.Web.Services.Workflow
                 solicitud.FechaTermino = DateTime.Now;
                 _context.Solicitudes.Update(solicitud);
             }
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
             ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d=>d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa).ToList();
             foreach (Transito transicion in transiciones)
@@ -199,7 +200,7 @@ namespace Galvarino.Web.Services.Workflow
             };
 
             _context.Solicitudes.Add(solicitud);
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
             var etapaInicial = proceso.Etapas.FirstOrDefault(x => x.TipoEtapa == TipoEtapa.Inicio && x.Secuencia == proceso.Etapas.Min(d => d.Secuencia));
             if (etapaInicial.TipoUsuarioAsignado == TipoUsuarioAsignado.Boot)
@@ -238,7 +239,7 @@ namespace Galvarino.Web.Services.Workflow
                 _context.Variables.Add(var);
             }
 
-            _context.SaveChanges();
+            //_context.SaveChanges();
 
             var etapaInicial = proceso.Etapas.FirstOrDefault(x => x.TipoEtapa == TipoEtapa.Inicio && x.Secuencia == proceso.Etapas.Min(d => d.Secuencia));
             if (etapaInicial.TipoUsuarioAsignado == TipoUsuarioAsignado.Boot)

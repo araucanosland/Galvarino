@@ -27,7 +27,7 @@ const metodos = {
                 timer: 5000
             });
         } else {
-            
+
             $.ajax({
                 type: "GET",
                 url: `/api/wf/v1/obtener-expediente/${expedientex.folioCredito}`
@@ -93,16 +93,16 @@ const metodos = {
 
         let notShotedFlag = false;
         let foliosEnvio = _ingresados.map(function (expediente) {
-    
-            notShotedFlag = (expediente.documentos.length < expediente.obtenido.documentos.length)
-            if (notShotedFlag)
-            {
+
+            notShotedFlag = expediente.documentos.length < expediente.obtenido.documentos.length;
+            if (notShotedFlag) {
                 return false;
             }
-            
+
             return {
                 folioCredito: expediente.folioCredito,
-            }
+                marca: $('input[name=TipoMarca]:checked').val()
+            };
         });
 
         if (notShotedFlag) {
@@ -117,8 +117,7 @@ const metodos = {
             return false;
         }
 
-        if(foliosEnvio.length == 0)
-        {
+        if (foliosEnvio.length === 0) {
             $.niftyNoty({
                 type: "danger",
                 container: "floating",
@@ -129,8 +128,9 @@ const metodos = {
             });
             return false;
         }
+        console.log(foliosEnvio);
 
-
+        /*
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/ingreso-expedientes-legalizados`,
@@ -140,7 +140,7 @@ const metodos = {
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Ingreso de Expedientes ya Legalizados",
+                title: "Ingreso de Expedientes Especiales",
                 message: "Los expedientes fueron marcados con exito. <br/><small>Ahora los puedes enviar en la nomina para Of. de Partes.</small>",
                 closeBtn: true,
                 timer: 3000,
@@ -160,8 +160,10 @@ const metodos = {
         }).always(function () {
             _ingresados = [];
         });
+
+        */
     }
-}
+};
 
 $(function () {
     

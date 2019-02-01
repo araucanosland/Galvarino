@@ -29,7 +29,7 @@ namespace Galvarino.Web.Services.Workflow
 
         void AbortarSolicitud(string NumeroTicket);
 
-        Task<int> AbortarSolicitudAsync(string NumeroTicket);
+        Task AbortarSolicitudAsync(string NumeroTicket);
 
         void SetVariable(string key, string value, string numeroTicket);
 

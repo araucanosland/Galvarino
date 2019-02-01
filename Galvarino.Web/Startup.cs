@@ -88,8 +88,10 @@ namespace Galvarino.Web
             services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
             services.AddTransient<IWorkflowService, WorkflowService>();
             services.AddTransient<INotificationKernel, MailSender>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
+            
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
+
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
             services.AddHostedService<CierreCajaValoradaWorker>();
 
             services.AddSignalR();

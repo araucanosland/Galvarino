@@ -282,7 +282,6 @@ namespace Galvarino.Web.Controllers.Api
             switch (tipoDocumento)
             {
                 case "nomina-notaria":
-
                     var packNotaria = await _context.PacksNotarias.Include(p => p.Expedientes).Include(p => p.Oficina).Where(p => p.Oficina.Codificacion == oficinaUsuario).ToListAsync();
                     return Ok(ObjetoOficinaUsuario.PacksNotaria);
 
@@ -293,6 +292,10 @@ namespace Galvarino.Web.Controllers.Api
                 case "valija-valorada":
                     var valijaValodara = await _context.ValijasValoradas.Include(d => d.Oficina).Include(d => d.Expedientes).Where(x => x.Oficina.Codificacion == oficinaUsuario).ToListAsync();
                     return Ok(valijaValodara);
+
+                case "caja-valorada":
+                    var cajaValodara = await _context.CajasValoradas.Include(d => d.Expedientes).Where(x => x.MarcaAvance == "DESPACUST").ToListAsync();
+                    return Ok(cajaValodara);
 
                 default:
                     throw new Exception("Debes Ingresar con una opcion de mostrado");
@@ -373,9 +376,9 @@ namespace Galvarino.Web.Controllers.Api
 
                 _context.ValijasOficinas.Add(valijaMatrix);
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _context.SaveChangesAsync();
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
 
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok(valijaMatrix);
             }
@@ -407,6 +410,7 @@ namespace Galvarino.Web.Controllers.Api
                 var laValija = _context.ValijasOficinas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
                 laValija.MarcaAvance = "OK";
                 _context.ValijasOficinas.Update(laValija);
+
                 await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
@@ -454,8 +458,9 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _context.SaveChangesAsync();
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+
+                await _context.SaveChangesAsync();
 
                 tran.Commit();
                 return Ok(packNotaria);
@@ -482,6 +487,8 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
             }
@@ -509,6 +516,7 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok(entrada);
             }
@@ -555,8 +563,8 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _context.SaveChangesAsync();
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok(packNotaria);
             }
@@ -602,9 +610,8 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _context.SaveChangesAsync();
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-                
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok(valijaEnvio);
             }
@@ -780,6 +787,7 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
             }
@@ -805,6 +813,7 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
             }
@@ -849,8 +858,9 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _context.SaveChangesAsync();
+                
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OF_PARTES_DEVOLUCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok(valijaEnvio);
             }
@@ -906,6 +916,7 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
             }
@@ -1170,7 +1181,7 @@ namespace Galvarino.Web.Controllers.Api
                 }
             
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_PREPARAR_NOMINA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
             }
@@ -1217,10 +1228,10 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _context.SaveChangesAsync();
+                
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_A_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                await _context.SaveChangesAsync();
 
-            
                 tran.Commit();
                 return Ok(packNotaria);
             }
@@ -1246,6 +1257,7 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_DE_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
             }
@@ -1273,6 +1285,7 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok(entrada);
             }
@@ -1319,8 +1332,9 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _context.SaveChangesAsync();
+                
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DEVOLUCION_REPARO_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok(packNotaria);
             }
@@ -1418,6 +1432,7 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
             }
