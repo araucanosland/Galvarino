@@ -26,6 +26,7 @@ namespace Galvarino.Web.Models.Helper
         public string FolioCredito { get; set; }    
         public IEnumerable<string> DocumentosPistoleados { get; set; }
         public bool Faltante { get; set; }
+        public string Marca { get; set; }
     }
 
     public class ColeccionExpedientesGenerica{

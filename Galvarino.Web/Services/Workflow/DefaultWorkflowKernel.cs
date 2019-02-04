@@ -239,7 +239,7 @@ namespace Galvarino.Web.Services.Workflow
                 _context.Variables.Add(var);
             }
 
-            //_context.SaveChanges();
+            _context.SaveChanges();
 
             var etapaInicial = proceso.Etapas.FirstOrDefault(x => x.TipoEtapa == TipoEtapa.Inicio && x.Secuencia == proceso.Etapas.Min(d => d.Secuencia));
             if (etapaInicial.TipoUsuarioAsignado == TipoUsuarioAsignado.Boot)

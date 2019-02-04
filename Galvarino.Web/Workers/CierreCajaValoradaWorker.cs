@@ -53,8 +53,9 @@ namespace Galvarino.Web.Workers
             
             while (!cancellationToken.IsCancellationRequested)
             {
+              
                 _logger.LogInformation("Vuelta!!");
-                var caja = await _context.CajasValoradas.OrderBy(d => d.CodigoSeguimiento).AsNoTracking().FirstOrDefaultAsync(d => d.MarcaAvance == "READYTOPROCESS");
+                var caja = await _context.CajasValoradas.OrderBy(d => d.CodigoSeguimiento).AsNoTracking().FirstOrDefaultAsync(d => d.MarcaAvance == "READYTOPROCESS-NOT-YET");
 
                 if (caja != null)
                 {
@@ -104,7 +105,7 @@ namespace Galvarino.Web.Workers
 
                         if (caja != null)
                         {
-                            caja.MarcaAvance = "READYTOPROCESS";
+                            caja.MarcaAvance = "READYTOPROCESS-NOT-YET";
                             _context.CajasValoradas.Update(caja);
                             _context.SaveChanges();
                         }
@@ -113,6 +114,8 @@ namespace Galvarino.Web.Workers
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                
+                
             }
         }
     }
