@@ -9,8 +9,8 @@ nupkg/
 .vs/*
 .vscode/*
 *.ide-wal
-.vs/
-.vscode/
+Galvarino.web/.vs/
+Galvarino.web/.vscode/
 
 # User-specific files
 *.suo
