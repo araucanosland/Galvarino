@@ -27,11 +27,14 @@
                 <div class="col-md-12">
                     <div class="radio">
 
-                        <input id="radio-documentos-legalizados" class="magic-radio" type="radio" name="TipoMarca" checked="">
+                        <input id="radio-documentos-legalizados" class="magic-radio" type="radio" value="LEGALIZADO" name="TipoMarca" checked="">
                         <label for="radio-documentos-legalizados">Documentos Legalizados</label>
 
-                        <input id="radio-acuerdo-pago-total" class="magic-radio" type="radio" name="TipoMarca">
+                        <input id="radio-acuerdo-pago-total" class="magic-radio" type="radio" value="ACUERDO_PAGO_TOTAL" name="TipoMarca">
                         <label for="radio-acuerdo-pago-total">Acuerdos de Pago Totales</label>
+
+                        <input id="radio-nulos" class="magic-radio" type="radio" value="NULO" name="TipoMarca">
+                        <label for="radio-nulos">Nulos</label>
 
                     </div>
                 </div>
@@ -53,7 +56,7 @@
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <div class="alert alert-info"><strong>Recuerda!</strong> Debes pistolear los documentos de los expedientes que ya estan legalizados.</div>
+        <div class="alert alert-info"><strong>Recuerda!</strong> Debes pistolear los documentos de acuerdo con la opcion marcada, para pistolear otro tipo debes primero procesar los que pistoleaste.</div>
     </div>
 </div>
 <div class="row">
