@@ -85,7 +85,7 @@ const metodos = {
             </div>`;
 
             $('.contenedor-folios').append(html);
-        })
+        });
 
 
     },
@@ -128,9 +128,8 @@ const metodos = {
             });
             return false;
         }
-        console.log(foliosEnvio);
-
-        /*
+        //console.log(foliosEnvio);
+        
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/ingreso-expedientes-legalizados`,
@@ -160,8 +159,8 @@ const metodos = {
         }).always(function () {
             _ingresados = [];
         });
-
-        */
+   
+        
     }
 };
 

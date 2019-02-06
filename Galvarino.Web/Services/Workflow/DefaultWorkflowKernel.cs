@@ -109,7 +109,7 @@ namespace Galvarino.Web.Services.Workflow
             }
             
             _context.Tareas.Add(tarea);
-            //_context.SaveChanges();
+            _context.SaveChanges();
 
             if(etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Boot)
             {
@@ -165,7 +165,7 @@ namespace Galvarino.Web.Services.Workflow
                 solicitud.FechaTermino = DateTime.Now;
                 _context.Solicitudes.Update(solicitud);
             }
-            //_context.SaveChanges();
+            _context.SaveChanges();
 
             ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d=>d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa).ToList();
             foreach (Transito transicion in transiciones)
@@ -200,7 +200,7 @@ namespace Galvarino.Web.Services.Workflow
             };
 
             _context.Solicitudes.Add(solicitud);
-            //_context.SaveChanges();
+            _context.SaveChanges();
 
             var etapaInicial = proceso.Etapas.FirstOrDefault(x => x.TipoEtapa == TipoEtapa.Inicio && x.Secuencia == proceso.Etapas.Min(d => d.Secuencia));
             if (etapaInicial.TipoUsuarioAsignado == TipoUsuarioAsignado.Boot)

@@ -1429,12 +1429,11 @@ namespace Galvarino.Web.Controllers.Api
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
                 List<string> ticketsAvanzar = new List<string>();
-
-
+                
                 foreach (var item in entrada)
                 {
                     var credito = await _context.Creditos.FirstOrDefaultAsync(xcred => xcred.FolioCredito == item.FolioCredito);
-                    _wfService.AsignarVariable("LEGALIZADO_ANTES", 1.ToString(), credito.NumeroTicket);
+                    _wfService.AsignarVariable(item.Marca, "1", credito.NumeroTicket);
                     ticketsAvanzar.Add(credito.NumeroTicket);
                 }
 
@@ -1443,10 +1442,10 @@ namespace Galvarino.Web.Controllers.Api
                 tran.Commit();
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 tran.Rollback();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
