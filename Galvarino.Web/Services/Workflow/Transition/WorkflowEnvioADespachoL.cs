@@ -17,7 +17,7 @@ namespace Galvarino.Web.Services.Workflow.Transition
             bool retorno = false;
             try
             {
-                if (Convert.ToInt32(Variable("LEGALIZADO_ANTES")) == 1)
+                if (Variable("LEGALIZADO_ANTES") == "1" || Variable("ACUERDO_PAGO_TOTAL") == "1" || Variable("NULO") == "1")
                 {
                     retorno = true;
                 }

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -65,7 +66,7 @@ namespace Galvarino.Web.Workers
                     _logger.LogInformation("Agarramos la caja: " + caja.CodigoSeguimiento);
 
 
-                    var transa = _context.Database.BeginTransaction();
+                    var transa = _context.Database.BeginTransaction(IsolationLevel.ReadCommitted);
                     try
                     {
 
