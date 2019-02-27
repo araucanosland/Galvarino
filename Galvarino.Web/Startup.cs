@@ -15,7 +15,6 @@ using Galvarino.Web.Models.Security;
 using Galvarino.Web.Services;
 using Galvarino.Web.Services.Notification;
 using Galvarino.Web.Services.Application;
-using Galvarino.Web.Services.Workflow;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -27,6 +26,7 @@ using System.IO;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Galvarino.Web.Workers;
 using Galvarino.Web.Hubs;
+using Galvarino.Workflow;
 
 namespace Galvarino.Web
 {
@@ -85,8 +85,9 @@ namespace Galvarino.Web
             //services.AddAuthentication(IISDefaults.AuthenticationScheme);
 
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
-            services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
-            services.AddTransient<IWorkflowService, WorkflowService>();
+            //services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
+            services.AddTransient<IWorkflowService, Workflow.WorkflowService>();
+
             services.AddTransient<INotificationKernel, MailSender>();
             
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();

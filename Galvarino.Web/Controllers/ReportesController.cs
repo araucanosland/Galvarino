@@ -19,11 +19,10 @@ namespace Galvarino.Web.Controllers
     public class ReportesController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWorkflowService _wfService;
-        public ReportesController(ApplicationDbContext context, IWorkflowService wfservice)
+        
+        public ReportesController(ApplicationDbContext context)
         {
             _context = context;
-            _wfService = wfservice;
         }
 
         [Route("workflow/carga-inicial/{fechaBuscar?}")]

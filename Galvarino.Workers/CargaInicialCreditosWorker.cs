@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using System.IO;
+using Galvarino.Workflow;
 
 namespace Galvarino.Workers
 {
@@ -15,13 +16,15 @@ namespace Galvarino.Workers
     {
 
         private Timer _timer;
-        private string _connectionString = "server=(LocalDb)\\MSSQLLocalDB;database=galvarino_db;uid=galvarino_db;password=secreto";
+        //private string _connectionString = "server=(LocalDb)\\MSSQLLocalDB;database=galvarino_db;uid=galvarino_db;password=secreto";
         private bool workingThread = false;
+        private IWorkflowService _wfservice;
 
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Console.WriteLine("Timed Background Service is starting.");
+            _wfservice = new WorkflowService();
             
             _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
             
@@ -52,13 +55,10 @@ namespace Galvarino.Workers
                 {
                     processDate = DateTime.Now.AddDays(-1).ToString("ddMMyyyy"); 
                 }
+                
 
                 Console.WriteLine(@"La fecha a Cargar: " + processDate);
-
-                Thread.Sleep(TimeSpan.FromSeconds(10));
-
-                Console.WriteLine(@"despues de 10 segundos, se cierra la tarea y abrimos el semasforo");
-
+                
                 
 
                 workingThread = false;
@@ -69,25 +69,7 @@ namespace Galvarino.Workers
             }
 
         }
-
-        private void DoProcess(string processDate)
-        {
-            string path = @"E:\Carga" + processDate + ".txt"; ;
-
-            if (File.Exists(path))
-            {
-                int lap = 0;
-                
-            }
-
-
-            /*using (var connection = new SqlConnection(_connectionString))
-                {
-                    connection.Open();
-
-                    
-                }*/
-        }
+        
 
         public override Task StopAsync(CancellationToken cancellation)
         {

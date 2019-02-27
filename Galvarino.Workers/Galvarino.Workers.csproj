@@ -21,4 +21,8 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Galvarino.Workflow\Galvarino.Workflow.csproj" />
+  </ItemGroup>
+
 </Project>

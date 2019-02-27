@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Galvarino.Web.Data;
 using Galvarino.Web.Models.Application;
-using Galvarino.Web.Services.Workflow;
+using Galvarino.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Helper;
@@ -37,6 +37,7 @@ namespace Galvarino.Web.Services.Application
             _logger.LogDebug($"tarea en segundo plano esta iniciando");
             stoppingToken.Register(() => _logger.LogDebug("Deteniendo la tarea en segundo plano"));
             var _context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            _wfservice = new Galvarino.Workflow.WorkflowService();
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -116,9 +117,6 @@ namespace Galvarino.Web.Services.Application
                                 _setVariables.Add("DOCUMENTO_LEGALIZADO", "0");
                                 _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaProceso.OficinaProceso.Codificacion);
 
-
-                                
-                                _wfservice = new WorkflowService(new DefaultWorkflowKernel(_context));
                                 var wf = _wfservice.Instanciar(ProcesoDocumentos.NOMBRE_PROCESO, "wfboot", "Ingreso Automatico de Creditos Vendidos", _setVariables);
                                 
                                 Credito cred = new Credito

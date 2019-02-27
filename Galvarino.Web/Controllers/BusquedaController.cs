@@ -20,8 +20,8 @@ namespace Galvarino.Web.Controllers
     public class BusquedaController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWorkflowService _wfService;
-        public BusquedaController(ApplicationDbContext context, IWorkflowService wfservice)
+        private readonly Galvarino.Workflow.IWorkflowService _wfService;
+        public BusquedaController(ApplicationDbContext context, Galvarino.Workflow.IWorkflowService wfservice)
         {
             _context = context;
             _wfService = wfservice;
