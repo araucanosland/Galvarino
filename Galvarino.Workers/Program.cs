@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Galvarino.Workflow;
 
 namespace Galvarino.Workers
 {
@@ -14,9 +15,9 @@ namespace Galvarino.Workers
             var builder = new HostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-
+                    
                     config.AddEnvironmentVariables();
-
+                    
                     if (args != null)
                     {
                         config.AddCommandLine(args);
@@ -25,13 +26,15 @@ namespace Galvarino.Workers
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddOptions();
-                    services.AddSingleton<IHostedService, CargaInicialCreditosWorker>();
+                    //services.AddSingleton<IHostedService, CargaInicialCreditosWorker>();
+                    services.AddSingleton<IHostedService, CorrectorCargaInicialWorker>();
+                    
                 })
                 .ConfigureLogging((hostingContext, logging) => {
                     logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     logging.AddConsole();
                 });
-
+            
             await builder.RunConsoleAsync();
         }
     }
