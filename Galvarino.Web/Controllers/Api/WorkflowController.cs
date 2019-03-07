@@ -388,10 +388,7 @@ namespace Galvarino.Web.Controllers.Api
                 var tran = _context.Database.BeginTransaction();
                 try
                 {
-                    /*Old workflow instance*/
-                    //await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-
-
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
                     await _context.SaveChangesAsync();
                     tran.Commit();
                 }

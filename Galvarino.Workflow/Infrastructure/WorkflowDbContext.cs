@@ -31,7 +31,7 @@ namespace Galvarino.Workflow.Infrastructure
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.HasDefaultSchema("workflow");
+            //builder.HasDefaultSchema("workflow");
             builder.ApplyConfiguration(new ProcesoConfig());
             builder.ApplyConfiguration(new EtapaConfig());
             builder.ApplyConfiguration(new SolicitudConfig());
