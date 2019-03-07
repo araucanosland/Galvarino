@@ -23,12 +23,10 @@ namespace Galvarino.Web.Controllers
     public class PdfController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWorkflowService _wfService;
 
-        public PdfController(ApplicationDbContext context, IWorkflowService wfservice)
+        public PdfController(ApplicationDbContext context)
         {
             _context = context;
-            _wfService = wfservice;
         }
 
         [Route("test")]
@@ -154,7 +152,7 @@ namespace Galvarino.Web.Controllers
                             cantidadExpedientes = valija.Expedientes.Count,
                             fechaPistoleo = tarea.FechaTerminoFinal
                         };
-            var toshow = model.Distinct().OrderBy(x => x.fechaPistoleo);
+            var toshow = await model.Distinct().OrderBy(x => x.fechaPistoleo).ToListAsync();
             return new ViewAsPdf(toshow)
             {
                 PageSize = Size.Letter

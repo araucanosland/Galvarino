@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Galvarino.Web.Services.Notification;
 using Galvarino.Web.Models.Security;
 using System.Security.Claims;
+//using Galvarino.Workflow.Model;
 
 namespace Galvarino.Web.Controllers.Api
 {
@@ -25,9 +26,9 @@ namespace Galvarino.Web.Controllers.Api
     {
 
         private readonly ApplicationDbContext _context;
-        private readonly IWorkflowService _wfService;
+        private readonly Workflow.IWorkflowService _wfService;
         private readonly INotificationKernel _mailService;
-        public WorkflowController(ApplicationDbContext context, IWorkflowService wfservice, INotificationKernel mailService)
+        public WorkflowController(ApplicationDbContext context, Workflow.IWorkflowService wfservice, INotificationKernel mailService)
         {
             _context = context;
             _wfService = wfservice;
@@ -351,7 +352,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("despacho-oficina-matriz")]
         public async Task<IActionResult> DespachoOfMatriz([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            var tran  = _context.Database.BeginTransaction();
+            
             try{
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
                 List<string> ticketsAvanzar = new List<string>();
@@ -383,15 +384,23 @@ namespace Galvarino.Web.Controllers.Api
 
                 _context.ValijasOficinas.Add(valijaMatrix);
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-
-                await _context.SaveChangesAsync();
-                tran.Commit();
+                
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch(Exception _ex)
+                {
+                    tran.Rollback();
+                    throw new Exception("Rolback en base de datos. " + _ex.Message);
+                }
                 return Ok(valijaMatrix);
             }
             catch(Exception)
             {
-                tran.Rollback();
                 return BadRequest();
             }
             
@@ -400,7 +409,6 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("recepcion-expedientes-matriz/{codigoSeguimiento}")]
         public async Task<IActionResult> RecepcionSetLegal([FromBody] IEnumerable<ExpedienteGenerico> entrada, [FromRoute] string codigoSeguimiento)
         {
-            var tran = _context.Database.BeginTransaction();
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -413,18 +421,27 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
                 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_SET_LEGAL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+                
                 var laValija = _context.ValijasOficinas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
                 laValija.MarcaAvance = "OK";
                 _context.ValijasOficinas.Update(laValija);
 
-                await _context.SaveChangesAsync();
-                tran.Commit();
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_SET_LEGAL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch (Exception _ex)
+                {
+                    tran.Rollback();
+                    throw new Exception("Rolback en base de datos. " + _ex.Message);
+                }
                 return Ok();
             }
             catch (Exception)
             {
-                tran.Rollback();
                 return BadRequest();
             }
         }
@@ -432,7 +449,6 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("envio-a-notaria")]
         public async Task<IActionResult> EnvioNotaria([FromBody] ColeccionExpedientesGenerica entrada)
         {
-            var tran = _context.Database.BeginTransaction();
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -465,16 +481,25 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+                
+                
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch (Exception _ex)
+                {
+                    tran.Rollback();
+                    throw new Exception("Rolback en base de datos. " + _ex.Message);
+                }
 
-                await _context.SaveChangesAsync();
-
-                tran.Commit();
                 return Ok(packNotaria);
             }
             catch(Exception)
             {
-                tran.Rollback();
                 return BadRequest();
             }
         }
@@ -482,7 +507,6 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("recepciona-notaria")]
         public async Task<IActionResult> RecepcionaNotaria([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            var tran = _context.Database.BeginTransaction();
             try
             {
                 List<string> ticketsAvanzar = new List<string>();
@@ -493,23 +517,32 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
 
-                await _context.SaveChangesAsync();
-                tran.Commit();
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch (Exception _ex)
+                {
+                    tran.Rollback();
+                    throw new Exception("Rolback en base de datos. " + _ex.Message);
+                }
+                
                 return Ok();
             }
-            catch(Exception)
+            catch(Exception _x)
             {
-                tran.Rollback();
-                return BadRequest();
+                return BadRequest(_x.Message);
             }
         }
 
         [HttpPost("revision-documentos")]
         public async Task<IActionResult> RevisionDocumentos([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            var tran = _context.Database.BeginTransaction();
+            
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -522,14 +555,24 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-                await _context.SaveChangesAsync();
-                tran.Commit();
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch (Exception _ex)
+                {
+                    tran.Rollback();
+                    throw new Exception("Rolback en base de datos. " + _ex.Message);
+                }
+
                 return Ok(entrada);
             }
             catch(Exception)
             {
-                tran.Rollback();
+                
                 return BadRequest();
             }
         }
@@ -537,7 +580,6 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("despacho-reparo-notaria")]
         public async Task<IActionResult> DespachoReparoNotaria([FromBody] ColeccionEnvioNotariaFormHelper entrada)
         {
-            var tran = _context.Database.BeginTransaction();
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -570,14 +612,25 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-                await _context.SaveChangesAsync();
-                tran.Commit();
+
+
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch (Exception _ex)
+                {
+                    tran.Rollback();
+                    throw new Exception("Rolback en base de datos. " + _ex.Message);
+                }
+                
                 return Ok(packNotaria);
             }
             catch(Exception)
             {
-                tran.Rollback();
                 return BadRequest();
             }
         }
@@ -585,7 +638,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("despacho-sucursal-oficiana-partes")]
         public async Task<IActionResult> DespachoSucOfPartes([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            var tran = _context.Database.BeginTransaction();
+            
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -604,8 +657,7 @@ namespace Galvarino.Web.Controllers.Api
                     CodigoSeguimiento=codSeg,
                     MarcaAvance = "OF_PARTES"
                 };
-
-                _context.ValijasValoradas.Add(valijaEnvio);
+                
                 
                 foreach (var item in entrada)
                 {
@@ -616,15 +668,25 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
+                _context.ValijasValoradas.Add(valijaEnvio);
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-                await _context.SaveChangesAsync();
-                tran.Commit();
+
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch (Exception _ex)
+                {
+                    tran.Rollback();
+                    throw new Exception("Rolback en base de datos. " + _ex.Message);
+                }
                 return Ok(valijaEnvio);
             }
             catch(Exception)
             {
-                tran.Rollback();
                 return BadRequest();
             }
         }
@@ -632,23 +694,25 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("recepcion-oficina-partes/{codigoSeguimiento}")]
         public async Task<IActionResult> RecepcionOfPartes([FromRoute] string codigoSeguimiento)
         {
+            List<string> ticketsAvanzar = new List<string>();
+
+            var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
+
+            foreach (var item in elExpediente)
+            {
+                ticketsAvanzar.Add(item.Credito.NumeroTicket);
+            }
+
+            var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
+            laValija.MarcaAvance = "MS_CONTROL";
+            _context.ValijasValoradas.Update(laValija);
+
             var tran = _context.Database.BeginTransaction();
             try
             {
-                List<string> ticketsAvanzar = new List<string>();
-
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
-
-                foreach(var item in elExpediente)
-                {
-                    ticketsAvanzar.Add(item.Credito.NumeroTicket);
-                }
+                
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-
-                var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
-                laValija.MarcaAvance = "MS_CONTROL";
-                _context.ValijasValoradas.Update(laValija);
                 await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
@@ -663,22 +727,24 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("recepcion-valija/{codigoSeguimiento}")]
         public async Task<IActionResult> RecepcionValija([FromRoute] string codigoSeguimiento)
         {
+
+            List<string> ticketsAvanzar = new List<string>();
+            var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
+
+            foreach (var item in elExpediente)
+            {
+                ticketsAvanzar.Add(item.Credito.NumeroTicket);
+            }
+
+            var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
+            laValija.MarcaAvance = "MSC_APERTURA";
+            _context.ValijasValoradas.Update(laValija);
+
+
             var tran = _context.Database.BeginTransaction();
             try
             {
-                List<string> ticketsAvanzar = new List<string>();
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
-
-                foreach (var item in elExpediente)
-                {
-                    ticketsAvanzar.Add(item.Credito.NumeroTicket);
-                }
-
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_VALIJA_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-
-                var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
-                laValija.MarcaAvance = "MSC_APERTURA";
-                _context.ValijasValoradas.Update(laValija);
                 await _context.SaveChangesAsync();
 
                 tran.Commit();
@@ -695,7 +761,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("apertura-valija/{codigoSeguimiento}")]
         public async Task<IActionResult> AperturaValija([FromBody] IEnumerable<ExpedienteGenerico> entrada, [FromRoute] string codigoSeguimiento)
         {
-            var tran = _context.Database.BeginTransaction();
+            
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -735,27 +801,36 @@ namespace Galvarino.Web.Controllers.Api
                                 <td>Codigo Documento(s) Faltante(s): " + enviocorreo + @"</td>
                             </tr>
                         </table>";
-                        var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                        var rutEnviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                        var enviarA = _context.Users.FirstOrDefault(u => u.Identificador == rutEnviarA);
                         await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Faltantes: " + item.FolioCredito, mensaje);
                     }
                     
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-
-
                 var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
                 laValija.MarcaAvance = "FN";
                 _context.ValijasValoradas.Update(laValija);
-                await _context.SaveChangesAsync();
 
-                tran.Commit();
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch(Exception)
+                {
+                    tran.Rollback();
+                    throw new Exception("#4");
+                }
+
+                
                 return Ok();
             }
             catch (Exception)
             {
-                tran.Rollback();
                 return BadRequest();
             }
         }
@@ -763,7 +838,7 @@ namespace Galvarino.Web.Controllers.Api
         [Route("analisis-mesa-control")]
         public async Task<IActionResult> AnalisisMesaControl([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            var tran = _context.Database.BeginTransaction();
+            
             try
             {
                 List<string> ticketsAvanzar = new List<string>();
@@ -787,20 +862,30 @@ namespace Galvarino.Web.Controllers.Api
                                 <td>El Expediente contiene un documento " + opt[item.Reparo] + @"</td>
                             </tr>
                         </table>";
-                        var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                        var rutEnviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                        var enviarA = _context.Users.FirstOrDefault(u => u.Identificador == rutEnviarA);
                         await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Reparos: " + item.FolioCredito, mensaje);
                     }
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-                await _context.SaveChangesAsync();
-                tran.Commit();
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch (Exception)
+                {
+                    tran.Rollback();
+                    throw new Exception("#4");
+                }
+                
                 return Ok();
             }
             catch (Exception)
             {
-                tran.Rollback();
                 return BadRequest();
             }
         }
@@ -808,17 +893,18 @@ namespace Galvarino.Web.Controllers.Api
         [Route("solucion-expediente-faltante")]
         public async Task<IActionResult> SolucionExpedienteFaltante([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<string> ticketsAvanzar = new List<string>();
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", 1.ToString(), elExpediente.Credito.NumeroTicket);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
             var tran = _context.Database.BeginTransaction();
             try
             {
-                List<string> ticketsAvanzar = new List<string>();
-
-                foreach (var item in entrada)
-                {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                    _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", 1.ToString(), elExpediente.Credito.NumeroTicket);
-                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                }
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
                 await _context.SaveChangesAsync();
                 tran.Commit();
@@ -834,7 +920,7 @@ namespace Galvarino.Web.Controllers.Api
         [Route("despacho-reparo-oficina-partes")]
         public async Task<IActionResult> DespachoOfPtReparoSucursal([FromBody] ColeccionExpedientesGenerica entrada)
         {
-            var tran = _context.Database.BeginTransaction();
+            
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -865,15 +951,23 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OF_PARTES_DEVOLUCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch(Exception)
+                {
+                    tran.Rollback();
+                    throw new Exception("#4");
+                }
                 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OF_PARTES_DEVOLUCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-                await _context.SaveChangesAsync();
-                tran.Commit();
                 return Ok(valijaEnvio);
             }
             catch (Exception)
             {
-                tran.Rollback();
                 return BadRequest();
             }
         }
@@ -881,7 +975,6 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("despacho-oficina-correccion/{codigoSeguimiento}")]
         public async Task<IActionResult> DespachoOfCorreccion([FromRoute] string codigoSeguimiento)
         {
-            var tran = _context.Database.BeginTransaction();
             try
             {
                 List<string> ticketsAvanzar = new List<string>();
@@ -892,19 +985,29 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(item.Credito.NumeroTicket);
                 }
 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_CORRECCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-
+                
                 var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
                 laValija.MarcaAvance = "DEVOLUCION_OP";
                 _context.ValijasValoradas.Update(laValija);
-                await _context.SaveChangesAsync();
-
-                tran.Commit();
+                
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_CORRECCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch(Exception)
+                {
+                    tran.Rollback();
+                    throw new Exception("#4");
+                }
+                
                 return Ok();
             }
             catch (Exception)
             {
-                tran.Rollback();
+                
                 return BadRequest();
             }
         }
@@ -912,16 +1015,18 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("solucion-reparo-sucursal")]
         public async Task<IActionResult> SolucionReparosSucursal([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<string> ticketsAvanzar = new List<string>();
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+
             var tran = _context.Database.BeginTransaction();
             try
             {
-                List<string> ticketsAvanzar = new List<string>();
-                foreach (var item in entrada)
-                {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                }
-
+                
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
                 await _context.SaveChangesAsync();
                 tran.Commit();
@@ -937,7 +1042,7 @@ namespace Galvarino.Web.Controllers.Api
         [Route("despacho-a-custodia/{codigoCaja}")]
         public async Task<IActionResult> DespachoCustodia([FromRoute] string codigoCaja)
         {
-            var tran = _context.Database.BeginTransaction();
+            
             try
             {
                 //List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -964,12 +1069,10 @@ namespace Galvarino.Web.Controllers.Api
 
                 //_context.PasosValijasValoradas.RemoveRange(_context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name));
                 //await _context.SaveChangesAsync();
-                tran.Commit();
                 return Ok();
             }
             catch (Exception ex)
             {
-                tran.Rollback();
                 return BadRequest(ex.Message);
             }
         }
@@ -1147,21 +1250,23 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("recepcion-custodia/{codigoSeguimiento}")]
         public async Task<IActionResult> RecepcionCustodia([FromBody] IEnumerable<ExpedienteGenerico> entrada, [FromRoute] string codigoSeguimiento)
         {
+            List<string> ticketsAvanzar = new List<string>();
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                _wfService.AsignarVariable("EXPEDIENTE_FALTANTE_CUSTODIA", item.Faltante ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            var laCaja = _context.CajasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
+            laCaja.MarcaAvance = "FN";
+            _context.CajasValoradas.Update(laCaja);
+
+
             var tran = _context.Database.BeginTransaction();
             try
             {
-                List<string> ticketsAvanzar = new List<string>();
-                foreach (var item in entrada)
-                {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                    _wfService.AsignarVariable("EXPEDIENTE_FALTANTE_CUSTODIA", item.Faltante ? 1.ToString(): 0.ToString(), elExpediente.Credito.NumeroTicket);
-                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                }
-
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_Y_CUSTODIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-                var laCaja = _context.CajasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
-                laCaja.MarcaAvance = "FN";
-                _context.CajasValoradas.Update(laCaja);
                 await _context.SaveChangesAsync();
                 tran.Commit();
                 return Ok();
@@ -1177,16 +1282,18 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("preparar-nomina")]
         public async Task<IActionResult> PrepararNomina([FromBody] IEnumerable<ExpedienteGenerico> entrada)
         {
+
+            List<string> ticketsAvanzar = new List<string>();
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+
             var tran = _context.Database.BeginTransaction();
             try
             {
-                List<string> ticketsAvanzar = new List<string>();
-                foreach (var item in entrada)
-                {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                }
-            
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_PREPARAR_NOMINA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
                 await _context.SaveChangesAsync();
                 tran.Commit();
@@ -1203,7 +1310,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("envio-a-notaria-rm")]
         public async Task<IActionResult> EnvioNotariaRM([FromBody] ColeccionExpedientesGenerica entrada)
         {
-            var tran = _context.Database.BeginTransaction();
+            
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -1235,16 +1342,24 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_A_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch(Exception)
+                {
+                    tran.Rollback();
+                    throw new Exception("#4");
+                }
                 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_A_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-                await _context.SaveChangesAsync();
-
-                tran.Commit();
                 return Ok(packNotaria);
             }
             catch (Exception)
             {
-                tran.Rollback();
+                
                 return BadRequest();
             }
         }
@@ -1252,17 +1367,17 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("recepciona-notaria-rm")]
         public async Task<IActionResult> RecepcionaNotariaRM([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+            List<string> ticketsAvanzar = new List<string>();
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
             var tran = _context.Database.BeginTransaction();
             try
             {
-                List<string> ticketsAvanzar = new List<string>();
-
-                foreach (var item in entrada)
-                {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                }
-
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_RECEPCION_DE_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
                 await _context.SaveChangesAsync();
                 tran.Commit();
@@ -1278,19 +1393,21 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("revision-documentos-rm")]
         public async Task<IActionResult> RevisionDocumentosRM([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
+
+            List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+            List<string> ticketsAvanzar = new List<string>();
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                _wfService.AsignarVariable("REPARO_REVISION_DOCUMENTO_LEGALIZADO", item.Reparo.ToString(), elExpediente.Credito.NumeroTicket);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
             var tran = _context.Database.BeginTransaction();
             try
             {
-                List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
-                List<string> ticketsAvanzar = new List<string>();
-
-                foreach (var item in entrada)
-                {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                    _wfService.AsignarVariable("REPARO_REVISION_DOCUMENTO_LEGALIZADO", item.Reparo.ToString(), elExpediente.Credito.NumeroTicket);
-                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                }
-
+            
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
                 await _context.SaveChangesAsync();
                 tran.Commit();
@@ -1306,7 +1423,6 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("despacho-reparo-notaria-rm")]
         public async Task<IActionResult> DespachoReparoNotariaRM([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            var tran = _context.Database.BeginTransaction();
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -1339,15 +1455,23 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DEVOLUCION_REPARO_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch(Exception)
+                {
+                    tran.Rollback();
+                    throw new Exception("#4");
+                }
                 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DEVOLUCION_REPARO_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-                await _context.SaveChangesAsync();
-                tran.Commit();
                 return Ok(packNotaria);
             }
             catch (Exception)
             {
-                tran.Rollback();
                 return BadRequest();
             }
         }
@@ -1390,7 +1514,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("almacenaje-set-comercial")]
         public async Task<IActionResult> GuardarAlamacenajeComercial([FromBody] IEnumerable<ExpedienteGenerico> entrada)
         {
-            var tran = _context.Database.BeginTransaction();
+            
             try
             {
                 var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
@@ -1409,13 +1533,23 @@ namespace Galvarino.Web.Controllers.Api
 
                 }
                 _context.AlmacenajesComerciales.Add(almacen);
-                await _context.SaveChangesAsync();
-                tran.Commit();
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch(Exception)
+                {
+                    tran.Rollback();
+                    throw new Exception("#4");
+                }
+               
                 return Ok(almacen);
             }
             catch (Exception)
             {
-                tran.Rollback();
+                
                 return BadRequest();
             }
         }
@@ -1424,7 +1558,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("ingreso-expedientes-legalizados")]
         public async Task<IActionResult> IngresoExpedienteLelalizado([FromBody] IEnumerable<ExpedienteGenerico> entrada)
         {
-            var tran = _context.Database.BeginTransaction();
+            
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -1437,14 +1571,25 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(credito.NumeroTicket);
                 }
 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-                await _context.SaveChangesAsync();
-                tran.Commit();
+                var tran = _context.Database.BeginTransaction();
+                try
+                {
+                    await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                    await _context.SaveChangesAsync();
+                    tran.Commit();
+                }
+                catch(Exception)
+                {
+                    tran.Rollback();
+                    throw new Exception("#4");
+                }
+
+                
                 return Ok();
             }
             catch (Exception ex)
             {
-                tran.Rollback();
+                
                 return BadRequest(ex.Message);
             }
         }
