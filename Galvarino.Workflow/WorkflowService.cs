@@ -1,6 +1,7 @@
 ﻿using Galvarino.Workflow.Infrastructure;
 using Galvarino.Workflow.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,14 +12,12 @@ namespace Galvarino.Workflow
     {
         private readonly WorkflowRepository _repository;
 
-
-        public WorkflowService()
+        
+        public WorkflowService(string connectionString)
         {
-            //Declare conecction string
             DbContextOptionsBuilder<WorkflowDbContext> options = new DbContextOptionsBuilder<WorkflowDbContext>();
-            options.UseSqlServer("server=(LocalDb)\\MSSQLLocalDB;database=galvarino_db;uid=galvarino_db;password=secreto");
+            options.UseSqlServer(connectionString);
             _repository = new WorkflowRepository(new WorkflowDbContext(options.Options));
-
         }
 
         public void Abortar()

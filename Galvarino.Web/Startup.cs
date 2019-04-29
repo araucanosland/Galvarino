@@ -86,14 +86,14 @@ namespace Galvarino.Web
 
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
             //services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
-            services.AddTransient<IWorkflowService, Workflow.WorkflowService>();
+            services.AddTransient<IWorkflowService>(s => new Workflow.WorkflowService(Configuration.GetConnectionString("DocumentManagementConnection")));
 
             services.AddTransient<INotificationKernel, MailSender>();
             
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
 
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
-            services.AddHostedService<CierreCajaValoradaWorker>();
+            //services.AddHostedService<CierreCajaValoradaWorker>();
 
             services.AddSignalR();
 
@@ -123,10 +123,10 @@ namespace Galvarino.Web
             app.UseStaticFiles();
             app.UseAuthentication();
 
-            app.UseSignalR(r =>
-            {
-                r.MapHub<NotificacionCajaCerradaHub>("/caja-cerrada-hub");
-            });
+            //app.UseSignalR(r =>
+            //{
+            //    r.MapHub<NotificacionCajaCerradaHub>("/caja-cerrada-hub");
+            //});
 
 
             app.UseMvc(routes =>

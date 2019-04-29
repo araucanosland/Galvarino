@@ -15,7 +15,7 @@ namespace Galvarino.Web.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasAnnotation("ProductVersion", "2.2.2-servicing-10034")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -188,8 +188,7 @@ namespace Galvarino.Web.Data.Migrations
                     b.Property<string>("Codificacion")
                         .IsRequired();
 
-                    b.Property<int?>("ExpedienteCreditoId")
-                        .IsRequired();
+                    b.Property<int>("ExpedienteCreditoId");
 
                     b.Property<string>("Resumen");
 
@@ -213,8 +212,7 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<int?>("CajaValoradaId");
 
-                    b.Property<int?>("CreditoId")
-                        .IsRequired();
+                    b.Property<int>("CreditoId");
 
                     b.Property<DateTime>("FechaCreacion");
 
@@ -274,8 +272,7 @@ namespace Galvarino.Web.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("ComunaId")
-                        .IsRequired();
+                    b.Property<int>("ComunaId");
 
                     b.Property<string>("Nombre");
 
@@ -294,6 +291,8 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<string>("Codificacion");
 
+                    b.Property<string>("CodigoSucursalEspecial");
+
                     b.Property<int?>("ComunaId");
 
                     b.Property<bool>("EsMovil");
@@ -302,8 +301,7 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<string>("Nombre");
 
-                    b.Property<int?>("OficinaProcesoId")
-                        .IsRequired();
+                    b.Property<int>("OficinaProcesoId");
 
                     b.HasKey("Id");
 
@@ -324,11 +322,9 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<DateTime>("FechaEnvio");
 
-                    b.Property<int?>("NotariaEnvioId")
-                        .IsRequired();
+                    b.Property<int>("NotariaEnvioId");
 
-                    b.Property<int?>("OficinaId")
-                        .IsRequired();
+                    b.Property<int>("OficinaId");
 
                     b.HasKey("Id");
 
@@ -531,8 +527,7 @@ namespace Galvarino.Web.Data.Migrations
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256);
 
-                    b.Property<int?>("OrzanizacionId")
-                        .IsRequired();
+                    b.Property<int>("OrzanizacionId");
 
                     b.Property<string>("PadreId");
 
@@ -627,8 +622,7 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<string>("NombreInterno");
 
-                    b.Property<int?>("ProcesoId")
-                        .IsRequired();
+                    b.Property<int>("ProcesoId");
 
                     b.Property<int>("Secuencia");
 
@@ -747,8 +741,7 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<string>("ReasignadoA");
 
-                    b.Property<int?>("SolicitudId")
-                        .IsRequired();
+                    b.Property<int>("SolicitudId");
 
                     b.Property<string>("UnidadNegocioAsignada");
 
@@ -798,11 +791,9 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<string>("ClaseValidacion");
 
-                    b.Property<int?>("EtapaActaualId")
-                        .IsRequired();
+                    b.Property<int>("EtapaActaualId");
 
-                    b.Property<int?>("EtapaDestinoId")
-                        .IsRequired();
+                    b.Property<int>("EtapaDestinoId");
 
                     b.Property<string>("MetodoValidacion");
 

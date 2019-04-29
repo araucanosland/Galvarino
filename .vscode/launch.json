@@ -4,23 +4,24 @@
    // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
    "version": "0.2.0",
    "configurations": [
+
         {
             "name": ".NET Core Launch (web)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Galvarino.Web/bin/Debug/netcoreapp2.1/Galvarino.Web.dll",
+            "program": "${workspaceFolder}/Galvarino.Web/bin/Debug/netcoreapp2.2/Galvarino.Web.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Galvarino.Web",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
                 "enabled": true,
-                "args": "${auto-detect-url}",
+                "args": "${auto-detect-url}/Home/SignIn?rut=17042783-1",
                 "windows": {
                     "command": "cmd.exe",
-                    "args": "/C start ${auto-detect-url}"
+                    "args": "/C start ${auto-detect-url}/Home/SignIn?rut=17042783-1"
                 },
                 "osx": {
                     "command": "open"

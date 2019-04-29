@@ -50,7 +50,7 @@ namespace Galvarino.Web.Workers
             var _context = new ApplicationDbContext(options);
             //var _context = _scope.ServiceProvider.GetService<ApplicationDbContext>();
             //_timer = new Timer(DoWork, _context, TimeSpan.Zero,TimeSpan.FromSeconds(15));
-            _wfservice = new Galvarino.Workflow.WorkflowService();
+            _wfservice = new Galvarino.Workflow.WorkflowService(_configuration.GetConnectionString("DocumentManagementConnection"));
             
             while (!cancellationToken.IsCancellationRequested)
             {

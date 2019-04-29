@@ -15,5 +15,6 @@ namespace Galvarino.Web.Models.Application
         public ICollection<PackNotaria> PacksNotaria { get; set; }
         public bool EsRM { get; set; }
         public bool EsMovil { get; set; }
+        public string CodigoSucursalEspecial { get; set; }
     }
 }

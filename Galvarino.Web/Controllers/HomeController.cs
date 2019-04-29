@@ -25,7 +25,6 @@ namespace Galvarino.Web.Controllers
         }
         
         public IActionResult Index()
-
         {
             string userAgent = Request.Headers["User-Agent"].ToString();
             if(userAgent.Contains("MSIE") || userAgent.Contains("Trident"))

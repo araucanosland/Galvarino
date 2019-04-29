@@ -16,7 +16,7 @@ namespace Galvarino.Workers
     {
 
         private Timer _timer;
-        //private string _connectionString = "server=(LocalDb)\\MSSQLLocalDB;database=galvarino_db;uid=galvarino_db;password=secreto";
+        private string _connectionString = "server=(LocalDb)\\MSSQLLocalDB;database=galvarino_db;uid=galvarino_db;password=secreto";
         private bool workingThread = false;
         private IWorkflowService _wfservice;
 
@@ -24,7 +24,7 @@ namespace Galvarino.Workers
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Console.WriteLine("Timed Background Service is starting.");
-            _wfservice = new WorkflowService();
+            _wfservice = new WorkflowService(_connectionString);
             
             _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
             

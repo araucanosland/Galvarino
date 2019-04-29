@@ -37,7 +37,7 @@ namespace Galvarino.Web.Services.Application
             _logger.LogDebug($"tarea en segundo plano esta iniciando");
             stoppingToken.Register(() => _logger.LogDebug("Deteniendo la tarea en segundo plano"));
             var _context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            _wfservice = new Galvarino.Workflow.WorkflowService();
+            _wfservice = new Galvarino.Workflow.WorkflowService(_configuration.GetConnectionString("DocumentManagementConnection"));
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -63,6 +63,7 @@ namespace Galvarino.Web.Services.Application
                 else {
                     break;
                 }
+
                 
                 
                 _logger.LogDebug(ruta);
@@ -105,8 +106,9 @@ namespace Galvarino.Web.Services.Application
                                 
                                 var oficinaProceso = _context.Oficinas.Include(x => x.OficinaProceso).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaPago);
                                 string esRM = oficinaProceso.EsRM  ? "1" : "0";
-                                
                                 /*  TODO: Caso de La Unión ver con Jenny Bernales  */
+                                string esAGMLaUnion = ((ci.CodigoOficinaPago == "A106" || ci.CodigoOficinaPago == "A294") && ci.FolioCredito.StartsWith("294")) ? "1" : "0";
+                                
                                 Dictionary<string, string> _setVariables = new Dictionary<string, string>();
                                 _setVariables.Add("OFICINA_PAGO", campos[4]);
                                 _setVariables.Add("OFICINA_INGRESO", campos[2]);
@@ -115,7 +117,18 @@ namespace Galvarino.Web.Services.Application
                                 _setVariables.Add("FECHA_VENTA", campos[10]);
                                 _setVariables.Add("ES_RM", esRM);
                                 _setVariables.Add("DOCUMENTO_LEGALIZADO", "0");
-                                _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaProceso.OficinaProceso.Codificacion);
+
+                                _setVariables.Add("ES_AGM_LAUNION", esAGMLaUnion);
+                                if(esAGMLaUnion == "1")
+                                {
+                                    _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaProceso.CodigoSucursalEspecial);
+                                }
+                                else
+                                {
+                                    _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaProceso.OficinaProceso.Codificacion);
+                                }
+                                
+                                
 
                                 var wf = _wfservice.Instanciar(ProcesoDocumentos.NOMBRE_PROCESO, "wfboot", "Ingreso Automatico de Creditos Vendidos", _setVariables);
                                 

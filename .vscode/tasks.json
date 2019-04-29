@@ -12,6 +12,18 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "dev",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "-p",
+                "${workspaceFolder}/Galvarino.Web/Galvarino.Web.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "restore",
             "command": "dotnet",
             "type": "process",

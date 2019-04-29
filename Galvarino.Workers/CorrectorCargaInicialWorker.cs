@@ -27,7 +27,7 @@ namespace Galvarino.Workers
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Console.WriteLine("Worker Corrector Iniciando...");
-            _wfservice = new WorkflowService();
+            _wfservice = new WorkflowService(_connectionString);
             object state = null;
             _theTimer = new Timer(DoWork, state, TimeSpan.Zero, TimeSpan.FromSeconds(5));
             return Task.CompletedTask;

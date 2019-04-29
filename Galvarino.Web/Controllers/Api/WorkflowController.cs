@@ -359,17 +359,19 @@ namespace Galvarino.Web.Controllers.Api
 
                 var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
                 var oficinaEnvio = _context.Oficinas.Include(fd => fd.OficinaProceso).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+                var oficinaDestino = oficinaEnvio.CodigoSucursalEspecial != null ? _context.Oficinas.FirstOrDefault(of => of.Codificacion == oficinaEnvio.CodigoSucursalEspecial) : oficinaEnvio.OficinaProceso;
 
 
                 DateTime now = DateTime.Now;
                 var codSeg = now.Ticks.ToString() + "O" + oficinaEnvio.Codificacion;
 
+                
                 var valijaMatrix = new ValijaOficina
                 {
                     CodigoSeguimiento = codSeg,
                     FechaEnvio = DateTime.Now,
                     OficinaEnvio = oficinaEnvio,
-                    OficinaDestino = oficinaEnvio.OficinaProceso,
+                    OficinaDestino = oficinaDestino,
                     MarcaAvance = "INI"
                 };
 
