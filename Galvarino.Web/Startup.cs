@@ -27,8 +27,6 @@ using Microsoft.AspNetCore.Server.IISIntegration;
 using Galvarino.Web.Workers;
 using Galvarino.Web.Hubs;
 using Galvarino.Web.Services.Workflow;
-using Galvarino.Web.Services;
-
 namespace Galvarino.Web
 {
     public class Startup
@@ -44,7 +42,7 @@ namespace Galvarino.Web
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"), opt => opt.EnableRetryOnFailure()));
             services.AddIdentity<Usuario, Rol>()
                  .AddEntityFrameworkStores<ApplicationDbContext>()
                  .AddDefaultTokenProviders();
@@ -88,6 +86,7 @@ namespace Galvarino.Web
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
             services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
             services.AddTransient<IWorkflowService, WorkflowService>();
+            
             //services.AddTransient<IWorkflowService>(s => new Workflow.WorkflowService(Configuration.GetConnectionString("DocumentManagementConnection")));
 
             services.AddTransient<INotificationKernel, MailSender>();
