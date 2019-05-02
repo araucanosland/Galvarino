@@ -26,7 +26,7 @@ namespace Galvarino.Web.Workers
         private readonly IConfiguration _configuration;
         private readonly IHubContext<NotificacionCajaCerradaHub> _notificion;
         private readonly IServiceScope _scope;
-        private Galvarino.Workflow.IWorkflowService _wfservice;
+        //private Galvarino.Workflow.IWorkflowService _wfservice;
         
         public CierreCajaValoradaWorker(ILogger<CierreCajaValoradaWorker> logger, IServiceProvider services, IConfiguration configuration, IHubContext<NotificacionCajaCerradaHub> notificion)
         {
@@ -50,7 +50,7 @@ namespace Galvarino.Web.Workers
             var _context = new ApplicationDbContext(options);
             //var _context = _scope.ServiceProvider.GetService<ApplicationDbContext>();
             //_timer = new Timer(DoWork, _context, TimeSpan.Zero,TimeSpan.FromSeconds(15));
-            _wfservice = new Galvarino.Workflow.WorkflowService(_configuration.GetConnectionString("DocumentManagementConnection"));
+            //_wfservice = new Galvarino.Workflow.WorkflowService(_configuration.GetConnectionString("DocumentManagementConnection"));
             
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -79,7 +79,7 @@ namespace Galvarino.Web.Workers
 
                     _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
                     await _context.SaveChangesAsync();
-                    await _wfservice.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, caja.Usuario);
+                    //await _wfservice.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, caja.Usuario);
 
                     /*Delete entries form box*/
                     _context.PasosValijasValoradas.RemoveRange(_context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == caja.CodigoSeguimiento && c.Usuario == caja.Usuario));

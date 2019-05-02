@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Authorization;
 using Galvarino.Web.Services.Notification;
 using Galvarino.Web.Models.Security;
 using System.Security.Claims;
-//using Galvarino.Workflow.Model;
 
 namespace Galvarino.Web.Controllers.Api
 {
@@ -26,9 +25,9 @@ namespace Galvarino.Web.Controllers.Api
     {
 
         private readonly ApplicationDbContext _context;
-        private readonly Workflow.IWorkflowService _wfService;
+        private readonly IWorkflowService _wfService;
         private readonly INotificationKernel _mailService;
-        public WorkflowController(ApplicationDbContext context, Workflow.IWorkflowService wfservice, INotificationKernel mailService)
+        public WorkflowController(ApplicationDbContext context, IWorkflowService wfservice, INotificationKernel mailService)
         {
             _context = context;
             _wfService = wfservice;
@@ -803,8 +802,8 @@ namespace Galvarino.Web.Controllers.Api
                                 <td>Codigo Documento(s) Faltante(s): " + enviocorreo + @"</td>
                             </tr>
                         </table>";
-                        var rutEnviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
-                        var enviarA = _context.Users.FirstOrDefault(u => u.Identificador == rutEnviarA);
+                        var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                        //var enviarA = _context.Users.FirstOrDefault(u => u.Identificador == rutEnviarA);
                         await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Faltantes: " + item.FolioCredito, mensaje);
                     }
                     
@@ -864,8 +863,8 @@ namespace Galvarino.Web.Controllers.Api
                                 <td>El Expediente contiene un documento " + opt[item.Reparo] + @"</td>
                             </tr>
                         </table>";
-                        var rutEnviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
-                        var enviarA = _context.Users.FirstOrDefault(u => u.Identificador == rutEnviarA);
+                        var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                        //var enviarA = _context.Users.FirstOrDefault(u => u.Identificador == rutEnviarA);
                         await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Reparos: " + item.FolioCredito, mensaje);
                     }
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);

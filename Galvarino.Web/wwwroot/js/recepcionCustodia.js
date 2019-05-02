@@ -77,6 +77,12 @@ const metodos = {
             data: JSON.stringify(foliosEnvio),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
+
+
+            console.log({
+                errMsg
+            })
+
             $.niftyNoty({
                 type: "success",
                 container: "floating",

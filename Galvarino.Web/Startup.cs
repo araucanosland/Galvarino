@@ -26,7 +26,8 @@ using System.IO;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Galvarino.Web.Workers;
 using Galvarino.Web.Hubs;
-using Galvarino.Workflow;
+using Galvarino.Web.Services.Workflow;
+using Galvarino.Web.Services;
 
 namespace Galvarino.Web
 {
@@ -85,8 +86,9 @@ namespace Galvarino.Web
             //services.AddAuthentication(IISDefaults.AuthenticationScheme);
 
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
-            //services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
-            services.AddTransient<IWorkflowService>(s => new Workflow.WorkflowService(Configuration.GetConnectionString("DocumentManagementConnection")));
+            services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
+            services.AddTransient<IWorkflowService, WorkflowService>();
+            //services.AddTransient<IWorkflowService>(s => new Workflow.WorkflowService(Configuration.GetConnectionString("DocumentManagementConnection")));
 
             services.AddTransient<INotificationKernel, MailSender>();
             
@@ -95,7 +97,7 @@ namespace Galvarino.Web
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
             //services.AddHostedService<CierreCajaValoradaWorker>();
 
-            services.AddSignalR();
+            //services.AddSignalR();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);
         }

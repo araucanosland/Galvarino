@@ -8,7 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Galvarino.Web.Data;
 using Galvarino.Web.Models.Application;
-using Galvarino.Workflow;
+using Galvarino.Web.Services;
+using Galvarino.Web.Services.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Helper;
@@ -37,7 +38,7 @@ namespace Galvarino.Web.Services.Application
             _logger.LogDebug($"tarea en segundo plano esta iniciando");
             stoppingToken.Register(() => _logger.LogDebug("Deteniendo la tarea en segundo plano"));
             var _context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            _wfservice = new Galvarino.Workflow.WorkflowService(_configuration.GetConnectionString("DocumentManagementConnection"));
+            _wfservice = new WorkflowService(new DefaultWorkflowKernel(_context));
 
             while (!stoppingToken.IsCancellationRequested)
             {

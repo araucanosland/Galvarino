@@ -110,6 +110,7 @@ const metodos = {
             });
             
         }).fail(function (errMsg) {
+            console.log({ errMsg })
             $.niftyNoty({
                 type: "warning",
                 container: "floating",

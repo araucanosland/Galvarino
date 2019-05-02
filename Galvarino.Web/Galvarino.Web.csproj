@@ -16,9 +16,7 @@
     <DotNetCliToolReference Include="BundlerMinifier.Core" Version="2.6.362" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Galvarino.Workflow\Galvarino.Workflow.csproj" />
-  </ItemGroup>
+
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1Testing_1json__JSONSchema="" appsettings_1Development_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 </Project>
