@@ -137,7 +137,7 @@ $(function () {
 
 //SignalR - Live connection
 
-var connection = new signalR.HubConnectionBuilder().withUrl("/caja-cerrada-hub").build();
+/*var connection = new signalR.HubConnectionBuilder().withUrl("/caja-cerrada-hub").build();
 
 connection.on("NotificarCajaCerrada", function (codigo) {
 
@@ -158,4 +158,4 @@ connection.start().then(function () {
     });
 }).catch(function (err) {
     return console.error(err.toString());
-});
+});*/

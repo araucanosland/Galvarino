@@ -26,7 +26,7 @@ namespace Galvarino.Workers
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddOptions();
-                    //services.AddSingleton<IHostedService, CargaInicialCreditosWorker>();
+                    services.AddSingleton<IHostedService, CargaInicialCreditosWorker>();
                     services.AddSingleton<IHostedService, CorrectorCargaInicialWorker>();
                     
                 })

@@ -16,7 +16,7 @@ namespace Galvarino.Workers
     {
 
         private Timer _timer;
-        //private string _connectionString = "server=(LocalDb)\\MSSQLLocalDB;database=galvarino_db;uid=galvarino_db;password=secreto";
+        private string _connectionString = "server=(LocalDb)\\MSSQLLocalDB;database=galvarino_db;uid=galvarino_db;password=secreto";
         private bool workingThread = false;
         private IWorkflowService _wfservice;
 
@@ -58,7 +58,9 @@ namespace Galvarino.Workers
                 
 
                 Console.WriteLine(@"La fecha a Cargar: " + processDate);
-                
+
+                var nombreArchivo = "Carga" + processDate;
+
                 
 
                 workingThread = false;

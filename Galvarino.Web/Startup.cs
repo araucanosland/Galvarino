@@ -93,11 +93,11 @@ namespace Galvarino.Web
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
 
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
-            services.AddHostedService<CierreCajaValoradaWorker>();
+            //services.AddHostedService<CierreCajaValoradaWorker>();
 
-            services.AddSignalR();
+            //services.AddSignalR();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddJsonOptions(ConfigureJson);
         }
 
         private void ConfigureJson(MvcJsonOptions obj)
@@ -123,10 +123,10 @@ namespace Galvarino.Web
             app.UseStaticFiles();
             app.UseAuthentication();
 
-            app.UseSignalR(r =>
-            {
-                r.MapHub<NotificacionCajaCerradaHub>("/caja-cerrada-hub");
-            });
+            //app.UseSignalR(r =>
+            //{
+            //    r.MapHub<NotificacionCajaCerradaHub>("/caja-cerrada-hub");
+            //});
 
 
             app.UseMvc(routes =>

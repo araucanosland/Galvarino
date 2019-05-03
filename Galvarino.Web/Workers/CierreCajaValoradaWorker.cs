@@ -38,7 +38,7 @@ namespace Galvarino.Web.Workers
             
 
         }
-       
+        
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Timed Background Service is starting.");
