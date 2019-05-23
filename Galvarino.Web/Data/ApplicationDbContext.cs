@@ -11,6 +11,7 @@ using Galvarino.Web.Models.Application;
 using Galvarino.Web.Data.Configurtations.Security;
 using Galvarino.Web.Data.Configurtations.Workflow;
 using Galvarino.Web.Data.Configurtations.Application;
+using Microsoft.Extensions.Configuration;
 
 namespace Galvarino.Web.Data
 {
@@ -45,19 +46,25 @@ namespace Galvarino.Web.Data
         public DbSet<GestionPagareSinCustodia> GestionPagaresSinCustodia { get; set; }
         public DbSet<PasoValijaValorada> PasosValijasValoradas { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+
+        private readonly IConfiguration _conf;
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration conf)
             : base(options)
         {
+            _conf = conf;
         }
 
-        public ApplicationDbContext()
+        public ApplicationDbContext(IConfiguration conf)
         {
+            _conf = conf;
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
+            
+            builder.HasDefaultSchema(_conf.GetValue<string>("schema"));
 
             /*Identity*/
             builder.Entity<Usuario>().ToTable("Usuarios");

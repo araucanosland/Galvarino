@@ -89,7 +89,7 @@ namespace Galvarino.Web.Controllers.Api
             ofinales.Add(ObjetoOficinaUsuario);
             ofinales.AddRange(OficinasUsuario.ToList());
 
-
+            
             /*Optimizando */
             var laSalida = from tarea in _context.Tareas
                             join etapa in _context.Etapas on tarea.Etapa equals etapa
@@ -656,7 +656,7 @@ namespace Galvarino.Web.Controllers.Api
                     CodigoSeguimiento=codSeg,
                     MarcaAvance = "OF_PARTES"
                 };
-                
+                _context.ValijasValoradas.Add(valijaEnvio);
                 
                 foreach (var item in entrada)
                 {
@@ -667,7 +667,6 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
-                _context.ValijasValoradas.Add(valijaEnvio);
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
 
                 var tran = _context.Database.BeginTransaction();

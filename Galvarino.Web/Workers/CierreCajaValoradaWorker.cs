@@ -47,7 +47,7 @@ namespace Galvarino.Web.Workers
                     .UseSqlServer(new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
                     .Options;
 
-            var _context = new ApplicationDbContext(options);
+            var _context = new ApplicationDbContext(options, _configuration);
             //var _context = _scope.ServiceProvider.GetService<ApplicationDbContext>();
             //_timer = new Timer(DoWork, _context, TimeSpan.Zero,TimeSpan.FromSeconds(15));
             _wfservice = new WorkflowService(new DefaultWorkflowKernel(_context));
