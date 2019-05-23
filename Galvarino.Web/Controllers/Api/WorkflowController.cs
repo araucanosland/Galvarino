@@ -89,7 +89,7 @@ namespace Galvarino.Web.Controllers.Api
             ofinales.Add(ObjetoOficinaUsuario);
             ofinales.AddRange(OficinasUsuario.ToList());
 
-
+            
             /*Optimizando */
             var laSalida = from tarea in _context.Tareas
                             join etapa in _context.Etapas on tarea.Etapa equals etapa

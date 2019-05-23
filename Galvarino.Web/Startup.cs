@@ -82,8 +82,6 @@ namespace Galvarino.Web
                 options.SlidingExpiration = true;
             });
 
-            //services.AddAuthentication(IISDefaults.AuthenticationScheme);
-
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
             services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
             services.AddTransient<IWorkflowService, WorkflowService>();
@@ -91,11 +89,8 @@ namespace Galvarino.Web
             
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
 
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, CargaDatosCreditoService>();
-            services.AddHostedService<CierreCajaValoradaWorker>();
-
-            services.AddSignalR();
-
+            services.AddHostedService<CargaDatosCreditoService>();
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);
         }
 
@@ -121,11 +116,6 @@ namespace Galvarino.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();
-
-            app.UseSignalR(r =>
-            {
-                r.MapHub<NotificacionCajaCerradaHub>("/caja-cerrada-hub");
-            });
 
 
             app.UseMvc(routes =>
