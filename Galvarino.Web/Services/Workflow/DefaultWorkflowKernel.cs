@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Reflection.Emit;
 using Galvarino.Web.Services.Workflow.Assignment;
+using Galvarino.Web.Models.Exception;
 
 namespace Galvarino.Web.Services.Workflow
 {
@@ -237,6 +238,11 @@ namespace Galvarino.Web.Services.Workflow
             Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
             Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
             Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
+
+            if(tareaActual == null){
+                throw new TareaNoEnEtapaException($"Tarea no en etapa, proceso/etapa/ticket:[{nombreInternoProceso}][{nombreInternoEtapa}][{numeroTicket}]");
+            }
+
 
             tareaActual.EjecutadoPor = identificacionUsuario;
             tareaActual.FechaTerminoFinal = DateTime.Now;

@@ -21,8 +21,8 @@ const metodos = {
             $.niftyNoty({
                 type: "warning",
                 container: "floating",
-                title: "Entrada de Valijas",
-                message: "Ocurrió un problema al procesar Valija",
+                title: "Ocurrió un problema al procesar Valija",
+                message: errMsg.responseText,
                 closeBtn: true,
                 timer: 5000
             });

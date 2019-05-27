@@ -669,10 +669,10 @@ namespace Galvarino.Web.Controllers.Api
                 tran.Commit();
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 tran.Rollback();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 

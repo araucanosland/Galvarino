@@ -115,8 +115,29 @@ namespace Galvarino.Web.Data.Repository
             return respuesta;
          }
 
-         
-        
+        public IEnumerable<dynamic> listarValijasEnviadas(string marcaAvance)
+        {
+            var respuesta = new List<dynamic>();
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                string sql = @"
+                    select 	vav.CodigoSeguimiento,
+                            vav.FechaEnvio,
+                            ofc.Nombre NombreOficina,
+                            count(exp.Id) NroExpedientes
+                    from [preview].[ValijasValoradas] vav
+                    inner join [preview].[Oficinas] ofc on vav.OficinaId = ofc.Id
+                    inner join [preview].[ExpedientesCreditos] exp on vav.Id = exp.ValijaValoradaId
+                    where vav.MarcaAvance = '" + marcaAvance + @"'
+                    GROUP BY vav.CodigoSeguimiento,
+                                    vav.FechaEnvio,
+                                    ofc.Nombre	    
+                ";
+                _logger.LogDebug(sql);
+                respuesta = con.Query<dynamic>(sql).AsList();
+            }
+            return respuesta;
+        }
     }
 
 

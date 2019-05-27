@@ -6,6 +6,9 @@ namespace Galvarino.Web.Data.Repository
     {
         IEnumerable<SolicitudResult> listarSolicitudes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null);
 
-        IEnumerable<dynamic> listarResumenInicial(string[] roles, string rut, string[] oficinas); 
+        IEnumerable<dynamic> listarResumenInicial(string[] roles, string rut, string[] oficinas);
+
+
+        IEnumerable<dynamic> listarValijasEnviadas(string marcaAvance);
     }
 }

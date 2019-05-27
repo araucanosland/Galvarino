@@ -13,6 +13,7 @@ using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Workflow;
 using Microsoft.AspNetCore.Authorization;
 using Galvarino.Web.Models.Security;
+using Galvarino.Web.Data.Repository;
 
 namespace Galvarino.Web.Controllers.Api
 {
@@ -23,9 +24,11 @@ namespace Galvarino.Web.Controllers.Api
     {
 
         private readonly ApplicationDbContext _context;
-        public BusinessController(ApplicationDbContext context)
+        private readonly ISolicitudRepository _solicitudRepository;
+        public BusinessController(ApplicationDbContext context, ISolicitudRepository solicitudRepo)
         {
             _context = context;
+            _solicitudRepository = solicitudRepo;
         }
 
         /*Deprecated */
@@ -48,11 +51,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("listar-valijas-enviadas/{marcavance?}")]
         public IActionResult ListarValijas(string marcavance="")
         {
-            var valijas = _context.ValijasValoradas.Include(v => v.Expedientes).Include(v => v.Oficina).ToList();
-
-            if(!string.IsNullOrEmpty(marcavance)){
-                valijas = valijas.Where(d => d.MarcaAvance == marcavance).ToList();
-            }
+            var valijas = _solicitudRepository.listarValijasEnviadas(marcavance);
 
             return Ok(valijas);
         }
