@@ -27,6 +27,7 @@ using System.IO;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Galvarino.Web.Workers;
 using Galvarino.Web.Hubs;
+using Galvarino.Web.Data.Repository;
 
 namespace Galvarino.Web
 {
@@ -43,18 +44,20 @@ namespace Galvarino.Web
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection")));
+            services.AddDbContext<ApplicationDbContext>(options =>{
+                options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
+                //options.EnableSensitiveDataLogging();
+            });
+
             services.AddIdentity<Usuario, Rol>()
                  .AddEntityFrameworkStores<ApplicationDbContext>()
                  .AddDefaultTokenProviders();
-
 
             services.Configure<IISOptions>(options =>
             {
                 options.ForwardClientCertificate = true;
                 options.AutomaticAuthentication = true;
             });
-
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -86,6 +89,8 @@ namespace Galvarino.Web
             services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
             services.AddTransient<IWorkflowService, WorkflowService>();
             services.AddTransient<INotificationKernel, MailSender>();
+
+            services.AddTransient<ISolicitudRepository, SolicitudesRepository>();
             
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
 
