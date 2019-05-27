@@ -18,12 +18,17 @@ namespace Galvarino.Web.Services.Workflow
         void ActivarTarea(Proceso proceso, Etapa etapa, Usuario usuario);
 
         void ActivarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
+        void ActivarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
 
         void ActivarTareaAsync(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
 
         void CompletarTarea(Tarea tarea, Usuario usuario);
 
         void CompletarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
+
+        void CompletarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
+
+        void CommitAvance();
 
         void AbortarSolicitud(Solicitud solicitud);
 

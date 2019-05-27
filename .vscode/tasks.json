@@ -43,6 +43,17 @@
                 "Release"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "rebuild",
+            "command": "dotnet",
+            "type": "process",
+            "dependsOn": ["clean"],
+            "args": [
+                "build",
+                "${workspaceFolder}/Galvarino.Web/Galvarino.Web.csproj"
+            ],
+            "problemMatcher": "$msCompile"
         }
     ]
 }

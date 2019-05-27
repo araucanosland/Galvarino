@@ -74,13 +74,13 @@ namespace Galvarino.Web.Services.Workflow
         public void ActivarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
             //Primero obtengo el proceso
-            Proceso proceso = _context.Procesos.Include(d => d.Etapas).Include(d=>d.Solicitudes).FirstOrDefault(x => x.NombreInterno == nombreInternoProceso);
+            Proceso proceso = _context.Procesos.FirstOrDefault(x => x.NombreInterno == nombreInternoProceso);
 
             //Segundo Obtengo la etapa
-            Etapa etapa = proceso.Etapas.FirstOrDefault(x => x.NombreInterno == nombreInternoEtapa);
-            
+            Etapa etapa = _context.Etapas.Include(e => e.Proceso).FirstOrDefault(x => x.NombreInterno == nombreInternoEtapa && x.Proceso == proceso);
+
             //Tercero obtengo la solicitud
-            Solicitud solicitud = proceso.Solicitudes.FirstOrDefault(d => d.NumeroTicket == numeroTicket);
+            Solicitud solicitud = _context.Solicitudes.FirstOrDefault(d => d.NumeroTicket == numeroTicket);
 
 
             string usuarioAsignado = etapa.ValorUsuarioAsignado;
@@ -117,6 +117,57 @@ namespace Galvarino.Web.Services.Workflow
             }
         }
 
+        public void ActivarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
+        {
+            //Primero obtengo el proceso
+            Proceso proceso = _context.Procesos.FirstOrDefault(x => x.NombreInterno == nombreInternoProceso);
+
+            //Segundo Obtengo la etapa
+            Etapa etapa = _context.Etapas.FirstOrDefault(x => x.NombreInterno == nombreInternoEtapa && x.Proceso == proceso);
+
+            //Tercero obtengo la solicitud
+            Solicitud solicitud = _context.Solicitudes.FirstOrDefault(d => d.NumeroTicket == numeroTicket);
+
+
+            string usuarioAsignado = etapa.ValorUsuarioAsignado;
+            if (etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Auto)
+            {
+                usuarioAsignado = new MotorAsignacion(_context, etapa.ValorUsuarioAsignado, numeroTicket).GetResult();
+            }
+            else if (etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Variable)
+            {
+                usuarioAsignado = GetVariableValue(etapa.ValorUsuarioAsignado, numeroTicket);
+            }
+
+
+            Tarea tarea = new Tarea
+            {
+                Etapa = etapa,
+                Estado = EstadoTarea.Activada,
+                FechaInicio = DateTime.Now,
+                Solicitud = solicitud,
+                AsignadoA = usuarioAsignado
+            };
+
+            if (etapa.UnidadNegocioAsignar != null)
+            {
+                tarea.UnidadNegocioAsignada = GetVariableValue(etapa.UnidadNegocioAsignar, numeroTicket);
+            }
+
+            _context.Tareas.Add(tarea);
+           
+
+            if (etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Boot)
+            {
+                CompletarTareaMulti(nombreInternoProceso, nombreInternoEtapa, numeroTicket, identificacionUsuario);
+            }
+        }
+
+        public void CommitAvance()
+        {
+            this._context.SaveChanges();
+        }
+
         public async void ActivarTareaAsync(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
             //Primero obtengo el proceso
@@ -149,7 +200,7 @@ namespace Galvarino.Web.Services.Workflow
         public void CompletarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
             Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
-            Solicitud solicitud = _context.Solicitudes.Include(x=>x.Tareas).ThenInclude(t=>t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
+            Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
             Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
 
             tareaActual.EjecutadoPor = identificacionUsuario;
@@ -159,13 +210,14 @@ namespace Galvarino.Web.Services.Workflow
             _context.Entry(tareaActual).State = EntityState.Modified;
 
             /*Cuando se instancia la etapa final esta cierra la solicitud */
-            if(tareaActual.Etapa.TipoEtapa == TipoEtapa.Fin)
+            if (tareaActual.Etapa.TipoEtapa == TipoEtapa.Fin)
             {
                 solicitud.Estado = EstadoSolicitud.Finalizada;
                 solicitud.FechaTermino = DateTime.Now;
                 _context.Solicitudes.Update(solicitud);
             }
             _context.SaveChanges();
+           
 
             ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d=>d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa).ToList();
             foreach (Transito transicion in transiciones)
@@ -178,6 +230,39 @@ namespace Galvarino.Web.Services.Workflow
             }
 
            
+        }
+
+        public void CompletarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
+        {
+            Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
+            Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
+            Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
+
+            tareaActual.EjecutadoPor = identificacionUsuario;
+            tareaActual.FechaTerminoFinal = DateTime.Now;
+            tareaActual.Estado = EstadoTarea.Finalizada;
+
+            _context.Entry(tareaActual).State = EntityState.Modified;
+
+            /*Cuando se instancia la etapa final esta cierra la solicitud */
+            if (tareaActual.Etapa.TipoEtapa == TipoEtapa.Fin)
+            {
+                solicitud.Estado = EstadoSolicitud.Finalizada;
+                solicitud.FechaTermino = DateTime.Now;
+                _context.Solicitudes.Update(solicitud);
+            }
+
+            ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d => d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa).ToList();
+            foreach (Transito transicion in transiciones)
+            {
+                bool estadoAvance = EjecutvaValidacion(transicion.NamespaceValidacion, transicion.ClaseValidacion, numeroTicket);
+                if (estadoAvance)
+                {
+                    this.ActivarTareaMulti(nombreInternoProceso, transicion.EtapaDestino.NombreInterno, numeroTicket, identificacionUsuario);
+                }
+            }
+
+
         }
 
         public Solicitud GenerarSolicitud(Proceso proceso, Usuario usuario)

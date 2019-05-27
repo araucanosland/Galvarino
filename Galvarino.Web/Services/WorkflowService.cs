@@ -56,8 +56,9 @@ namespace Galvarino.Web.Services
         {
             foreach (var item in numeroTicket)
             {
-                _kernel.CompletarTarea(nombreInternoProceso, nombreInternoEtapa, item, identificacionUsuario);
+                _kernel.CompletarTareaMulti(nombreInternoProceso, nombreInternoEtapa, item, identificacionUsuario);
             }
+            _kernel.CommitAvance();
 
             await Task.CompletedTask;
         }

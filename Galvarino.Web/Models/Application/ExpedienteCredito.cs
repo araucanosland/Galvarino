@@ -9,6 +9,7 @@ namespace Galvarino.Web.Models.Application
     {
         public int Id { get; set; }
         public DateTime FechaCreacion { get; set; }
+        public int CreditoId { get; set; }
         public Credito Credito { get; set; }
         public TipoExpediente TipoExpediente { get; set; }
         public PackNotaria PackNotaria { get; set; }
