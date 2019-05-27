@@ -46,7 +46,7 @@ namespace Galvarino.Web
 
             services.AddDbContext<ApplicationDbContext>(options =>{
                 options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
-                //options.EnableSensitiveDataLogging();
+                options.EnableSensitiveDataLogging();
             });
 
             services.AddIdentity<Usuario, Rol>()
