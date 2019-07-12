@@ -96,7 +96,7 @@ namespace Galvarino.Web.Data.Repository
 
                     where ta.Estado = 'Activada'
                     and ((ta.AsignadoA in ("+ theRoles +@") or ta.AsignadoA = '" + rut + @"')
-                            and ((ta.UnidadNegocioAsignada in (" + theOffices + @")) or ta.UnidadNegocioAsignada = null)
+                            and ((ta.UnidadNegocioAsignada in (" + theOffices + @") or ta.UnidadNegocioAsignada is null))
                             and (et.NombreInterno in (" + theSteps + @"))
                         )
                     order by " + (order==null ? "cr.FechaDesembolso" : order);
@@ -125,9 +125,9 @@ namespace Galvarino.Web.Data.Repository
                             vav.FechaEnvio,
                             ofc.Nombre NombreOficina,
                             count(exp.Id) NroExpedientes
-                    from [preview].[ValijasValoradas] vav
-                    inner join [preview].[Oficinas] ofc on vav.OficinaId = ofc.Id
-                    inner join [preview].[ExpedientesCreditos] exp on vav.Id = exp.ValijaValoradaId
+                    from [" + _conf.GetValue<string>("schema") + @"].[ValijasValoradas] vav
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[Oficinas] ofc on vav.OficinaId = ofc.Id
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[ExpedientesCreditos] exp on vav.Id = exp.ValijaValoradaId
                     where vav.MarcaAvance = '" + marcaAvance + @"'
                     GROUP BY vav.CodigoSeguimiento,
                                     vav.FechaEnvio,

@@ -34,9 +34,9 @@ const metodos = {
     }
 }
 
-function nroExpedientes(val, row, inc) {
+/*function nroExpedientes(val, row, inc) {
     return row.expedientes.length;
-}
+}*/
 
 $(function () {
     $('#form-pistoleo').on('submit', function (event) {

@@ -1,4 +1,3 @@
-
 const metodos = {
     render: function (_ingresados = []) {
         $("#total-expedientes").html(`Expedientes pistoleados: <strong>${_ingresados.length}</strong>`);
@@ -42,8 +41,8 @@ const metodos = {
             $('#modal-pistoleo').modal("hide");
             
             var message = $('<div>').addClass(`alert alert-warning mar-btm mensahe-${codigoCaja}`)
-                .append($('<strong>').text('Procesando caja en segundo plano!'))
-                .append(" ..Se está procesando la caja en segundo plano, cuando esté lista se habilitará el link para ver la nomina.");
+                .append($('<strong>').text('La caja aparecera mañana!!'))
+                .append(" ..La caja se procesara por un lote nocturno.");
 
 
             $('#message-placeholder').prepend(message);
@@ -87,7 +86,34 @@ const metodos = {
         });
     },
     generarCaja: function () {
-        //TODO: cuando se abre el modal se debe generar una caja automaticamente para llenarla con documentos
+        
+        var skp = $('#skp-caja').val();
+
+        $.ajax({
+            type: "GET",
+            url: `/api/wf/v1/despacho-a-custodia/generar-caja-valorada/${skp}`,
+            contentType: "application/json; charset=utf-8"
+        }).done(function (data) {
+            console.log(data);
+
+            $('.opened-box').show();
+            $('.closed-box').hide();
+
+            $('.titulo-genera-cajas').text(`Generando Caja Folio: ${data.caja.codigoSeguimiento}`);
+            $('#codigo-caja-valorada').val(data.caja.codigoSeguimiento);
+            metodos.render(data.documentos);
+        }).fail(function (errMsg) {
+            $.niftyNoty({
+                type: "warning",
+                container: "floating",
+                title: "Error al generar Caja",
+                message: "Hay un problema al generar la caja, favor comunicate con el desarrollador",
+                closeBtn: true,
+                timer: 5000
+            });
+        });
+    },
+    obtenerCaja: function(){
         $.ajax({
             type: "GET",
             url: `/api/wf/v1/despacho-a-custodia/generar-caja-valorada`,
@@ -97,6 +123,35 @@ const metodos = {
             $('.titulo-genera-cajas').text(`Generando Caja Folio: ${data.caja.codigoSeguimiento}`);
             $('#codigo-caja-valorada').val(data.caja.codigoSeguimiento);
             metodos.render(data.documentos);
+        }).fail(function (errMsg) {
+            $.niftyNoty({
+                type: "warning",
+                container: "floating",
+                title: "Error al generar Caja",
+                message: "Hay un problema al generar la caja, favor comunicate con el desarrollador",
+                closeBtn: true,
+                timer: 5000
+            });
+        });
+    },
+    chequearCaja: function(){
+
+        $.ajax({
+            type: "GET",
+            url: `/api/wf/v1/despacho-a-custodia/chequear-caja-valorada`,
+            contentType: "application/json; charset=utf-8"
+        }).done(function (data) {
+            console.log(data);
+
+            if(!data.status){
+                $('.titulo-genera-cajas').text(`Ingreso de SKP para Caja`);
+                $('.opened-box').hide();
+                $('.closed-box').show();
+
+            }else{
+                metodos.obtenerCaja();
+            }
+            
         }).fail(function (errMsg) {
             $.niftyNoty({
                 type: "warning",
@@ -119,43 +174,23 @@ $(function () {
         metodos.avanzarWf(caja);
     });
 
-    $('#modal-pistoleo').on('show.bs.modal', function () {
+    $('#btn-generar-caja-generica').on("click", function () {
         metodos.generarCaja();
     });
 
+    $('#modal-pistoleo').on('show.bs.modal', function () {
+        //metodos.generarCaja();
+        metodos.chequearCaja();
+    });
+
     $("#frm-pistoleo").on("submit", function (event) {
+        
         event.preventDefault();
         var folio = $('#folio-shot').val();
         var caja = $('#codigo-caja-valorada').val();
         metodos.pistoleo(caja, folio);
-
         $('#folio-shot').val("");
+        
     });
 
-});
-
-
-//SignalR - Live connection
-
-var connection = new signalR.HubConnectionBuilder().withUrl("/caja-cerrada-hub").build();
-
-connection.on("NotificarCajaCerrada", function (codigo) {
-
-
-    console.log({
-        codigo,
-        nombre: "NotificarCajaCerrada"
-    });
-    $(`.mensahe-${codigo}`).removeClass('alert-warning').addClass("alert-success").html("")
-        .append($('<strong>').text('Caja Procesada!'))
-        .append(`Ahora puedes ver la nomina de la caja en el siguiente link: <a class="btn-link" href="/salidas/pdf/detalle-caja-valorada/${codigo}" target="_blank">Caja: ${codigo}</a>.`);
-});
-
-
-connection.start().then(function () {
-    console.log({
-        connection
-    });
-}).catch(function (err) {
-    return console.error(err.toString());
 });

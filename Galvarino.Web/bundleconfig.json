@@ -198,7 +198,6 @@
     {
         "outputFileName": "wwwroot/js/despachoCustodia.min.js",
         "inputFiles": [
-          "wwwroot/lib/js/signalr.js"  ,
           "wwwroot/js/despachoCustodia.js"
         ],
         "minify": {
