@@ -30,10 +30,10 @@
         ],
         "minify": {
             "enabled": true,
-            "renameLocals": true,
+            "renameLocals": false,
             "outputMode": "singleLine"
         },
-        "sourceMap": true
+        "sourceMap": false
     },
     {
         "outputFileName": "wwwroot/js/mis-solicitudes.min.js",

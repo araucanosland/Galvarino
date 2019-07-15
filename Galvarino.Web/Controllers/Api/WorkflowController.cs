@@ -80,8 +80,8 @@ namespace Galvarino.Web.Controllers.Api
             }
         }
 
-        [HttpGet("mis-solicitudes/{etapaIn?}")]
-        public IActionResult ListarMisSolicitudes([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit=20, [FromQuery] string sort = "", [FromQuery] string order="")
+        [HttpGet("mis-solicitudes/{etapaIn?}/{fechaCerrar?}")]
+        public IActionResult ListarMisSolicitudes([FromRoute] string etapaIn = "", [FromRoute] string fechaCerrar = "", [FromQuery] int offset = 0, [FromQuery] int limit=20, [FromQuery] string sort = "", [FromQuery] string order="")
         {
 
             //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
@@ -97,10 +97,10 @@ namespace Galvarino.Web.Controllers.Api
             var lasOff = ofinales.Select(x => x.Codificacion).ToArray();
             var lasEtps = new string[] { etapaIn };
             string orden = sort + " " + order;
-            var salida = _solicitudRepository.listarSolicitudes(rolesUsuario, User.Identity.Name, lasOff, lasEtps, orden);
+            var salida = _solicitudRepository.listarSolicitudes(rolesUsuario, User.Identity.Name, lasOff, lasEtps, orden, fechaCerrar);
             var lida = new {
                 total = salida.Count(),
-                rows = salida.Skip(offset).Take(limit).ToList()
+                rows = salida.Count() < offset ? salida : salida.Skip(offset).Take(limit).ToList()
             };
             
             return Ok(lida);

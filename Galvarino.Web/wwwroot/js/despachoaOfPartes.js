@@ -71,6 +71,22 @@ const metodos = {
 
 $(function () {
 
+    $('#filter-dp-component .input-group.date').datepicker({ 
+        format: "dd-mm-yyyy",
+        todayBtn: "linked",
+        autoclose: true,
+        todayHighlight: true,
+        
+    }).on('changeDate', function(event){
+        console.log({ event })
+        if ($('#fecha_filtro').val() !== ''){
+            var etapa = $('#la_etapa').val()
+            var fecha = $('#fecha_filtro').val()
+            $('#tabla-generica').bootstrapTable('refresh', {
+                url: `/api/wf/v1/mis-solicitudes/${etapa}/${fecha}`
+            })
+        }
+    });
 
     $("#btn-generar-generico").on("click", function () {
         metodos.avanzarWf();
