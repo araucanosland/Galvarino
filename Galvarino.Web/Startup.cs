@@ -91,8 +91,15 @@ namespace Galvarino.Web
             services.AddTransient<INotificationKernel, MailSender>();
             services.AddTransient<ISolicitudRepository, SolicitudesRepository>();
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
+
+            /*Workers & background tasks*/
             services.AddHostedService<CargaDatosCreditoService>();
             services.AddHostedService<GeneraArchivoIronMountain>();
+            services.AddHostedService<CierrePagaresDeIronMountain>();
+
+            
+
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);
         }
 
