@@ -24,8 +24,8 @@ namespace Galvarino.Web.Workers
         private readonly IServiceScope _scope;
         private Timer _timer;
         private bool estaOcupado = false;
-        private readonly TimeSpan horaInicial = new TimeSpan(17, 10, 0);//new TimeSpan(23, 10, 0);
-        private readonly TimeSpan horaFinal = new TimeSpan(23, 59, 59);//new TimeSpan(23, 59, 59);
+        private readonly TimeSpan horaInicial = new TimeSpan(22, 0, 0);
+        private readonly TimeSpan horaFinal = new TimeSpan(23, 59, 59);
         private IEnumerable<string> registrosArchivoIM;
         
         public GeneraArchivoIronMountain(ILogger<GeneraArchivoIronMountain> logger, IServiceProvider services, IConfiguration configuration)
