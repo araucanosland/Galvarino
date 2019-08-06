@@ -91,7 +91,7 @@ $(function () {
         var notaria = $("#notarias").val();
         
         $("#tabla-generica").bootstrapTable('refresh', {
-            url: `/api/wf/v1/mis-solicitudes/${etapa}/${notaria}`
+            url: `/api/wf/v1/mis-solicitudes/${etapa}?notaria=${notaria}`
         });
     })
 

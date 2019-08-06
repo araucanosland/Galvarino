@@ -59,7 +59,7 @@ namespace Galvarino.Web.Data.Repository
             return respuesta;
         }
 
-        public IEnumerable<SolicitudResult> listarSolicitudes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta="")
+        public IEnumerable<SolicitudResult> listarSolicitudes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta="", string notaria = "")
         {
             var theRoles = "'" + String.Join("','", roles) + "'";
             var theOffices = "'" + String.Join("','", oficinas) + "'";
@@ -72,7 +72,7 @@ namespace Galvarino.Web.Data.Repository
                 sqlTrozoFechaConsulta = "and convert(date, cr.FechaDesembolso) = convert(date, '"+fechaConsulta +"')";
             }
 
-
+            
              using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
              {
                  string sql = @"
@@ -106,6 +106,7 @@ namespace Galvarino.Web.Data.Repository
                             and ((ta.UnidadNegocioAsignada in (" + theOffices + @") or ta.UnidadNegocioAsignada is null))
                             and (et.NombreInterno in (" + theSteps + @"))
                         )
+                    and ('"+ notaria + @"' = '' or pkn.NotariaEnvioId = '" + notaria + @"')    
                     "+ sqlTrozoFechaConsulta + @"
                     order by " + (order==null ? "cr.FechaDesembolso" : order);
                  _logger.LogDebug(sql);
