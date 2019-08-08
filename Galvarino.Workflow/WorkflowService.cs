@@ -21,6 +21,16 @@ namespace Galvarino.Workflow
 
         }
 
+
+        public WorkflowService(string connectionString)
+        {
+            //Declare conecction string
+            DbContextOptionsBuilder<WorkflowDbContext> options = new DbContextOptionsBuilder<WorkflowDbContext>();
+            options.UseSqlServer(connectionString);
+            _repository = new WorkflowRepository(new WorkflowDbContext(options.Options));
+
+        }
+
         public void Abortar()
         {
             throw new NotImplementedException();
