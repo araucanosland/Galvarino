@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Galvarino.Web.Services.Notification;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,17 +22,20 @@ namespace Galvarino.Web.Workers
     {
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
+        private readonly INotificationKernel _mailService;
         private readonly IServiceScope _scope;
         private Timer _timer;
         private bool estaOcupado = false;
         private readonly TimeSpan horaInicial = new TimeSpan(22, 0, 0);
         private readonly TimeSpan horaFinal = new TimeSpan(23, 59, 59);
         private IEnumerable<string> registrosArchivoIM;
+        private IEnumerable<string> foliosCajasCerrar;
         
-        public GeneraArchivoIronMountain(ILogger<GeneraArchivoIronMountain> logger, IServiceProvider services, IConfiguration configuration)
+        public GeneraArchivoIronMountain(ILogger<GeneraArchivoIronMountain> logger, IServiceProvider services, IConfiguration configuration, INotificationKernel mailService)
         {
             _logger = logger;
             _configuration = configuration;
+            _mailService = mailService;
             _scope = services.CreateScope();
         }
 
@@ -178,7 +182,6 @@ namespace Galvarino.Web.Workers
 
                 string nombreArchivo = "galvarino" + DateTime.Now.ToString("ddMMyyyy", CultureInfo.InvariantCulture) + ".txt";
                 string archivoSalida = @"C:\galvarino\envios_ftp\" + nombreArchivo;
-                //string archivoEntrada = @"C:\galvarino\entradas_ftp\Rpt_LA_CRED_Recepcionados.csv";
                 StreamWriter escritorArchivo = new StreamWriter(archivoSalida);
                 escritorArchivo.Write(sb.ToString());
                 escritorArchivo.Close();
@@ -196,18 +199,16 @@ namespace Galvarino.Web.Workers
                     }
                     sftp.Disconnect();
                 }
-
+                var destinatarios = new string[]{"spizarroc@laaraucana.cl","mmonsalvem@laaraucana.cl","cpradenasp@laaraucana.cl", "mvegaa@laauracana.cl"};
+                var attach = new string[] { archivoSalida };
+                StringBuilder mailTemplate = new StringBuilder();
+                mailTemplate.AppendLine("<p>En el adjunto podras encontrar los folios cargados</p>");
+                mailTemplate.AppendLine("<small>Correo enviado automaticamente por Galvarino favor no contestar.</small>");
+                _mailService.SendEmail(destinatarios, "Carga de Archivo Iron Mountain => " + nombreArchivo, mailTemplate.ToString(), attach);
 
             }else{
                 _logger.LogInformation("No estamos dentro del rango de horas, el servicio eta ocupado o ya corrio para el dia de hoy.");
-            }
-
-            
-
-            
-
-
-            
+            }                            
         }
     }
 }

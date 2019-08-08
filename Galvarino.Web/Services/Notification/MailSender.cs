@@ -36,6 +36,16 @@ namespace Galvarino.Web.Services.Notification
             return body.Replace("{texto_a_mostrar_dinamico}", name);
         }
 
+        private string setTemplateNotification(string message)
+        {
+            string body = string.Empty;
+            using (StreamReader reader = new StreamReader(Path.Combine(_env.ContentRootPath, "wwwroot", "template", "Notificaciones.html")))
+            {
+                body = reader.ReadToEnd();
+            }
+            return body.Replace("{texto_a_mostrar_dinamico}", message);
+        }
+
         public void Send(string to, string template)
         {
             client = new SmtpClient("smtp.gmail.com");
@@ -81,6 +91,48 @@ namespace Galvarino.Web.Services.Notification
             await Task.CompletedTask;
         }
 
-        
+        public async Task SendEmail(string[] emails, string subject, string message, string[] attachments = null)
+        {
+            _logger.LogDebug("preparando el envio de correo Multiple");
+            using (var client = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = _configuration["Email:Email"],
+                    Password = _configuration["Email:Password"]
+                };
+
+                client.Credentials = credential;
+                client.Host = _configuration["Email:Host"];
+                client.Port = int.Parse(_configuration["Email:Port"]);
+                client.EnableSsl = true;
+
+                using (var emailMessage = new MailMessage())
+                {
+                    foreach (var email in emails)
+                    {
+                        emailMessage.To.Add(new MailAddress(email));
+                    }
+
+                    if(attachments != null)
+                    {
+                        foreach(var attch in attachments)
+                        {
+                            emailMessage.Attachments.Add(new Attachment(attch));
+                        }
+                    }
+                    
+                    emailMessage.From = new MailAddress(_configuration["Email:From"]);
+                    emailMessage.Subject = subject;
+                    emailMessage.Body = this.setTemplateNotification(message);
+                    emailMessage.IsBodyHtml = true;
+                    
+                    client.Send(emailMessage);
+                    _logger.LogDebug("mandamos el correo");
+                }
+            }
+            await Task.CompletedTask;
+        }
+
     }
 }

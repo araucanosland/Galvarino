@@ -9,5 +9,7 @@ namespace Galvarino.Web.Services.Notification
     {
         void Send(string to, string template);
         Task SendEmail(string email, string subject, string message);
+
+        Task SendEmail(string[] emails, string subject, string message, string[] attachments = null);
     }
 }
