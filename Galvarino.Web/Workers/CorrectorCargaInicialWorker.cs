@@ -9,10 +9,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using System.Data.SqlClient;
-using Galvarino.Workflow;
+using Galvarino.Web.Services.Workflow;
+using Microsoft.Extensions.Configuration;
+using Galvarino.Web.Models.Helper;
+using Microsoft.Extensions.Logging;
 
 namespace Galvarino.Web.Workers
 {
+    public enum TipoCredito
+    {
+        Normal,
+        Reprogramacion,
+        AcuerdoPago
+    }
     /// <summary>
     /// Worker para corregir los documentos que queden estancados en workflow
     /// </summary>
@@ -22,20 +31,35 @@ namespace Galvarino.Web.Workers
         private bool itsBusy = false;
         private IWorkflowService _wfservice;
         private readonly IConfiguration _configuration;
+        private readonly ILogger _logger;
 
-        public GeneraArchivoIronMountain(IConfiguration configuration)
+        public CorrectorCargaInicialWorker(ILogger<CorrectorCargaInicialWorker> logger, IConfiguration configuration, IWorkflowService workflowService)
         {
             _configuration = configuration;
+            _wfservice = workflowService;
+            _logger = logger;
         }
 
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Console.WriteLine("Worker Corrector Iniciando...");
-            _wfservice = new WorkflowService(_configuration.GetConnectionString("DocumentManagementConnection"));
             object state = null;
             _theTimer = new Timer(DoWork, state, TimeSpan.Zero, TimeSpan.FromSeconds(5));
             return Task.CompletedTask;
+        }
+
+
+        public override Task StopAsync(CancellationToken cancellation)
+        {
+            Console.WriteLine("Worker Corrector Cerrando");
+            _theTimer?.Change(Timeout.Infinite, 0);
+            return Task.CompletedTask;
+        }
+
+        public override void Dispose()
+        {
+            _theTimer?.Dispose();
         }
 
         /// <summary>
@@ -143,8 +167,8 @@ namespace Galvarino.Web.Workers
                             _setVariables.Add("FOLIO_CREDITO", item.FolioCredito);
                             _setVariables.Add("RUT_AFILIADO", item.RutAfiliado);
                             _setVariables.Add("FECHA_VENTA", item.FechaVigencia);
-                            _setVariables.Add("ES_RM", oficinaVenta.EsRM?"1":"0");
-                            _setVariables.Add("DOCUMENTO_LEGALIZADO", "0");
+                            _setVariables.Add("ES_RM", oficinaVenta.EsRM ? @"1": @"0");
+                            _setVariables.Add("DOCUMENTO_LEGALIZADO", @"0");
                             _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaVenta.OficinaNodriza);
 
 
@@ -237,8 +261,7 @@ namespace Galvarino.Web.Workers
                                     TipoDocumento,
                                     ExpedienteCreditoId
 
-                                ) VALUES ('{plt?.Resumen}', '{plt?.Codificacion }', '{plt?.TipoDocumento}', {ExpedienteCreditoId});
-                                ";
+                                ) VALUES ('{plt?.Resumen}', '{plt?.Codificacion }', '{plt?.TipoDocumento}', {ExpedienteCreditoId});";
                             }
                             Console.WriteLine("[SQL]:" + DocumentosSQL);
                             conn.Execute(DocumentosSQL);
@@ -247,8 +270,7 @@ namespace Galvarino.Web.Workers
                     }
                     catch (SqlException exception)
                     {
-                        Console.WriteLine($"Error en worker: {exception.Message}");
-                        //_logger.LogCritical($"FATAL ERROR: Database connections could not be opened: {exception.Message}");
+                        _logger.LogCritical($"FATAL ERROR: Database connections could not be opened: {exception.Message}");
                     }
                 }
 
@@ -256,23 +278,8 @@ namespace Galvarino.Web.Workers
             }
         }
 
-        public override Task StopAsync(CancellationToken cancellation)
-        {
-            Console.WriteLine("Worker Corrector Cerrando");
-            _theTimer?.Change(Timeout.Infinite, 0);
-            return Task.CompletedTask;
-        }
 
-        public override void Dispose()
-        {
-            _theTimer?.Dispose();
-        }
     }
 
-    public enum TipoCredito
-    {
-        Normal,
-        Reprogramacion,
-        AcuerdoPago
-    }
+    
 }
