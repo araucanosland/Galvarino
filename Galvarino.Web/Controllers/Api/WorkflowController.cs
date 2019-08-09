@@ -1,17 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Galvarino.Web.Models;
 using Galvarino.Web.Services.Workflow;
 using Galvarino.Web.Models.Helper;
 using Galvarino.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Workflow;
-using Microsoft.AspNetCore.Authorization;
 using Galvarino.Web.Services.Notification;
 using Galvarino.Web.Models.Security;
 using System.Security.Claims;
@@ -937,7 +934,7 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [Route("despacho-a-custodia/chequear-caja-valorada")]
-        public async Task<IActionResult> ChequearCajaValorada()
+        public IActionResult ChequearCajaValorada()
         {
             try
             {
@@ -975,9 +972,11 @@ namespace Galvarino.Web.Controllers.Api
 
                 var numeroTicket = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito).NumeroTicket;
                 var etapaDocumento = _wfService.OntenerTareaActual(ProcesoDocumentos.NOMBRE_PROCESO, numeroTicket);
+                var asignadus = _context.Users.FirstOrDefault(us => us.Identificador == etapaDocumento.AsignadoA);
+
                 if(etapaDocumento.Etapa.NombreInterno != ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA)
                 {
-                    throw new Exception("Etapa de documento no corresponde");
+                    throw new Exception($"Etapa de documento no corresponde. Etapa Actual es: ${etapaDocumento.Etapa.Nombre} y esta asignada a: ${asignadus.Nombres}");
                 }
 
 
@@ -994,29 +993,7 @@ namespace Galvarino.Web.Controllers.Api
                 _context.PasosValijasValoradas.Add(registra);
                 await _context.SaveChangesAsync();
 
-
-
-                /* 
-                
-                var salida = from pasoval in _context.PasosValijasValoradas
-                             where pasoval.CodigoCajaValorada == codigoCaja && pasoval.Usuario == User.Identity.Name
-                             group pasoval by pasoval.FolioCredito into slt
-                             from exps in _context.ExpedientesCreditos.Include(ex => ex.Documentos).Include(ex => ex.Credito)
-                             where exps.Credito.FolioCredito == slt.Key
-                             select new
-                             {
-                                 Folio = slt.Key,
-                                 Pistoleados = slt.Count(),
-                                 Total = exps.Documentos.Count
-                             };
-
-                    salida.ToList()
-
-
-                
-                */
-
-
+                /*TODO: Convertir en consulta dapper para manejar mejor performance */
                 var documentos = from pasoval in
                                      from mono in _context.PasosValijasValoradas
                                      join credit in _context.Creditos on mono.FolioCredito equals credit.FolioCredito
@@ -1029,8 +1006,6 @@ namespace Galvarino.Web.Controllers.Api
                                      }
                                  where pasoval.CodigoCajaValorada == codigoCaja && pasoval.Usuario == User.Identity.Name
                                  group pasoval by new { pasoval.FolioCredito, pasoval.TotalDocumentos } into slt
-                                 //from exps in _context.ExpedientesCreditos.Include(ex => ex.Documentos).Include(ex => ex.Credito)
-                                 //where exps.Credito.FolioCredito == slt.Key
                                  select new
                                  {
                                      Folio = slt.Key.FolioCredito,
@@ -1214,7 +1189,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("listar-comerciales/{codigoCaja?}")]
         public async Task<IActionResult> ListarComerciales([FromRoute] string codigoCaja="")
         {
-            
+            //TODO: Dapper
             //int cantidadExpedientesPorCaja = 80;
             var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
             //var laOficina = _context.Oficinas.Include(of => of.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
