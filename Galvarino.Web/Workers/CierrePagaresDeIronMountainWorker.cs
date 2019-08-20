@@ -17,7 +17,7 @@ using Renci.SshNet;
 
 namespace Galvarino.Web.Workers
 {
-    internal class CierrePagaresDeIronMountain : IHostedService, IDisposable
+    internal class CierrePagaresDeIronMountainWorker : IHostedService, IDisposable
     {
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
@@ -28,7 +28,7 @@ namespace Galvarino.Web.Workers
         private readonly TimeSpan horaFinal = new TimeSpan(23, 59, 59);
         private IEnumerable<string> registrosArchivoIM;
         
-        public CierrePagaresDeIronMountain(ILogger<CierrePagaresDeIronMountain> logger, IServiceProvider services, IConfiguration configuration)
+        public CierrePagaresDeIronMountainWorker(ILogger<CierrePagaresDeIronMountainWorker> logger, IServiceProvider services, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
@@ -93,15 +93,9 @@ namespace Galvarino.Web.Workers
                     sftp.Disconnect();
                 }
 
-
             }else{
                 _logger.LogInformation("No estamos dentro del rango de horas, el servicio eta ocupado o ya corrio para el dia de hoy.");
             }
-
-            
-
-            
-
 
             
         }
