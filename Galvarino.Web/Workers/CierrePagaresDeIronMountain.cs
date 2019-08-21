@@ -24,8 +24,8 @@ namespace Galvarino.Web.Workers
         private readonly IServiceScope _scope;
         private Timer _timer;
         private bool estaOcupado = false;
-        private readonly TimeSpan horaInicial = new TimeSpan(22, 0, 0);
-        private readonly TimeSpan horaFinal = new TimeSpan(23, 59, 59);
+        private readonly TimeSpan horaInicial = new TimeSpan(1, 0, 0);
+        private readonly TimeSpan horaFinal = new TimeSpan(1, 59, 59);
         private IEnumerable<string> registrosArchivoIM;
         
         public CierrePagaresDeIronMountain(ILogger<CierrePagaresDeIronMountain> logger, IServiceProvider services, IConfiguration configuration)
@@ -61,7 +61,8 @@ namespace Galvarino.Web.Workers
                 Obtener los documentos necesarios para cierre de Cajas y finalizar wf
 
                 1. Obtener archivos de Iron Mountain
-                2. 
+                2. Procesar csv descargado
+                3. Avanzarlos en WF (deltas) para Cerrarlos
             */
 
 
@@ -92,6 +93,9 @@ namespace Galvarino.Web.Workers
                     
                     sftp.Disconnect();
                 }
+
+
+                
 
 
             }else{
