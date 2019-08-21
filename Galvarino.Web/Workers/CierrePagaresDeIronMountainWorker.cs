@@ -17,7 +17,7 @@ using Renci.SshNet;
 
 namespace Galvarino.Web.Workers
 {
-    internal class CierrePagaresDeIronMountainWorker : IHostedService, IDisposable
+    internal class CierrePagaresDeIronMountainWorker : BackgroundService
     {
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
@@ -35,12 +35,16 @@ namespace Galvarino.Web.Workers
             _scope = services.CreateScope();
         }
 
-        public void Dispose()
+        public CierrePagaresDeIronMountainWorker()
+        {
+        }
+
+        public override void Dispose()
         {
             _timer?.Dispose();
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public override Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Timed Background Service is starting.");
             object state = null;
@@ -48,7 +52,7 @@ namespace Galvarino.Web.Workers
             return Task.CompletedTask;
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public override Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Timed Background Service is stopping.");
             _timer?.Change(Timeout.Infinite, 0);
@@ -61,7 +65,7 @@ namespace Galvarino.Web.Workers
                 Obtener los documentos necesarios para cierre de Cajas y finalizar wf
 
                 1. Obtener archivos de Iron Mountain
-                2. 
+                2. Leer Archivos
             */
 
 
@@ -93,11 +97,18 @@ namespace Galvarino.Web.Workers
                     sftp.Disconnect();
                 }
 
+
+
             }else{
                 _logger.LogInformation("No estamos dentro del rango de horas, el servicio eta ocupado o ya corrio para el dia de hoy.");
             }
 
             
+        }
+
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }
