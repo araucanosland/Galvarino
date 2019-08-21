@@ -9,11 +9,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Galvarino.Web.Models.Mappings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Renci.SshNet;
+using TinyCsvParser;
 
 namespace Galvarino.Web.Workers
 {
@@ -24,8 +26,8 @@ namespace Galvarino.Web.Workers
         private readonly IServiceScope _scope;
         private Timer _timer;
         private bool estaOcupado = false;
-        private readonly TimeSpan horaInicial = new TimeSpan(22, 0, 0);
-        private readonly TimeSpan horaFinal = new TimeSpan(23, 59, 59);
+        private readonly TimeSpan horaInicial = new TimeSpan(0, 0, 0);
+        private readonly TimeSpan horaFinal = new TimeSpan(0, 59, 59);
         private IEnumerable<string> registrosArchivoIM;
         
         public CierrePagaresDeIronMountainWorker(ILogger<CierrePagaresDeIronMountainWorker> logger, IServiceProvider services, IConfiguration configuration)
@@ -33,10 +35,6 @@ namespace Galvarino.Web.Workers
             _logger = logger;
             _configuration = configuration;
             _scope = services.CreateScope();
-        }
-
-        public CierrePagaresDeIronMountainWorker()
-        {
         }
 
         public override void Dispose()
@@ -59,7 +57,7 @@ namespace Galvarino.Web.Workers
             return Task.CompletedTask;
         }
 
-        private void DoWork(object state)
+        private async void DoWork(object state)
         {
             /*
                 Obtener los documentos necesarios para cierre de Cajas y finalizar wf
@@ -74,29 +72,83 @@ namespace Galvarino.Web.Workers
             {
                 /*Ponemos al servicio en modo ocupado */
                 estaOcupado = true;
-
+                string rutaDescargar = _configuration.GetValue<string>("RutasWorkers:ArchivoCreditosRecibidosIM");
                 _logger.LogInformation("Iniciando el proceso de Cierre de Workflows.");
 
                 string host = "www.imrmconnect.cl";
                 string username = "usr_sftp_cs410_base";
                 string password = "sftp%20@18CS(410";
-                var connectionInfo = new ConnectionInfo(host, "sftp", new PasswordAuthenticationMethod(username, password));
-                using (var sftp = new SftpClient(connectionInfo))
+                ConnectionInfo connectionInfo = new ConnectionInfo(host, "sftp", new PasswordAuthenticationMethod(username, password));
+                using (SftpClient sftp = new SftpClient(connectionInfo))
                 {
                     sftp.Connect();
                     sftp.ChangeDirectory("reportes");
-                    var sftpFileInfo = sftp.GetStatus(@"Rpt_LA_CRED_Recepcionados.csv");
-                    var localFileInfo = new FileInfo(@"C:\galvarino\entradas_ftp\Rpt_LA_CRED_Recepcionados.csv");
-                    if(sftpFileInfo.BlockSize > (ulong)localFileInfo.Length){
-                        using (Stream fileStream = File.Create(@"C:\galvarino\entradas_ftp\Rpt_LA_CRED_Recepcionados.csv"))
-                        {
-                            sftp.DownloadFile("Rpt_LA_CRED_Recepcionados.csv", fileStream);
-                        }
+                    //var sftpFileInfo = sftp.GetStatus(@"Rpt_LA_CRED_Recepcionados.csv");
+
+                    using (Stream fileStream = File.Create(rutaDescargar))
+                    {
+                        sftp.DownloadFile("Rpt_LA_CRED_Recepcionados.csv", fileStream);
                     }
                     
                     sftp.Disconnect();
                 }
 
+                CsvParserOptions csvParserOptions = new CsvParserOptions(true, ';');
+                CreditosRecibidosMapping csvMapper = new CreditosRecibidosMapping();
+                CsvParser<CreditosRecibidosIM> csvParser = new CsvParser<CreditosRecibidosIM>(csvParserOptions, csvMapper);
+
+                var result = csvParser
+                    .ReadFromFile(rutaDescargar, Encoding.ASCII)
+                    .Where(x => x.IsValid)
+                    .Select(x => x.Result)
+                    .AsSequential()
+                    .ToList();
+
+                StringBuilder inserts = new StringBuilder();
+                result.ForEach(x => inserts.AppendLine($"insert into dbo.RecepcionadosIM values ('{x.Folio}');"));
+                
+                using(var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
+                {
+                    //_logger.LogInformation($"La cantidad es: {result.Count.ToString()}");
+
+                    string limpiezas = @"
+                        truncate table dbo.RecepcionadosIM;
+                        truncate table dbo.TareasFinalizarWF;";
+
+                    await connection.ExecuteAsync(limpiezas, null, null, 240);
+
+                    await connection.ExecuteAsync(inserts.ToString(), null, null, 240);
+                   
+                    string tareasAFinalizar = @" insert into dbo.TareasFinalizarWF
+                                    SELECT b.Id TareaId,  b.SolicitudId, c.NumeroTicket, d.FolioCredito, b.EtapaId
+                                    FROM Tareas b
+                                    INNER JOIN Solicitudes c on b.SolicitudId = c.Id
+                                    INNER JOIN Creditos d on c.NumeroTicket = d.NumeroTicket
+                                    INNER JOIN ExpedientesCreditos e on d.Id = e.CreditoId
+                                    INNER JOIN Etapas f on b.EtapaId = f.Id
+                                    INNER JOIN RecepcionadosIM im on d.FolioCredito = im.Folio
+                                    where b.Estado = 'Activada'
+                                    and b.EtapaId <> 18";
+
+                    await connection.ExecuteAsync(tareasAFinalizar.ToString(), null, null, 240);
+
+                    string cerrarEtapas = @"update a 
+                                            set a.EjecutadoPor = 'wfboot', a.Estado = 'Finalizada', a.FechaTerminoFinal = GETDATE()
+                                            from Tareas a
+                                            inner join TareasFinalizarWF b on a.Id = b.TareaId";
+
+                    await connection.ExecuteAsync(cerrarEtapas, null, null, 240);
+
+
+                    string abrirEtapaFinal = @"insert into Tareas(SolicitudId, EtapaId, AsignadoA, ReasignadoA, EjecutadoPor, Estado, FechaInicio, FechaTerminoEstimada, FechaTerminoFinal, UnidadNegocioAsignada)
+                                                select SolicitudId, 18 EtapaId, 'wfboot' AsignadoA, null rEA, null Ejec, 'Activada' estado, GETDATE() fechaini, null fecterestimada, null fectermfinal, null una 
+                                                from TareasFinalizarWF";
+
+                    await connection.ExecuteAsync(abrirEtapaFinal, null, null, 240);
+                }
+                
+                
+                
 
 
             }else{
@@ -108,7 +160,8 @@ namespace Galvarino.Web.Workers
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("Execute Async invocado");
+            return Task.CompletedTask;
         }
     }
 }

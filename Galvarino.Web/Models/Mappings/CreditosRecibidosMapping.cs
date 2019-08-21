@@ -11,7 +11,9 @@ namespace Galvarino.Web.Models.Mappings
 
     public class CreditosRecibidosMapping : CsvMapping<CreditosRecibidosIM>
     {
-        public CreditosRecibidosMapping(): base(){
+        public CreditosRecibidosMapping()
+            : base()
+        {
             MapProperty(0, x => x.Folio);
             MapProperty(1, x => x.RutAfiliado);
         }
