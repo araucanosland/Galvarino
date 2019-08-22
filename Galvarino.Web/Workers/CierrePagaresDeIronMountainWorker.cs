@@ -112,7 +112,6 @@ namespace Galvarino.Web.Workers
                     {
                         sftp.DownloadFile("Rpt_LA_CRED_Recepcionados.csv", fileStream);
                     }
-
                     sftp.Disconnect();
                 }
 
@@ -141,7 +140,6 @@ namespace Galvarino.Web.Workers
                     await connection.ExecuteAsync(limpiezas, null, null, 240);
 
                     await connection.ExecuteAsync(inserts.ToString(), null, null, 240);
-
                     string tareasAFinalizar = @" insert into dbo.TareasFinalizarWF
                                     SELECT b.Id TareaId,  b.SolicitudId, c.NumeroTicket, d.FolioCredito, b.EtapaId
                                     FROM Tareas b
