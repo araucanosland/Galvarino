@@ -88,28 +88,28 @@ namespace Galvarino.Web.Workers
                         eDocumentos.Add(new
                         {
                             Resumen = 0,
-                            Codificacion = "01",
+                            Codificacion = $"01",
                             TipoDocumento = "Pagare"
                         });
 
                         eDocumentos.Add(new
                         {
                             Resumen = 1,
-                            Codificacion = "02",
+                            Codificacion = $"02",
                             TipoDocumento = "FotocopiaCedulaIdentidad"
                         });
 
                         eDocumentos.Add(new
                         {
                             Resumen = 4,
-                            Codificacion = "06",
+                            Codificacion = $"06",
                             TipoDocumento = "HojaProlongacion"
                         });
                         
                         eDocumentos.Add(new
                         {
                             Resumen = 5,
-                            Codificacion = "07",
+                            Codificacion = $"07",
                             TipoDocumento = "AcuerdoDePago"
                         });
 
@@ -226,7 +226,6 @@ namespace Galvarino.Web.Workers
                                     );
 
                             SELECT SCOPE_IDENTITY()";
-                            Console.WriteLine("[SQL]:" + creditoSQL);
                             int CreditoId = conn.QueryFirst<int>(creditoSQL, cred);
                              
                             string expedienteSQL = @"
@@ -243,7 +242,6 @@ namespace Galvarino.Web.Workers
                                     @TipoExpediente
                                 );
                                 SELECT SCOPE_IDENTITY();";
-                            Console.WriteLine("[SQL]:" + expedienteSQL);
                             int ExpedienteCreditoId = conn.QueryFirst<int>(expedienteSQL, new { FechaCreacion = DateTime.Now, CreditoId, TipoExpediente  = 0});
                             
                             var configs = conn.Query<dynamic>(@"SELECT * 
@@ -263,7 +261,6 @@ namespace Galvarino.Web.Workers
 
                                 ) VALUES ('{plt?.Resumen}', '{plt?.Codificacion }', '{plt?.TipoDocumento}', {ExpedienteCreditoId});";
                             }
-                            Console.WriteLine("[SQL]:" + DocumentosSQL);
                             conn.Execute(DocumentosSQL);
 
                         }
