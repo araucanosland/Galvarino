@@ -45,7 +45,7 @@ namespace Galvarino.Web.Workers
         {
             Console.WriteLine("Worker Corrector Iniciando...");
             object state = null;
-            _theTimer = new Timer(DoWork, state, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+            _theTimer = new Timer(DoWork, state, TimeSpan.Zero, TimeSpan.FromDays(1));
             return Task.CompletedTask;
         }
 
