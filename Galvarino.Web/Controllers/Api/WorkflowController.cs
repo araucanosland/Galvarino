@@ -1270,8 +1270,12 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(credito.NumeroTicket);
                 }
 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-                
+                // metodo antiguio
+             // await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+               
+
+                //Metodo nuevo que permite avanzar a etapas a la fuerza
+                 _wfService.ForzarAvance(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
                 return Ok();
             }
             catch (Exception ex)

@@ -118,7 +118,7 @@ namespace Galvarino.Web.Services.Application
 
 
                                 
-                                _wfservice = new WorkflowService(new DefaultWorkflowKernel(_context));
+                                _wfservice = new WorkflowService(new DefaultWorkflowKernel(_context,_configuration));
                                 var wf = _wfservice.Instanciar(ProcesoDocumentos.NOMBRE_PROCESO, "wfboot", "Ingreso Automatico de Creditos Vendidos", _setVariables);
                                 
                                 Credito cred = new Credito
