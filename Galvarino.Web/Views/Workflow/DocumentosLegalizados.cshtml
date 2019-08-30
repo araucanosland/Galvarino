@@ -26,9 +26,11 @@
             <div class="form-group pad-ver">
                 <div class="col-md-12">
                     <div class="radio">
-
-                        <input id="radio-documentos-legalizados" class="magic-radio" type="radio" value="LEGALIZADO_ANTES" name="TipoMarca" checked="">
-                        <label for="radio-documentos-legalizados">Documentos Legalizados</label>
+                        @if (!Convert.ToBoolean(User.Claims.FirstOrDefault(x => x.Type.Equals(CustomClaimTypes.EsOficinaRM)).Value))
+                        {
+                            <input id="radio-documentos-legalizados" class="magic-radio" type="radio" value="LEGALIZADO_ANTES" name="TipoMarca" checked="">
+                            <label for="radio-documentos-legalizados">Documentos Legalizados</label>
+                        }
 
                         <input id="radio-acuerdo-pago-total" class="magic-radio" type="radio" value="ACUERDO_PAGO_TOTAL" name="TipoMarca">
                         <label for="radio-acuerdo-pago-total">Acuerdos de Pago Totales</label>

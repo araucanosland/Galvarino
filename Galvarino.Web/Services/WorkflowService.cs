@@ -72,5 +72,10 @@ namespace Galvarino.Web.Services
         {
             return _kernel.ObtenerTareaByTicket(nombreInternoProceso, numeroTicket);
         }
+
+        public void ForzarAvance(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<string> numeroTicket, string identificacionUsuario)
+        {
+            _kernel.ForzarAvance(nombreInternoProceso, nombreInternoEtapaDestino, numeroTicket, identificacionUsuario);
+        }
     }
 }

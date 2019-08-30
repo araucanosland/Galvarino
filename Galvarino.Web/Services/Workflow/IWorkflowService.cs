@@ -28,5 +28,7 @@ namespace Galvarino.Web.Services.Workflow
         Usuario QuienCerroEtapa(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket);
 
         Tarea OntenerTareaActual(string nombreInternoProceso, string numeroTicket);
+
+        void ForzarAvance(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<string> numeroTicket, string identificacionUsuario);
     }
 }

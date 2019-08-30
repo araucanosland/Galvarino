@@ -45,5 +45,7 @@ namespace Galvarino.Web.Services.Workflow
         IEnumerable<Tarea> TareasActivasUsuario(string nombreInternoProceso, string identificacionUsuario);
 
         Tarea ObtenerTareaByTicket(string nombreInternoProceso, string numeroTicket);
+
+        void ForzarAvance(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<string> numeroTicket, string identificacionUsuario);
     }
 }
