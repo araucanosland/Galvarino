@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using Galvarino.Web.Models.Mappings;
+using Galvarino.Web.Services.Notification;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,17 +25,20 @@ namespace Galvarino.Web.Workers
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private readonly IServiceScope _scope;
+        private readonly INotificationKernel _mailService;
         private Timer _timer;
         private bool estaOcupado = false;
-        private readonly TimeSpan horaInicial = new TimeSpan(0, 0, 0);
-        private readonly TimeSpan horaFinal = new TimeSpan(0, 59, 59);
+        private TimeSpan horaInicial;
+        private TimeSpan horaFinal;
         private IEnumerable<string> registrosArchivoIM;
         
-        public CierrePagaresDeIronMountainWorker(ILogger<CierrePagaresDeIronMountainWorker> logger, IServiceProvider services, IConfiguration configuration)
+        public CierrePagaresDeIronMountainWorker(ILogger<CierrePagaresDeIronMountainWorker> logger, IServiceProvider services, IConfiguration configuration, INotificationKernel mailService)
         {
             _logger = logger;
             _configuration = configuration;
             _scope = services.CreateScope();
+            _mailService = mailService;
+            this.setHora();
         }
 
         public override void Dispose()
@@ -57,6 +61,24 @@ namespace Galvarino.Web.Workers
             return Task.CompletedTask;
         }
 
+        private void setHora()
+        {
+            var rawMomentoInicio = _configuration.GetValue<string>("CoordinacionWorkers:CierrePagaresDeIronMountainWorker:HoraInicio");
+            int hInicio = Convert.ToInt32(rawMomentoInicio.Split(':')[0]);
+            int mInicio = Convert.ToInt32(rawMomentoInicio.Split(':')[1]);
+            int sInicio = Convert.ToInt32(rawMomentoInicio.Split(':')[2]);
+
+            this.horaInicial = new TimeSpan(hInicio, mInicio, sInicio);
+
+            var rawMomentoFin = _configuration.GetValue<string>("CoordinacionWorkers:CierrePagaresDeIronMountainWorker:HoraFin");
+            int hFin = Convert.ToInt32(rawMomentoFin.Split(':')[0]);
+            int mFin = Convert.ToInt32(rawMomentoFin.Split(':')[1]);
+            int sFin = Convert.ToInt32(rawMomentoFin.Split(':')[2]);
+
+            this.horaFinal = new TimeSpan(hFin, mFin, sFin);
+
+        }
+
         private async void DoWork(object state)
         {
             /*
@@ -67,8 +89,9 @@ namespace Galvarino.Web.Workers
             */
 
 
+
             var horaActual = DateTime.Now.TimeOfDay;
-            if(horaActual >= horaInicial && horaActual <= horaFinal && !estaOcupado)
+            if (horaActual >= horaInicial && horaActual <= horaFinal && !estaOcupado)
             {
                 /*Ponemos al servicio en modo ocupado */
                 estaOcupado = true;
@@ -89,7 +112,6 @@ namespace Galvarino.Web.Workers
                     {
                         sftp.DownloadFile("Rpt_LA_CRED_Recepcionados.csv", fileStream);
                     }
-                    
                     sftp.Disconnect();
                 }
 
@@ -106,8 +128,8 @@ namespace Galvarino.Web.Workers
 
                 StringBuilder inserts = new StringBuilder();
                 result.ForEach(x => inserts.AppendLine($"insert into dbo.RecepcionadosIM values ('{x.Folio}');"));
-                
-                using(var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
+
+                using (var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
                 {
                     //_logger.LogInformation($"La cantidad es: {result.Count.ToString()}");
 
@@ -118,7 +140,6 @@ namespace Galvarino.Web.Workers
                     await connection.ExecuteAsync(limpiezas, null, null, 240);
 
                     await connection.ExecuteAsync(inserts.ToString(), null, null, 240);
-                   
                     string tareasAFinalizar = @" insert into dbo.TareasFinalizarWF
                                     SELECT b.Id TareaId,  b.SolicitudId, c.NumeroTicket, d.FolioCredito, b.EtapaId
                                     FROM Tareas b
@@ -146,16 +167,21 @@ namespace Galvarino.Web.Workers
 
                     await connection.ExecuteAsync(abrirEtapaFinal, null, null, 240);
                 }
-                
-                
-                
 
 
-            }else{
+                var destinatarios = _configuration.GetSection("CoordinacionWorkers:CierrePagaresDeIronMountainWorker:DestinatariosNotificaciones").Get<string[]>();
+                StringBuilder mailTemplate = new StringBuilder();
+                mailTemplate.AppendLine("<p>Los Pagaré Ingresados en IM, han sido cerrados</p>");
+                mailTemplate.AppendLine("<small>Correo enviado automaticamente por Galvarino favor no contestar.</small>");
+                await _mailService.SendEmail(destinatarios, "Cierre de Pagarés de IM", mailTemplate.ToString());
+
+
+            }
+            else
+            {
                 _logger.LogInformation("No estamos dentro del rango de horas, el servicio eta ocupado o ya corrio para el dia de hoy.");
             }
 
-            
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)

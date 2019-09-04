@@ -96,6 +96,7 @@ namespace Galvarino.Web
             services.AddHostedService<CargaDatosCreditoService>();
             services.AddHostedService<GeneraArchivoIronMountain>();
             services.AddHostedService<CierrePagaresDeIronMountainWorker>();
+            //services.AddHostedService<CorrectorCargaInicialWorker>();
 
             
 

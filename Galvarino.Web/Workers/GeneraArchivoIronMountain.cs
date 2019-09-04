@@ -59,7 +59,7 @@ namespace Galvarino.Web.Workers
             return Task.CompletedTask;
         }
 
-        private void DoWork(object state)
+        private async void DoWork(object state)
         {
             /*
                 Generar el Cierre de Cajas
@@ -199,12 +199,12 @@ namespace Galvarino.Web.Workers
                     }
                     sftp.Disconnect();
                 }
-                var destinatarios = new string[]{"spizarroc@laaraucana.cl","mmonsalvem@laaraucana.cl","cpradenasp@laaraucana.cl", "mvegaa@laauracana.cl"};
+                var destinatarios = _configuration.GetSection("CoordinacionWorkers:PublicacionPagaresHaciaIronMountainWorker:DestinatariosNotificaciones").Get<string[]>();
                 var attach = new string[] { archivoSalida };
                 StringBuilder mailTemplate = new StringBuilder();
                 mailTemplate.AppendLine("<p>En el adjunto podras encontrar los folios cargados</p>");
                 mailTemplate.AppendLine("<small>Correo enviado automaticamente por Galvarino favor no contestar.</small>");
-                _mailService.SendEmail(destinatarios, "Carga de Archivo Iron Mountain => " + nombreArchivo, mailTemplate.ToString(), attach);
+                await _mailService.SendEmail(destinatarios, "Carga de Archivo Iron Mountain => " + nombreArchivo, mailTemplate.ToString(), attach);
 
             }else{
                 _logger.LogInformation("No estamos dentro del rango de horas, el servicio eta ocupado o ya corrio para el dia de hoy.");

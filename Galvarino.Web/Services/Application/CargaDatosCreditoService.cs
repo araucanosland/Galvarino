@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using Galvarino.Web.Models.Helper;
 using Microsoft.Extensions.Configuration;
 using System.Globalization;
+using Galvarino.Web.Services.Notification;
+using System.Text;
 
 namespace Galvarino.Web.Services.Application
 {
@@ -23,11 +25,13 @@ namespace Galvarino.Web.Services.Application
         private readonly IServiceScope _scope;
         private IWorkflowService _wfservice;
         private readonly IConfiguration _configuration;
+        private readonly INotificationKernel _mailService;
 
-        public CargaDatosCreditoService(ILogger<CargaDatosCreditoService> logger, IServiceProvider services, IConfiguration configuration)
+        public CargaDatosCreditoService(ILogger<CargaDatosCreditoService> logger, IServiceProvider services, IConfiguration configuration, INotificationKernel mailService)
         {
             _logger = logger;
             _configuration = configuration;
+            _mailService = mailService;
             _scope = services.CreateScope();
         }
 
@@ -103,7 +107,7 @@ namespace Galvarino.Web.Services.Application
 
                                 
                                 var oficinaProceso = _context.Oficinas.Include(x => x.OficinaProceso).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaPago);
-                                string esRM = oficinaProceso.EsRM  ? "1" : "0";
+                                string esRM = oficinaProceso.EsRM  ? $"1" : $"0";
                                 
                                 /*  TODO: Caso de La Unión ver con Jenny Bernales  */
                                 Dictionary<string, string> _setVariables = new Dictionary<string, string>();
@@ -113,7 +117,7 @@ namespace Galvarino.Web.Services.Application
                                 _setVariables.Add("RUT_AFILIADO", campos[0]);
                                 _setVariables.Add("FECHA_VENTA", campos[10]);
                                 _setVariables.Add("ES_RM", esRM);
-                                _setVariables.Add("DOCUMENTO_LEGALIZADO", "0");
+                                _setVariables.Add("DOCUMENTO_LEGALIZADO", $"0");
                                 _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaProceso.OficinaProceso.Codificacion);
 
 
@@ -178,6 +182,11 @@ namespace Galvarino.Web.Services.Application
                         lap++;
                     }
                     _logger.LogDebug("Carga terminada");
+                    var destinatarios = _configuration.GetSection("CoordinacionWorkers:CargaInicialCreditosWorker:DestinatariosNotificaciones").Get<string[]>();
+                    StringBuilder mailTemplate = new StringBuilder();
+                    mailTemplate.AppendLine("<p>La carga Inicial ha Terminado con éxito.</p>");
+                    mailTemplate.AppendLine("<small>Correo enviado automaticamente por Galvarino favor no contestar.</small>");
+                    await _mailService.SendEmail(destinatarios, $"Carga Inicial {nombreArchivo}", mailTemplate.ToString());
                 }
                 else
                 {

@@ -1301,7 +1301,7 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(credito.NumeroTicket);
                 }
 
-                // metodo antiguo
+                // metodo antiguio
              // await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
                
 
