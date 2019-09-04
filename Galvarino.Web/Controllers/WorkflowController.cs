@@ -265,7 +265,9 @@ namespace Galvarino.Web.Controllers
         public IActionResult ReasignaOficina()
         {
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+
             ViewBag.Offices =  _context.Oficinas.ToList();
+           
             return View();
         }
         #endregion

@@ -103,6 +103,37 @@ namespace Galvarino.Web.Controllers.Api
             return Ok(lida);
         }
 
+        [HttpGet("reasignaciones/cargaoficinas")]
+        public IActionResult Cargaficinas([FromQuery] string q)
+        {
+            var salida = _solicitudRepository.listarOficinas(q);
+            return Ok(salida.ToList());
+        }
+
+
+
+        [HttpGet("reasignaciones/oficinas")]
+        public IActionResult ConsultaExpedienteReasignacion([FromQuery] string q)
+        {
+
+            var fdata = (from cargas in _context.CargasIniciales
+                         join comercial in _context.Oficinas on cargas.CodigoOficinaIngreso equals comercial.Codificacion
+                         join legal in _context.Oficinas on cargas.CodigoOficinaPago equals legal.Codificacion 
+
+                         where cargas.FolioCredito == q
+                         select new
+                         {
+                             CargaInicial = cargas,
+                             OficinaComercial = comercial,
+                             OficinaLegal = legal
+
+                         }).ToList();
+
+           
+            return Ok(fdata.FirstOrDefault());
+        }
+
+
         [HttpGet("mis-solicitudes-mesa-control/{etapaIn?}")]
         public async Task<IActionResult> ListarMisSolicitudesMSC([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {
@@ -1285,30 +1316,17 @@ namespace Galvarino.Web.Controllers.Api
             }
         }
 
-        [HttpGet("reasignaciones/oficinas")]
-        public IActionResult ConsultaExpedienteReasignacion([FromQuery] string q)
-        {
-            var fdata  = from cargas in _context.CargasIniciales
-                        join comercial in _context.Oficinas on cargas.CodigoOficinaIngreso equals comercial.Codificacion
-                        join legal in _context.Oficinas on cargas.CodigoOficinaPago equals legal.Codificacion
-                        where cargas.FolioCredito == q 
-                        select new {
-                            CargaInicial = cargas,
-                            OficinaComercial = comercial,
-                            OficinaLegal = legal
-                        };
-            
-
-            return Ok(fdata.FirstOrDefault());
-        }
+     
 
         [HttpPost("reasignaciones/oficinas")]
         public IActionResult GuardarExpedienteReasignacion([FromBody] dynamic entrada)
         {
+
+
+            
             using(var tran = _context.Database.BeginTransaction())
             {
-
-
+                
                 try{
                     string folio = entrada.folioCredito.ToString();
                     int codOficinaReasignacion = Convert.ToInt32(entrada.nuevaOficina);
@@ -1325,46 +1343,92 @@ namespace Galvarino.Web.Controllers.Api
                     _wfService.AsignarVariable("OFICINA_PAGO", oficinaReasigna.Codificacion, credito.NumeroTicket);
                     _wfService.AsignarVariable("OFICINA_PROCESA_NOTARIA", oficinaReasigna.Codificacion, credito.NumeroTicket);
 
-                    if(!laoforig.EsRM && oficinaReasigna.EsRM)
+
+                    if (latarea.UnidadNegocioAsignada != null)
                     {
+                        if (oficinaReasigna.EsRM==true)
+                        {
+                            _wfService.AsignarVariable("ES_RM", "1", credito.NumeroTicket);
+                        }
+                          else
+                        {
+                            _wfService.AsignarVariable("ES_RM", "0", credito.NumeroTicket);
+                        }
+                            
                         latarea.Etapa = _context.Etapas.FirstOrDefault(eta => eta.NombreInterno == ProcesoDocumentos.ETAPA_PREPARAR_NOMINA);
                         latarea.UnidadNegocioAsignada = oficinaReasigna.Codificacion;
-                        _wfService.AsignarVariable("ES_RM", "1", credito.NumeroTicket);
+                        
                         _context.Tareas.Update(latarea);
-                    }
-                    else if(laoforig.EsRM && !oficinaReasigna.EsRM)
-                    {
-                        latarea.Etapa = _context.Etapas.FirstOrDefault(eta => eta.NombreInterno == ProcesoDocumentos.ETAPA_ENVIO_NOTARIA);
-                        latarea.UnidadNegocioAsignada = oficinaReasigna.Codificacion;
-                        _wfService.AsignarVariable("ES_RM", "0", credito.NumeroTicket);
 
-                        _context.Tareas.Update(latarea);
-                    }     
+                        _context.CargasIniciales.Update(cargaInicial);
+                        AuditorReasignacion audit = new AuditorReasignacion
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            UsuarioAccion = User.Identity.Name,
+                            FechaAccion = DateTime.Now,
+                            TipoReasignacion = "Reasignacion Oficina Legal",
+                            AsignacionOriginal = opOriginal,
+                            AsignacionNueva = oficinaReasigna.Codificacion,
+                            FolioCredito = credito.FolioCredito
+                        };
+                        _context.AudicionesReasignaciones.Add(audit);
+                        _context.SaveChanges();
+                        tran.Commit();
+                        return Ok();
+
+                    }
+                    else
+                    {
+                        tran.Rollback();
+                        return BadRequest("Oficina no autorizada a cambio!!");
+                    }
+
+
+                    //  Modificación de código 03/09/2019 
+
+                    //if(!laoforig.EsRM && oficinaReasigna.EsRM)
+                    //    {
+                    //    latarea.Etapa = _context.Etapas.FirstOrDefault(eta => eta.NombreInterno == ProcesoDocumentos.ETAPA_PREPARAR_NOMINA);
+                    //    latarea.UnidadNegocioAsignada = oficinaReasigna.Codificacion;
+                    //    _wfService.AsignarVariable("ES_RM", "1", credito.NumeroTicket);
+                    //    _context.Tareas.Update(latarea);
+                    //}
+                    //else if(laoforig.EsRM && !oficinaReasigna.EsRM)
+                    //{
+                    //    latarea.Etapa = _context.Etapas.FirstOrDefault(eta => eta.NombreInterno == ProcesoDocumentos.ETAPA_ENVIO_NOTARIA);
+                    //    latarea.UnidadNegocioAsignada = oficinaReasigna.Codificacion;
+                    //    _wfService.AsignarVariable("ES_RM", "0", credito.NumeroTicket);
+
+                    //    _context.Tareas.Update(latarea);
+                    //}     
+                   
+                    
                     /*else if (oficinaReasigna.OficinaProceso.Id != oficinaReasigna.Id){
 
                     }*/
 
-                    
-                    _context.CargasIniciales.Update(cargaInicial);
-                    AuditorReasignacion audit = new AuditorReasignacion
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        UsuarioAccion = User.Identity.Name,
-                        FechaAccion =  DateTime.Now,
-                        TipoReasignacion = "Reasignacion Oficina Legal",
-                        AsignacionOriginal = opOriginal,
-                        AsignacionNueva = oficinaReasigna.Codificacion,
-                        FolioCredito = credito.FolioCredito
-                    };
-                    _context.AudicionesReasignaciones.Add(audit);
-                    _context.SaveChanges();
-                    tran.Commit();
-                    return Ok();
+                    //  Modificación de código 03/09/2019 
+
+                    //_context.CargasIniciales.Update(cargaInicial);
+                    //AuditorReasignacion audit = new AuditorReasignacion
+                    //{
+                    //    Id = Guid.NewGuid().ToString(),
+                    //    UsuarioAccion = User.Identity.Name,
+                    //    FechaAccion =  DateTime.Now,
+                    //    TipoReasignacion = "Reasignacion Oficina Legal",
+                    //    AsignacionOriginal = opOriginal,
+                    //    AsignacionNueva = oficinaReasigna.Codificacion,
+                    //    FolioCredito = credito.FolioCredito
+                    //};
+                    //_context.AudicionesReasignaciones.Add(audit);
+                    //_context.SaveChanges();
+                    //tran.Commit();
+                    //return Ok();
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
                     tran.Rollback();
-                    return BadRequest();
+                    return BadRequest(ex.Message);
                 }
             }
             

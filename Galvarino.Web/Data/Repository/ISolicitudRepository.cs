@@ -10,5 +10,8 @@ namespace Galvarino.Web.Data.Repository
 
 
         IEnumerable<dynamic> listarValijasEnviadas(string marcaAvance);
+
+
+        IEnumerable<dynamic> listarOficinas(string EsRM);
     }
 }
