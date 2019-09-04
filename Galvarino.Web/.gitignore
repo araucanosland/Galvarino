@@ -8,6 +8,9 @@ nupkg/
 # Visual Studio Code
 .vscode/*
 .vs/*
+*.ide-wal
+Galvarino.web/.vs/
+Galvarino.web/.vscode/
 
 # User-specific files
 *.suo
