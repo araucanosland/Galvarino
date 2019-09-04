@@ -45,8 +45,6 @@ namespace Galvarino.Web.Controllers.Api
                 var ofipago = _wfService.ObtenerVariable("OFICINA_PAGO", expediente.Credito.NumeroTicket);
                 var laOficinaPago = _context.Oficinas.Include(k => k.OficinaProceso).FirstOrDefault(ofi => ofi.Codificacion == ofipago);
 
-
-
                 if (expediente.Documentos.Count() > 0 && ((oficinaUsuario == "A000") || (ofipago == oficinaUsuario || laOficinaPago.OficinaProceso.Codificacion == oficinaUsuario)))
                 {
                     if (!string.IsNullOrEmpty(etapaSolicitud))
@@ -1316,7 +1314,36 @@ namespace Galvarino.Web.Controllers.Api
             }
         }
 
-     
+
+        [HttpPost("reasignaciones/oficinaevaluadora")]
+        public IActionResult GuardarExpedienteReasignacionoficinaevaluadora([FromBody] dynamic entrada)
+        {
+           using (var tran = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    string folio = entrada.folioCredito.ToString();
+                    int codOficinaReasignacion = Convert.ToInt32(entrada.nuevaOficina);
+                    var cargaInicial = _context.CargasIniciales.FirstOrDefault(carga => carga.FolioCredito == folio);
+                    var oficinaReasigna = _context.Oficinas.Include(f => f.OficinaProceso).FirstOrDefault(d => d.Id == codOficinaReasignacion);
+                    cargaInicial.CodigoOficinaIngreso = oficinaReasigna.Codificacion;
+                    _context.CargasIniciales.Update(cargaInicial);
+                    _context.SaveChanges();
+                    tran.Commit();
+                    return Ok();
+
+                }
+                catch (Exception ex)
+                {
+
+                    tran.Rollback();
+                    return BadRequest(ex.Message);
+                }
+            }
+           
+        }
+
+
 
         [HttpPost("reasignaciones/oficinas")]
         public IActionResult GuardarExpedienteReasignacion([FromBody] dynamic entrada)

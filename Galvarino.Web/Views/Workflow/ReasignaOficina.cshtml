@@ -52,7 +52,20 @@
             });
 
 
-        
+        var tipoOficina = document.getElementById('tipoOficina');
+        tipoOficina.addEventListener('change',
+            function () {
+                debugger;
+                var selectedOption = this.options[tipoOficina.selectedIndex];
+                if (selectedOption.text == "Selecciona") {
+                    $('#nuevaOficina').attr('disabled', true);
+                }
+                else {
+                    $('#nuevaOficina').attr('disabled', false);
+                    $('#tipoOficina').attr('disabled', true);
+                }
+                console.log(selectedOption.value + ': ' + selectedOption.text);
+            });
 
         $(function () {
             $("#form-busqueda").on("submit", function (event) {
@@ -93,9 +106,10 @@
                             }
                         }).done(function (data) {
                             debugger;
-                            $('#nuevaOficina').attr('disabled', false);
+                            $('#nuevaOficina').attr('disabled', true); 
                             $('#inputBusqueda').attr('disabled', true);
-                            
+                            $('#tipoOficina').attr('disabled', false);
+
                             $("#nuevaOficina").empty();
                             $("#nuevaOficina").append('<option value="">Selecciona</option>');
                             $.each(data, function (key, registro) {
@@ -117,8 +131,12 @@
 
                 return false;
             });
+
+
             // 04/09/2019 cambio de logica en llamado en evento de boton guardar , para habilitar boton nueva consulta
-            
+
+            // #region comentarios
+
             //$("#form-generico").on("submit", function (event) {
              //    debugger;
             //    event.preventDefault();
@@ -185,17 +203,25 @@
             //    })
             //});
 
-            $(document).ready(function () {
+         // #endregion
 
-                $('#btn_guardar').attr('disabled', true);
-                $('#nuevaOficina').attr('disabled', true);
 
-                $('#inputBusqueda').on('input', function () {
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                });
+         
 
-               $("#btn_guardar").click(function () {
-                   debugger;
+        });
+
+        $(document).ready(function () {
+
+            $('#btn_guardar').attr('disabled', true);
+            $('#nuevaOficina').attr('disabled', true);
+            $('#tipoOficina').attr('disabled', true);
+
+            $('#inputBusqueda').on('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            $("#btn_guardar").click(function () {
+               
                 event.preventDefault();
                 var model = {
                     folioCredito: $('#folio-credito').val(),
@@ -206,10 +232,25 @@
                 console.log({
                     model
                 })
+
+
+                var tipOficina = $("#tipoOficina").val();
+                var url = "";
+                if (tipOficina == "01")
+                {
+                    url = `/api/wf/v1/reasignaciones/oficinaevaluadora`
+                }
+                else if (tipOficina == "02")
+                {
+                    url = `/api/wf/v1/reasignaciones/oficinas`;
+                }
+
+                debugger;
+
                 // Carga información de  oficinas
-                 $.ajax({
+                $.ajax({
                     type: "POST",
-                    url: `/api/wf/v1/reasignaciones/oficinas`,
+                    url: url,
                     data: JSON.stringify(model),
                     contentType: "application/json; charset=utf-8"
                 }).done(function (data) {
@@ -237,14 +278,26 @@
                     }).done(function (data) {
                         if (typeof data != 'undefined') {
                             debugger;
-                               $('#oficina-colocacion').html("")
+                            $('#folio-credito').val(data.cargaInicial.folioCredito)
+                            $('#datos-credito').html("")
+                                .append(`<small>Datos Credito</small>`)
+                                .append(`<h5>Folio: ${data.cargaInicial.folioCredito}</h5>`)
+                                .append(`<p> Rut: ${data.cargaInicial.rutAfiliado}<br/>F. Coloc.: ${data.cargaInicial.fechaVigencia}</p>`);
+
+                            $('#oficina-oferta').html("")
+                                .append(`<small>Oficina Evaluadora</small>`)
+                                .append(`<h5>${data.oficinaComercial.nombre}</h5>`)
+                                .append(`<p> Codigo: ${data.oficinaComercial.codificacion}</p>`);
+
+                            $('#oficina-colocacion').html("")
                                 .append(`<small>Oficina de Pago</small>`)
                                 .append(`<h5>${data.oficinaLegal.nombre}</h5>`)
                                 .append(`<p> Codigo: ${data.oficinaLegal.codificacion}</p>`);
-                        }
-                        })
 
-                   }).fail(function (errMsg) {
+                        }
+                    })
+
+                }).fail(function (errMsg) {
                     $.niftyNoty({
                         type: "warning",
                         container: "floating",
@@ -259,9 +312,8 @@
 
 
 
-            })
+        })
 
-        });
     </script>
 }
 
@@ -288,25 +340,36 @@
                 </div>
             </div>
 
+
+
             <div class="row mar-top">
                 <div class="col-sm-6 text-left">
-                    <small>Reasignar Oficina de Pago</small>
-                    <select class="form-control" id="nuevaOficina">
-                        <option value="">Selecciona</option>
-                     
+                    <small>Seleccione Tipo de  Oficina</small>
+                    <select class="form-control" id="tipoOficina">
+                        <option value="" selected>Selecciona</option>
+                        <option value="01">Oficina Evaluadora</option>
+                        <option value="02">Oficina de Pago</option>
+
                     </select>
-                    <div class="btn-group mar-top">
-                        <input type="hidden" id="folio-credito" value="" />
-                        <button id="btn_guardar" class="btn btn-primary">Guardar Cambios</button>
-                    </div>
-                    <div class="btn-group mar-top">
-                        <button id="btn_nuevo" onclick="Limpiar()" style="margin-right: 150px;" class="btn btn-info">Nueva Consulta</button>
-                    </div>
-
                 </div>
+                </div>
+                <div class="row mar-top">
+                    <div class="col-sm-6 text-left">
+                        <small>Seleccione Oficina para Reasignar</small>
+                        <select class="form-control" id="nuevaOficina">
+                            <option value="">Selecciona</option>
 
+                        </select>
+                        <div class="btn-group mar-top">
+                            <input type="hidden" id="folio-credito" value="" />
+                            <button id="btn_guardar" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                        <div class="btn-group mar-top">
+                            <button id="btn_nuevo" onclick="Limpiar()" style="margin-right: 150px;" class="btn btn-info">Nueva Consulta</button>
+                        </div>
 
-            </div>
+                    </div>
+                </div>
 
 
         </form>
