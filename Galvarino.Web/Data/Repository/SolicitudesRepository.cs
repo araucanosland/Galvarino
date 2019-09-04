@@ -1,14 +1,12 @@
+using Dapper;
+using Galvarino.Web.Models.Application;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using Galvarino.Web.Models.Application;
-using System.Data;
 using System.Data.SqlClient;
-using Dapper;
-using Microsoft.Extensions.Configuration;
-using Galvarino.Web.Models.Security;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 
 namespace Galvarino.Web.Data.Repository
 {
@@ -28,11 +26,11 @@ namespace Galvarino.Web.Data.Repository
         {
             var theRoles = "'" + String.Join("','", roles) + "'";
             var theOffices = "'" + String.Join("','", oficinas) + "'";
-           
+
             var respuesta = new List<dynamic>();
             using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
             {
-                
+
                 string sql = @"
                     select 
                             et.Nombre tarea,
@@ -55,11 +53,38 @@ namespace Galvarino.Web.Data.Repository
             }
 
 
-           
+
             return respuesta;
         }
 
-        public IEnumerable<SolicitudResult> listarSolicitudes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta="", string notaria = "")
+        public IEnumerable<dynamic> listarOficinas(string EsRM)
+        {
+
+            int Variable;
+            if (EsRM == "false")
+            {
+                Variable = 0;
+            }
+            else
+            {
+                Variable = 1;
+            }
+
+            var respuestaOficinas = new List<dynamic>();
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                string sql = @"select Id,Nombre from oficinas where EsRM=" + Variable + "";
+                respuestaOficinas = con.Query<dynamic>(sql).AsList();
+
+            }
+
+            return respuestaOficinas;
+        }
+
+
+
+
+        public IEnumerable<SolicitudResult> listarSolicitudes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "")
         {
             var theRoles = "'" + String.Join("','", roles) + "'";
             var theOffices = "'" + String.Join("','", oficinas) + "'";
@@ -68,14 +93,15 @@ namespace Galvarino.Web.Data.Repository
             var sqlTrozoFechaConsulta = "";
 
 
-            if(fechaConsulta != ""){
-                sqlTrozoFechaConsulta = "and convert(date, cr.FechaDesembolso) = convert(date, '"+fechaConsulta +"')";
+            if (fechaConsulta != "")
+            {
+                sqlTrozoFechaConsulta = "and convert(date, cr.FechaDesembolso) = convert(date, '" + fechaConsulta + "')";
             }
 
-            
-             using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
-             {
-                 string sql = @"
+
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                string sql = @"
                     select 
                             cr.FolioCredito,
                             cr.RutCliente,
@@ -102,27 +128,28 @@ namespace Galvarino.Web.Data.Repository
                     left join [" + _conf.GetValue<string>("schema") + @"].[Variables] vdf on sl.NumeroTicket = vdf.NumeroTicket and vdf.Clave = 'COLECCION_DOCUMENTOS_FALTANTES'
 
                     where ta.Estado = 'Activada'
-                    and ((ta.AsignadoA in ("+ theRoles +@") or ta.AsignadoA = '" + rut + @"')
+                    and ((ta.AsignadoA in (" + theRoles + @") or ta.AsignadoA = '" + rut + @"')
                             and ((ta.UnidadNegocioAsignada in (" + theOffices + @") or ta.UnidadNegocioAsignada is null))
                             and (et.NombreInterno in (" + theSteps + @"))
                         )
-                    and ('"+ notaria + @"' = '' or pkn.NotariaEnvioId = '" + notaria + @"')    
-                    "+ sqlTrozoFechaConsulta + @"
-                    order by " + (order==null ? "cr.FechaDesembolso" : order);
-                 _logger.LogDebug(sql);
+                    and ('" + notaria + @"' = '' or pkn.NotariaEnvioId = '" + notaria + @"')    
+                    " + sqlTrozoFechaConsulta + @"
+                    order by " + (order == null ? "cr.FechaDesembolso" : order);
+                _logger.LogDebug(sql);
                 respuesta = con.Query<SolicitudResult>(sql).AsList();
-             }
+            }
 
 
-             respuesta.ForEach(s => {
-                 s.Documentos = _context.Documentos
-                                .Include(d => d.ExpedienteCredito)
-                                .ThenInclude(f => f.Credito)
-                                .Where(d => d.ExpedienteCredito.Credito.FolioCredito == s.FolioCredito);
-             });
+            respuesta.ForEach(s =>
+            {
+                s.Documentos = _context.Documentos
+                               .Include(d => d.ExpedienteCredito)
+                               .ThenInclude(f => f.Credito)
+                               .Where(d => d.ExpedienteCredito.Credito.FolioCredito == s.FolioCredito);
+            });
 
             return respuesta;
-         }
+        }
 
         public IEnumerable<dynamic> listarValijasEnviadas(string marcaAvance)
         {
@@ -155,7 +182,7 @@ namespace Galvarino.Web.Data.Repository
         public string FolioCredito { get; set; }
         public string RutCliente { get; set; }
         public TipoCredito TipoCredito { get; set; }
-        public IEnumerable<Documento> Documentos { get; set;}
+        public IEnumerable<Documento> Documentos { get; set; }
         public DateTime FechaDesembolso { get; set; }
         public string seguimientoNotaria { get; set; }
         public DateTime fechaEnvioNotaria { get; set; }
@@ -164,7 +191,7 @@ namespace Galvarino.Web.Data.Repository
         public string reparo { get; set; }
         public string reparoNotaria { get; set; }
         public string documentosFaltantes { get; set; }
-                   
+
     }
-    
+
 }
