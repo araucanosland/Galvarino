@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using TinyCsvParser;
-using Galvarino.Web.Models.Parser;
 using System.Text;
 using System.Linq;
 
