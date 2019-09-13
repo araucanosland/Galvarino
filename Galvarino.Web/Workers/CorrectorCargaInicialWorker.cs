@@ -13,15 +13,11 @@ using Galvarino.Web.Services.Workflow;
 using Microsoft.Extensions.Configuration;
 using Galvarino.Web.Models.Helper;
 using Microsoft.Extensions.Logging;
+using Galvarino.Web.Models.Application;
 
 namespace Galvarino.Web.Workers
 {
-    public enum TipoCredito
-    {
-        Normal,
-        Reprogramacion,
-        AcuerdoPago
-    }
+    
     /// <summary>
     /// Worker para corregir los documentos que queden estancados en workflow
     /// </summary>
