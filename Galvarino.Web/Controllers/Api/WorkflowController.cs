@@ -1352,9 +1352,9 @@ namespace Galvarino.Web.Controllers.Api
 
             
             using(var tran = _context.Database.BeginTransaction())
-            {
-                
-                try{
+            {                
+                try
+                {
                     string folio = entrada.folioCredito.ToString();
                     int codOficinaReasignacion = Convert.ToInt32(entrada.nuevaOficina);
                     var cargaInicial = _context.CargasIniciales.FirstOrDefault(carga => carga.FolioCredito == folio);

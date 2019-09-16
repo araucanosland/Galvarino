@@ -59,21 +59,10 @@ namespace Galvarino.Web.Data.Repository
 
         public IEnumerable<dynamic> listarOficinas(string EsRM)
         {
-
-            int Variable;
-            if (EsRM == "false")
-            {
-                Variable = 0;
-            }
-            else
-            {
-                Variable = 1;
-            }
-
             var respuestaOficinas = new List<dynamic>();
             using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
             {
-                string sql = @"select Id,Nombre from oficinas where EsRM=" + Variable + "";
+                string sql = @"select Id,Nombre from oficinas";
                 respuestaOficinas = con.Query<dynamic>(sql).AsList();
 
             }

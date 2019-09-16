@@ -160,16 +160,14 @@ namespace Galvarino.Web.Workers
                         {
 
                             //Se valida si credito ya esta cargado en BD
-                            sql = "select count(FolioCredito)" +
-                            " from CargasIniciales" +
-                            " where FolioCredito='" + ci.FolioCredito + "'" +
-                            " group by FolioCredito" +
-                            " having count(FolioCredito)>1";
-                            string repetido = connection.Query<string>(sql).FirstOrDefault();
+                            sql = "select count(*)" +
+                            " from " + Schema + ".creditos" +
+                            " where FolioCredito='" + ci.FolioCredito + "'";
+                            int existe = connection.Query<int>(sql).FirstOrDefault();
 
                           
                             //Valida que No está cargado anteriormente el folio
-                            if (repetido == null)
+                            if (existe == 0)
                             {
                                 //-----------SE inicia creacion de objeto para cargas en Tablas creditos.
 
