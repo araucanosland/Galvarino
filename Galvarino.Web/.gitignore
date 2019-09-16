@@ -35,3 +35,5 @@ msbuild.err
 msbuild.wrn
 wwwroot/js/*.min.js
 wwwroot/js/*.min.js.map
+wwwroot/css/main.min.css
+
