@@ -93,9 +93,9 @@ namespace Galvarino.Web
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
 
             /*Workers & background tasks*/
-            services.AddHostedService<CargaDatosCreditoService>();
-            services.AddHostedService<GeneraArchivoIronMountain>();
-            services.AddHostedService<CierrePagaresDeIronMountainWorker>();
+            //services.AddHostedService<CargaDatosCreditoService>();
+            //services.AddHostedService<GeneraArchivoIronMountain>();
+            //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
 
             
 

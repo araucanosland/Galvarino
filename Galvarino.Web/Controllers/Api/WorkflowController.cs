@@ -1336,7 +1336,7 @@ namespace Galvarino.Web.Controllers.Api
         {
             try
             {
-                var existe = _context.CajasValoradas.FirstOrDefault(ca => ca.Usuario == User.Identity.Name && ca.MarcaAvance == "BUFFER");
+                var existe = _context.CajasValoradas.FirstOrDefault(ca => ca.Usuario == "09217315-1" && ca.MarcaAvance == "BUFFER");
                 return Ok(new { status = existe != null });
             }
             catch (Exception ex)

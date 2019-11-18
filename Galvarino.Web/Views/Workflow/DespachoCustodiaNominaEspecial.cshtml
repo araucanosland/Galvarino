@@ -1,0 +1,108 @@
+﻿@{
+    ViewData["Title"] = "Despacho a Bodega Nómina Especial";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/despachoCustodiaNominaEspecial.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/despachoCustodiaNominaEspecial.min.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
+
+}
+    <div id="app-dp-custodia">
+        <div class="row">
+            <div class="col-sm-6 table-toolbar-left">
+                <div class="btn-group">
+                    <button class="btn btn-primary" data-target="#modal-pistoleo" data-toggle="modal" type="button"><i class="glyphicon glyphicon-barcode"></i> Generar Nómina</button>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12" id="message-placeholder">
+                <div class="alert alert-info"><strong>Muchos Registos!</strong> Hay muchos registros en esta vista y no se vera por temas de rendimiento.</div>
+            </div>
+        </div>
+        <div class="row">
+            <table id="tabla-generica"
+                    data-toggle="table"
+                    data-url="/api/wf/v1/mis-solicitudes-nomina-especial/@ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA_NÓMINA_ESPECIAL"
+                    data-search="false"
+                    data-show-refresh="false"
+                    data-show-toggle="false"
+                    data-show-columns="false"
+                    data-sort-name="cr.id"
+                    data-page-list="[]"
+                    data-page-size="20"
+                    data-side-pagination="server"
+                    data-pagination="true" data-show-pagination-switch="false">
+                    <thead>
+                        <tr>
+                            <th data-field="codigoCajaValorada" data-align="center">Caja Valorada</th>
+                            <th data-field="folioCredito" data-sortable="true">Folio Crédito</th>
+                            <th data-field="rutCliente" data-align="center" data-sortable="true">Rut Afiliado</th>
+                            <th data-field="tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                            <th data-field="folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
+                            <th data-field="fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Desembolso</th>
+                        </tr>
+                    </thead>
+                </table>
+        </div>
+
+
+        <!--Default Bootstrap Modal-->
+        <!--===================================================-->
+        <div class="modal fade" id="modal-pistoleo" role="dialog" tabindex="-1" aria-labelledby="modal-pistoleo" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <!--Modal header-->
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                        <h4 class="modal-title titulo-genera-cajas"></h4>
+
+                    </div>
+
+                    <!--Modal body-->
+                    <div class="modal-body">
+
+                        <div class="form-group closed-box" style="display: none;">
+                            <label class="control-label">Ingresa el SKP</label>
+                            <input type="text" id="skp-caja" class="form-control" autocomplete="off" />
+                        </div>
+
+                        <form id="frm-pistoleo">
+                            <input type="hidden" id="codigo-caja-valorada" value="" />
+                            <div class="form-group opened-box">
+                                <label class="control-label">Pistolea el documento</label>
+                                <input type="text" id="folio-shot" class="form-control" maxlength="@ViewBag.CantidadCaracteresFolio" placeholder="Pistolea el documento" autocomplete="off" />
+                                <label class="mar-top" id="total-expedientes"></label>
+                            </div>
+                            <div class="well contenedor-folios opened-box">
+
+                            </div>
+                        </form>
+                    </div>
+
+                    <!--Modal footer-->
+                    <div class="modal-footer">
+                        <button data-dismiss="modal" class="btn btn-default" type="button">Cancelar</button>
+                        <button type="button" class="btn btn-primary opened-box" id="btn-generar-generico">Finalizado</button>
+                        <button type="button" class="btn btn-primary closed-box" id="btn-generar-caja-generica" style="display: none;">Continuar</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <canvas id="barcode"></canvas>
+    </div>

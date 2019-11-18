@@ -33,13 +33,14 @@ const metodos = {
         this.render();
     },
     render: function () {
-
+      
         $('.contenedor-folios').html("");
         $.each(_ingresados, function (i, exp) {
-
+            
             let internos = ``;
 
             $.each(exp.obtenido.documentos, function (i, doc) {
+                
                 let calssE = exp.pistoleado.indexOf(doc.codificacion) > -1 ? "glyphicon-ok" : "glyphicon-remove";
                 internos += `<li><a href="#">${enumTipoDocumentos[doc.tipoDocumento]} <i class="glyphicon ${calssE}" /></a></li>`
             });

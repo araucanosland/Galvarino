@@ -21,3 +21,8 @@ const opcionesReparosNotaria = [
     'Sin Firma ni Timbre',
     'Ilegible'
 ]
+const opcionesReparosNominaEspecial = [
+    'Seleccione',
+    'Nulo',
+    'Acuerdo Total de Pago'
+]

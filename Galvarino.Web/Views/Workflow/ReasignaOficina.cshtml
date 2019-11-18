@@ -10,91 +10,233 @@
 
 @section script{
 
- <!--Page Script-->
-<script>
-    $(function(){
-        $("#form-busqueda").on("submit", function(event){
+    <!--Page Script-->
+    <script>
+
+        function Limpiar() {
+            location.reload();
+            return;
+        }
+
+        function ValidaInput() {
+
             var inputBusqueda = $('#inputBusqueda').val();
-            $.ajax({
-                type: "GET",
-                url: `/api/wf/v1/reasignaciones/oficinas`,
-                data: {
-                    q : inputBusqueda
+            if (inputBusqueda == "") {
+                $('#btn_guardar').attr('disabled', true);
+                $('#nuevaOficina').attr('disabled', true);
+            }
+            else {
+                $('#btn_guardar').attr('disabled', false);
+                $('#nuevaOficina').attr('disabled', false);
+            }
+        }
+
+
+        var select = document.getElementById('nuevaOficina');
+
+    
+        select.addEventListener('change',
+            function () {
+
+                var selectedOption = this.options[select.selectedIndex];
+                if (selectedOption.text == "Selecciona") {
+                    $('#btn_guardar').attr('disabled', true);
                 }
-            }).done(function(data){
-                if(typeof data != 'undefined')
-                {
-                    $('#folio-credito').val(data.cargaInicial.folioCredito)
-                    $('#datos-credito').html("")
-                        .append(`<small>Datos Credito</small>`)
-                        .append(`<h5>Folio: ${data.cargaInicial.folioCredito}</h5>`)
-                        .append(`<p> Rut: ${data.cargaInicial.rutAfiliado}<br/>F. Coloc.: ${data.cargaInicial.fechaVigencia}</p>`);
+                else {
+                    $('#btn_guardar').attr('disabled', false);
+                }
+                console.log(selectedOption.value + ': ' + selectedOption.text);
+            });
 
-                    $('#oficina-oferta').html("")
-                        .append(`<small>Oficina Evaluadora</small>`)
-                        .append(`<h5>${data.oficinaComercial.nombre}</h5>`)
-                        .append(`<p> Codigo: ${data.oficinaComercial.codificacion}</p>`);
 
-                    $('#oficina-colocacion').html("")
-                        .append(`<small>Oficina de Pago</small>`)
-                        .append(`<h5>${data.oficinaLegal.nombre}</h5>`)
-                        .append(`<p> Codigo: ${data.oficinaLegal.codificacion}</p>`);  
-                }else{
+        var tipoOficina = document.getElementById('tipoOficina');
+        tipoOficina.addEventListener('change',
+            function () {
+
+                var selectedOption = this.options[tipoOficina.selectedIndex];
+                if (selectedOption.text == "Selecciona") {
+                    $('#nuevaOficina').attr('disabled', true);
+                }
+                else {
+                    $('#nuevaOficina').attr('disabled', false);
+                    $('#tipoOficina').attr('disabled', true);
+                }
+                console.log(selectedOption.value + ': ' + selectedOption.text);
+            });
+
+        $(function () {
+            $("#form-busqueda").on("submit", function (event) {
+
+                var inputBusqueda = $('#inputBusqueda').val();
+                $.ajax({
+                    type: "GET",
+                    url: `/api/wf/v1/reasignaciones/oficinas`,
+                    data: {
+                        q: inputBusqueda
+                    }
+                }).done(function (data) {
+                    if (typeof data != 'undefined') {
+
+                        $('#folio-credito').val(data.cargaInicial.folioCredito)
+                        $('#datos-credito').html("")
+                            .append(`<small>Datos Credito</small>`)
+                            .append(`<h5>Folio: ${data.cargaInicial.folioCredito}</h5>`)
+                            .append(`<p> Rut: ${data.cargaInicial.rutAfiliado}<br/>F. Coloc.: ${data.cargaInicial.fechaVigencia}</p>`);
+
+                        $('#oficina-oferta').html("")
+                            .append(`<small>Oficina Evaluadora</small>`)
+                            .append(`<h5>${data.oficinaComercial.nombre}</h5>`)
+                            .append(`<p> Codigo: ${data.oficinaComercial.codificacion}</p>`);
+
+                        $('#oficina-colocacion').html("")
+                            .append(`<small>Oficina de Pago</small>`)
+                            .append(`<h5>${data.oficinaLegal.nombre}</h5>`)
+                            .append(`<p> Codigo: ${data.oficinaLegal.codificacion}</p>`);
+
+
+
+                        $.ajax({
+                            type: "GET",
+                            url: `/api/wf/v1/reasignaciones/cargaoficinas`,
+                            data: {
+                                q: data.oficinaComercial.esRM
+                            }
+                        }).done(function (data) {
+                          
+                            $('#nuevaOficina').attr('disabled', true);
+                            $('#inputBusqueda').attr('disabled', true);
+                            $('#tipoOficina').attr('disabled', false);
+
+                            $("#nuevaOficina").empty();
+                            $("#nuevaOficina").append('<option value="">Selecciona</option>');
+                            $.each(data, function (key, registro) {
+                                $("#nuevaOficina").append('<option value=' + registro.Id + '>' + registro.Nombre + '</option>');
+
+                            })
+
+
+                        });
+
+
+                    } else {
+                        $('#datos-credito').html("<h1>No encontramos lo que buscas!</h1>")
+                    }
+                }).fail(function (err) {
                     $('#datos-credito').html("<h1>No encontramos lo que buscas!</h1>")
-                }
-            }).fail(function(err){
-                $('#datos-credito').html("<h1>No encontramos lo que buscas!</h1>")
-                console.log({err})
-            })
-            
-            return false;
+                    console.log({ err })
+                })
+
+                return false;
+            });
+
+
+
+
         });
 
-        $("#form-generico").on("submit", function(event){
-            event.preventDefault();
-            var model = {
-                folioCredito: $('#folio-credito').val(),
-                nuevaOficina: $("#nuevaOficina").val(),
-                tipo: 'Legal'
-            }
+        $(document).ready(function () {
 
-            console.log({
-                model
-            })
+            $('#btn_guardar').attr('disabled', true);
+            $('#nuevaOficina').attr('disabled', true);
+            $('#tipoOficina').attr('disabled', true);
 
-            $.ajax({
-            type: "POST",
-            url: `/api/wf/v1/reasignaciones/oficinas`,
-            data: JSON.stringify(model),
-            contentType: "application/json; charset=utf-8"
-        }).done(function (data) {
-
-            $.niftyNoty({
-                type: "success",
-                container: "floating",
-                title: "Despacho a Notaría",
-                message: "Cambios Guardados...<br/><small>Quiero decirte que hoy te ves Radiante!!!</small>",
-                closeBtn: true,
-                timer: 5000,
-                onHidden: function(){
-                    
-                }
+            $('#inputBusqueda').on('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
             });
+
+            $("#btn_guardar").click(function () {
             
-        }).fail(function (errMsg) {
-            $.niftyNoty({
-                type: "warning",
-                container: "floating",
-                title: "Avance Tareas",
-                message: "Tarea No Finalizada, contacte a Soporte!",
-                closeBtn: true,
-                timer: 5000
+                event.preventDefault();
+                var model = {
+                    folioCredito: $('#folio-credito').val(),
+                    nuevaOficina: $("#nuevaOficina").val(),
+                    tipo: 'Legal'
+                }
+
+                console.log({
+                    model
+                })
+
+
+                var tipOficina = $("#tipoOficina").val();
+                var url = "";
+                if (tipOficina == "01") {
+                    url = `/api/wf/v1/reasignaciones/oficinaevaluadora`
+                }
+                else if (tipOficina == "02") {
+                    url = `/api/wf/v1/reasignaciones/oficinas`;
+                }
+
+
+
+                // Carga información de  oficinas
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: JSON.stringify(model),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+                    $.niftyNoty({
+                        type: "success",
+                        container: "floating",
+                        title: "Despacho a Notaría",
+                        message: "Cambios Guardados...<br/><small>Correctamente!!!</small>",
+                        closeBtn: true,
+                        timer: 5000,
+                        onHidden: function () {
+
+                        },
+
+
+                    })
+                    // Recarga formulario para mostrar nuevas asignación de oficina
+                    var inputBusqueda = $('#inputBusqueda').val();
+                    $.ajax({
+                        type: "GET",
+                        url: `/api/wf/v1/reasignaciones/oficinas`,
+                        data: {
+                            q: inputBusqueda
+                        }
+                    }).done(function (data) {
+                        if (typeof data != 'undefined') {
+
+                            $('#folio-credito').val(data.cargaInicial.folioCredito)
+                            $('#datos-credito').html("")
+                                .append(`<small>Datos Credito</small>`)
+                                .append(`<h5>Folio: ${data.cargaInicial.folioCredito}</h5>`)
+                                .append(`<p> Rut: ${data.cargaInicial.rutAfiliado}<br/>F. Coloc.: ${data.cargaInicial.fechaVigencia}</p>`);
+
+                            $('#oficina-oferta').html("")
+                                .append(`<small>Oficina Evaluadora</small>`)
+                                .append(`<h5>${data.oficinaComercial.nombre}</h5>`)
+                                .append(`<p> Codigo: ${data.oficinaComercial.codificacion}</p>`);
+
+                            $('#oficina-colocacion').html("")
+                                .append(`<small>Oficina de Pago</small>`)
+                                .append(`<h5>${data.oficinaLegal.nombre}</h5>`)
+                                .append(`<p> Codigo: ${data.oficinaLegal.codificacion}</p>`);
+
+                        }
+                    })
+
+                }).fail(function (errMsg) {
+                    $.niftyNoty({
+                        type: "warning",
+                        container: "floating",
+                        title: "Avance Tareas",
+                        message: errMsg.responseText,
+                        closeBtn: true,
+                        timer: 5000
+
+                    });
+                })
             });
+
+
 
         })
-        });
-    });
-</script>
+
+    </script>
 }
 
 <div class="row">
@@ -102,7 +244,7 @@
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
-                    <input type="text" id="inputBusqueda" class="form-control" placeholder="Ingresa el Folio del Credito" autocomplete="off"/>
+                    <input type="text" id="inputBusqueda" class="form-control" placeholder="Ingresa el Folio del Credito" autocomplete="off" />
 
                 </div>
             </div>
@@ -120,28 +262,41 @@
             </div>
         </div>
 
+
+
         <div class="row mar-top">
             <div class="col-sm-6 text-left">
-                <small>Reasignar Oficina de Pago</small>
+                <small>Seleccione Tipo de  Oficina</small>
+                <select class="form-control" id="tipoOficina">
+                    <option value="" selected>Selecciona</option>
+                    <option value="01">Oficina Evaluadora</option>
+                    <option value="02">Oficina de Pago</option>
+
+                </select>
+            </div>
+        </div>
+        <div class="row mar-top">
+            <div class="col-sm-6 text-left">
+                <small>Seleccione Oficina para Reasignar</small>
                 <select class="form-control" id="nuevaOficina">
                     <option value="">Selecciona</option>
-                    @foreach (var item in ViewBag.Offices)
-                    {
-                        <option value="@item.Id">@item.Nombre</option>
-                    }
+
                 </select>
                 <div class="btn-group mar-top">
                     <input type="hidden" id="folio-credito" value="" />
-                    <button class="btn btn-primary">Guardar Cambios</button>
+                    <button id="btn_guardar" class="btn btn-primary">Guardar Cambios</button>
                 </div>
+                <div class="btn-group mar-top">
+                    <button id="btn_nuevo" onclick="Limpiar()" style="margin-right: 150px;" class="btn btn-info">Nueva Consulta</button>
+                </div>
+
             </div>
-            
-            
         </div>
-        
-        
+
+
     </form>
-         
-    
-   
+
+
+
+
 </div>

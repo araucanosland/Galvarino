@@ -12,12 +12,15 @@ const metodos = {
             obtenido: {},
             pistoleado: []
         }
+        debugger;
 
         var index = _ingresados.findIndex(function (x) {
             return x.folioCredito == expedientex.folioCredito
         });
 
-        if (_ingresados[index].pistoleado.indexOf(codigoTipoDocumento) == -1){
+        //if (_ingresados[index].pistoleado.indexOf(codigoTipoDocumento) == -1)
+      if (index > -1 && typeof _ingresados[index] != 'undefined' && expedientex.folioCredito === _ingresados[index].folioCredito) 
+        {
             _ingresados[index].pistoleado.push(codigoTipoDocumento);
         }else{
             $.niftyNoty({

@@ -93,6 +93,7 @@ namespace Galvarino.Web.Controllers
             return View();
         }
 
+
         [Route("despacho-sucursal-oficiana-partes")]
         public IActionResult DespachoSucOfPartes()
         {
@@ -127,6 +128,16 @@ namespace Galvarino.Web.Controllers
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
+
+
+        [Route("analisis-mesa-control-nomina-especial")]
+        public IActionResult AnalisisMesaControlNominaEspecial()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+
 
         [Route("solucion-expediente-faltante")]
         public IActionResult SolucionExpedienteFaltante()
@@ -175,6 +186,14 @@ namespace Galvarino.Web.Controllers
 
         [Route("despacho-a-custodia")]
         public IActionResult DespachoCustodia()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+
+        [Route("despacho-a-custodia-nomina-especial")]
+        public IActionResult DespachoCustodiaNominaEspecial()
         {
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
