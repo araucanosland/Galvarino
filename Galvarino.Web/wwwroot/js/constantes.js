@@ -26,3 +26,11 @@ const opcionesReparosNominaEspecial = [
     'Nulo',
     'Acuerdo Total de Pago'
 ]
+
+const opcionesReparosSetComplementario = [
+    'Sin Reparos',
+    'Falta Documento',
+    'Sin Timbre de Notario',
+    'Sin Firma ni Timbre',
+    'Ilegible'
+]

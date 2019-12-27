@@ -15,9 +15,19 @@ namespace Galvarino.Web.Services.Workflow
 
         Solicitud GenerarSolicitud(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string,string> variables);
 
+        Solicitud GenerarSolicitudSc(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string, string> variables);
+
+        Etapa ObtenerTareaByFolioSc(string nombreInternoProceso, string FolioCredito);
+
         void ActivarTarea(Proceso proceso, Etapa etapa, Usuario usuario);
 
+       void  CompletarTareaSetComplementario(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket,  string identificacionUsuario);
+
+        void CompletarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
+
+
         void ActivarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
+
         void ActivarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
 
         void ActivarTareaAsync(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
@@ -26,8 +36,7 @@ namespace Galvarino.Web.Services.Workflow
 
         void CompletarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
 
-        void CompletarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
-
+       
         void CommitAvance();
 
         void AbortarSolicitud(Solicitud solicitud);
@@ -42,10 +51,18 @@ namespace Galvarino.Web.Services.Workflow
 
         Usuario QuienCerroEtapa(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket);
 
+        Usuario QuienCerroEtapaSetComplementario(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket);
+
+
         IEnumerable<Tarea> TareasActivasUsuario(string nombreInternoProceso, string identificacionUsuario);
 
         Tarea ObtenerTareaByTicket(string nombreInternoProceso, string numeroTicket);
 
         void ForzarAvance(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<string> numeroTicket, string identificacionUsuario);
+
+       
+
+
+
     }
 }

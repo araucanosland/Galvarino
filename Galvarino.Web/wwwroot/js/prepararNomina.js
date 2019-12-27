@@ -15,7 +15,7 @@ const metodos = {
             obtenido: {},
             pistoleado: []
         }
-        
+
 
         var index = _ingresados.findIndex(function (x) {
             return x.folioCredito == expedientex.folioCredito
@@ -83,7 +83,7 @@ const metodos = {
             });
             return false;
         }
-        
+    
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/preparar-nomina`,

@@ -70,10 +70,7 @@ function formatoReparoNominaEspecial(val, row, inc) {
             salida = salida + `<option value="${row.reparo+1}"  >Nulo </option>`
         }
       
-            
-    //salida = salida + opcionesReparosNominaEspecial.map(function (val, index) {   
-    //        return `<option value="${index}"  >${val}   </option>`   
-    //});
+    
     salida = salida + `</select>`;
 
 

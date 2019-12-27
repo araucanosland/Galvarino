@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Dapper;
+using Galvarino.Web.Data;
+using Galvarino.Web.Models.Application;
+using Galvarino.Web.Models.Exception;
 using Galvarino.Web.Models.Security;
 using Galvarino.Web.Models.Workflow;
-using Galvarino.Web.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection;
-using System.Reflection.Emit;
 using Galvarino.Web.Services.Workflow.Assignment;
-using Galvarino.Web.Models.Exception;
-using Dapper;
-using Galvarino.Web.Models.Mappings;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Galvarino.Web.Services.Workflow
 {
@@ -21,9 +20,11 @@ namespace Galvarino.Web.Services.Workflow
     {
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
+
+
         //private object _configuration;
 
-        public DefaultWorkflowKernel(ApplicationDbContext context,IConfiguration configuration)
+        public DefaultWorkflowKernel(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
@@ -32,6 +33,30 @@ namespace Galvarino.Web.Services.Workflow
         public void AbortarSolicitud(Solicitud solicitud)
         {
             throw new NotImplementedException();
+        }
+
+        public Etapa ObtenerTareaByFolioSc(string nombreInternoProceso, string FolioCredito)
+        {
+
+            Etapa tar = new Etapa();
+
+            using (var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
+            {
+                string Sql = "  select e.* from Tareas t" +
+                            " ,Solicitudes s" +
+                            " ,ExpedientesComplementarios ec" +
+                            " ,Etapas e" +
+                            " where t.SolicitudId=s.Id" +
+                            " and  s.NumeroTicket=ec.NumeroTicket" +
+                            " and ec.FolioCredito='" + FolioCredito + "'" +
+                            " and e.id = t.EtapaId" +
+                            " and t.Estado='Activada'";
+
+                tar = connection.Query<Etapa>(Sql).FirstOrDefault();
+                return tar;
+            }
+
+
         }
 
         public void AbortarSolicitud(string NumeroTicket)
@@ -78,10 +103,57 @@ namespace Galvarino.Web.Services.Workflow
             throw new NotImplementedException();
         }
 
+
+        public void ActivarTareaSc(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
+        {
+            //Primero obtengo el proceso
+            Proceso proceso = _context.Procesos.FirstOrDefault(x => x.NombreInterno == nombreInternoProceso && x.Id == 2);
+
+            //Segundo Obtengo la etapa
+            Etapa etapa = _context.Etapas.Include(e => e.Proceso).FirstOrDefault(x => x.NombreInterno == nombreInternoEtapa && x.Proceso == proceso);
+
+            //Tercero obtengo la solicitud
+            Solicitud solicitud = _context.Solicitudes.FirstOrDefault(d => d.NumeroTicket == numeroTicket);
+
+
+            string usuarioAsignado = etapa.ValorUsuarioAsignado;
+            if (etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Auto)
+            {
+                usuarioAsignado = new MotorAsignacion(_context, etapa.ValorUsuarioAsignado, numeroTicket).GetResult();
+            }
+            else if (etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Variable)
+            {
+                usuarioAsignado = GetVariableValue(etapa.ValorUsuarioAsignado, numeroTicket);
+            }
+
+
+            Tarea tarea = new Tarea
+            {
+                Etapa = etapa,
+                Estado = EstadoTarea.Activada,
+                FechaInicio = DateTime.Now,
+                Solicitud = solicitud,
+                AsignadoA = usuarioAsignado
+            };
+
+            if (etapa.UnidadNegocioAsignar != null)
+            {
+                tarea.UnidadNegocioAsignada = GetVariableValue(etapa.UnidadNegocioAsignar, numeroTicket);
+            }
+
+            _context.Tareas.Add(tarea);
+            _context.SaveChanges();
+
+            if (etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Boot)
+            {
+                CompletarTareaSc(nombreInternoProceso, nombreInternoEtapa, numeroTicket, identificacionUsuario);
+            }
+        }
+
         public void ActivarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
             //Primero obtengo el proceso
-            Proceso proceso = _context.Procesos.FirstOrDefault(x => x.NombreInterno == nombreInternoProceso);
+            Proceso proceso = _context.Procesos.FirstOrDefault(x => x.NombreInterno == nombreInternoProceso && x.Id==1);
 
             //Segundo Obtengo la etapa
             Etapa etapa = _context.Etapas.Include(e => e.Proceso).FirstOrDefault(x => x.NombreInterno == nombreInternoEtapa && x.Proceso == proceso);
@@ -204,6 +276,48 @@ namespace Galvarino.Web.Services.Workflow
             throw new NotImplementedException();
         }
 
+
+
+        public void CompletarTareaSc(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
+        {
+            Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
+            Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
+            Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
+
+            tareaActual.EjecutadoPor = identificacionUsuario;
+            tareaActual.FechaTerminoFinal = DateTime.Now;
+            tareaActual.Estado = EstadoTarea.Finalizada;
+
+            _context.Entry(tareaActual).State = EntityState.Modified;
+
+            /*Cuando se instancia la etapa final esta cierra la solicitud */
+            if (tareaActual.Etapa.TipoEtapa == TipoEtapa.Fin)
+            {
+                solicitud.Estado = EstadoSolicitud.Finalizada;
+                solicitud.FechaTermino = DateTime.Now;
+                _context.Solicitudes.Update(solicitud);
+            }
+            _context.SaveChanges();
+
+
+            ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d => d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa && d.EtapaDestino.Proceso.Id == 2).ToList();
+            foreach (Transito transicion in transiciones)
+            {
+                bool estadoAvance = EjecutvaValidacion(transicion.NamespaceValidacion, transicion.ClaseValidacion, numeroTicket);
+                if (estadoAvance)
+                {
+                    this.ActivarTareaSc(nombreInternoProceso, transicion.EtapaDestino.NombreInterno, numeroTicket, identificacionUsuario);
+                }
+            }
+
+
+        }
+
+
+
+
+       
+
         public void CompletarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
             Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
@@ -226,7 +340,7 @@ namespace Galvarino.Web.Services.Workflow
             _context.SaveChanges();
 
 
-            ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d => d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa).ToList();
+            ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d => d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa && d.EtapaDestino.Proceso.Id==1).ToList();
             foreach (Transito transicion in transiciones)
             {
                 bool estadoAvance = EjecutvaValidacion(transicion.NamespaceValidacion, transicion.ClaseValidacion, numeroTicket);
@@ -238,6 +352,54 @@ namespace Galvarino.Web.Services.Workflow
 
 
         }
+
+        public void CompletarTareaSetComplementario(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
+        {
+            Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
+            Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
+            Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
+
+            tareaActual.EjecutadoPor = identificacionUsuario;
+            tareaActual.FechaTerminoFinal = DateTime.Now;
+            tareaActual.Estado = EstadoTarea.Finalizada;
+
+            _context.Entry(tareaActual).State = EntityState.Modified;
+
+            /*Cuando se instancia la etapa final esta cierra la solicitud */
+            if (tareaActual.Etapa.TipoEtapa == TipoEtapa.Fin)
+            {
+                solicitud.Estado = EstadoSolicitud.Finalizada;
+                solicitud.FechaTermino = DateTime.Now;
+                _context.Solicitudes.Update(solicitud);
+            }
+            _context.SaveChanges();
+
+            //var elexpediente = _context.ExpedientesComplementarios.Where(x => x.NumeroTicket == numeroTicket).FirstOrDefault();
+            //ICollection<Documento> elDocumento = _context.Documentos.Include(t => t.ExpedienteCredito).ThenInclude(d => d.Credito).Where(x => x.ExpedienteCredito.Credito.FolioCredito == elexpediente.FolioCredito && x.ExpedienteCredito.TipoExpediente == TipoExpediente.Complementario).ToList();
+            //foreach (var item in elDocumento)
+            //{
+            //    var variable = _context.Variables.Where(x => x.NumeroTicket == elexpediente.NumeroTicket && x.Valor == item.Codificacion).FirstOrDefault();
+            //    if (variable.Clave == "CUSTODIA_IRON")
+            //    {
+
+
+            //    }
+            //}
+
+
+            ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d => d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa).ToList();
+            foreach (Transito transicion in transiciones)
+            {
+                bool estadoAvance = EjecutvaValidacion(transicion.NamespaceValidacion, transicion.ClaseValidacion, numeroTicket);
+                if (estadoAvance)
+                {
+                    this.ActivarTareaSc(nombreInternoProceso, transicion.EtapaDestino.NombreInterno, numeroTicket, identificacionUsuario);
+                }
+            }
+
+
+        }
+
 
         public void CompletarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
@@ -311,6 +473,47 @@ namespace Galvarino.Web.Services.Workflow
 
             return solicitud;
         }
+
+
+        public Solicitud GenerarSolicitudSc(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string, string> variables)
+        {
+            Proceso proceso = _context.Procesos.Include(e => e.Etapas).FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
+            string ticket = GeneraTicket(proceso.Id.ToString());
+            Solicitud solicitud = new Solicitud
+            {
+                FechaInicio = DateTime.Now,
+                Estado = EstadoSolicitud.Iniciada,
+                InstanciadoPor = identificacionUsuario,
+                NumeroTicket = ticket,
+                Proceso = proceso,
+                Resumen = resumen
+            };
+
+            _context.Solicitudes.Add(solicitud);
+
+            foreach (var varib in variables)
+            {
+                Variable var = new Variable
+                {
+                    NumeroTicket = ticket,
+                    Clave = varib.Key,
+                    Valor = varib.Value,
+                    Tipo = "object"
+                };
+                _context.Variables.Add(var);
+            }
+
+            _context.SaveChanges();
+
+            var etapaInicial = proceso.Etapas.FirstOrDefault(x => x.TipoEtapa == TipoEtapa.Inicio && x.Secuencia == proceso.Etapas.Min(d => d.Secuencia));
+            if (etapaInicial.TipoUsuarioAsignado == TipoUsuarioAsignado.Boot)
+                identificacionUsuario = "wfboot";
+
+            ActivarTareaSc(nombreInternoProceso, etapaInicial.NombreInterno, ticket, identificacionUsuario);
+
+            return solicitud;
+        }
+
 
         public Solicitud GenerarSolicitud(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string, string> variables)
         {
@@ -415,7 +618,19 @@ namespace Galvarino.Web.Services.Workflow
             return _context.Users.FirstOrDefault(us => us.Identificador == ss.EjecutadoPor);
 
         }
-         
+
+        public Usuario QuienCerroEtapaSetComplementario(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket)
+        {
+            var laSol = _context.Solicitudes
+                            .Include(s => s.Tareas).ThenInclude(t => t.Etapa)
+                            .FirstOrDefault(f => f.Proceso.NombreInterno == nombreInternoProceso && f.NumeroTicket == numeroTicket);
+            var ss = laSol.Tareas.FirstOrDefault(x => x.Etapa.NombreInterno == nombreInternoEtapa && x.Estado == EstadoTarea.Finalizada && x.FechaTerminoFinal != null);
+
+
+            return _context.Users.FirstOrDefault(us => us.Identificador == ss.EjecutadoPor);
+
+        }
+
         public Tarea ObtenerTareaByTicket(string nombreInternoProceso, string numeroTicket)
         {
             return _context.Tareas
@@ -443,12 +658,12 @@ namespace Galvarino.Web.Services.Workflow
                     declare @p_id_etapa int
       
                    set @p_id_etapa=(select id from Etapas
-					where NombreInterno='" + nombreInternoEtapaDestino+"')"+
+					where NombreInterno='" + nombreInternoEtapaDestino + "')" +
 
                     " set @p_unidadNegocio=(select top 1 UnidadNegocioAsignada " +
                     " from Tareas a inner   join Solicitudes b on a.SolicitudId = b.Id " +
-                    " where b.NumeroTicket='" + item.ToString() + "'"+
-                    " and UnidadNegocioAsignada is not null"+ " order by 1 asc)"+             
+                    " where b.NumeroTicket='" + item.ToString() + "'" +
+                    " and UnidadNegocioAsignada is not null" + " order by 1 asc)" +
 
                    " set @p_id_solicitud=(select id from Solicitudes where NumeroTicket='" + item.ToString() + "')" +
 
@@ -475,5 +690,9 @@ namespace Galvarino.Web.Services.Workflow
             }
 
         }
+
+
+      
+
     }
 }

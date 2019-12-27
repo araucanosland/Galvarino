@@ -36,7 +36,7 @@ namespace Galvarino.Web.Controllers.Api
         public IActionResult ObtenerXpediente([FromRoute] string folioCredito)
         {
 
-            var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito);
+            var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito && x.TipoExpediente == TipoExpediente.Legal);
             if (expediente.Documentos.Count() > 0)
             {
                 return Ok(expediente);
@@ -93,21 +93,21 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("listar-expedientes-valija/{folioValija}")]
         public IActionResult ListarExpedientesValija(string folioValija)
         {
-            var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.ValijaValorada.CodigoSeguimiento == folioValija);
+            var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.ValijaValorada.CodigoSeguimiento == folioValija && d.TipoExpediente == TipoExpediente.Legal);
             return Ok(expedientes);
         }
 
         [HttpGet("listar-expedientes-caja/{folioCaja}")]
         public IActionResult ListarExpedientesCaja(string folioCaja)
         {
-            var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.CajaValorada.CodigoSeguimiento == folioCaja);
+            var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.CajaValorada.CodigoSeguimiento == folioCaja && d.TipoExpediente==TipoExpediente.Legal);
             return Ok(expedientes);
         }
 
         [HttpGet("listar-expedientes-oficina/{folioCaja}")]
         public IActionResult ListarExpedientesCajaOficina(string folioCaja)
         {
-            var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.ValijaOficina.CodigoSeguimiento == folioCaja);
+            var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.ValijaOficina.CodigoSeguimiento == folioCaja && d.TipoExpediente == TipoExpediente.Legal);
             return Ok(expedientes);
         }
         

@@ -45,6 +45,7 @@ namespace Galvarino.Web.Data
         public DbSet<PagareSinCustodia> PagaresSinCustodia { get; set; }
         public DbSet<GestionPagareSinCustodia> GestionPagaresSinCustodia { get; set; }
         public DbSet<PasoValijaValorada> PasosValijasValoradas { get; set; }
+        public DbSet<ExpedienteComplementario> ExpedientesComplementarios { get; set; }
 
 
         private readonly IConfiguration _conf;
@@ -92,8 +93,8 @@ namespace Galvarino.Web.Data
             builder.ApplyConfiguration(new CajaValoradaConfig());
             builder.ApplyConfiguration(new CreditoConfig());
             builder.ApplyConfiguration(new VariablesConfig());
+            builder.ApplyConfiguration(new ExpedientesComplementariosConfig());
 
-            
 
         }
     }

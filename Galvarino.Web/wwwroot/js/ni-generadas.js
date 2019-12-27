@@ -1,5 +1,5 @@
 function linkFolio(val, row, inc) {
-
+    debugger;
     var link = "#";
     var tipoDocumento = $('#tipoDocumento').val();
     switch (tipoDocumento)

@@ -20,6 +20,9 @@ namespace Galvarino.Web.Models.Application
         public string Estado { get; set; }
         public string FechaVigencia { get; set; }
         public string NombreArchivoCarga { get; set; }
-    
+        public string SeguroCesantia { get; set; }
+        public string Afecto { get; set; }
+        public string Aval { get; set; }
+
     }
 }

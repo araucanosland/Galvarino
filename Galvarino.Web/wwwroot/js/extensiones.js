@@ -177,3 +177,26 @@ function formatoListaDocumentos(val, row, inc)
     });
     return strOut.join('<br />');
 }
+
+
+function formatoListaDocumentosSetComplementarios(val, row, inc) {
+    let strOut = row.documentos.map(function (val, idx) {
+        if (val.codificacion == "03") {
+            return `<strong>${val.codificacion}</strong> - Informe de Crédito`
+        }
+        if (val.codificacion == "09") {
+            return `<strong>${val.codificacion}</strong> - Seguro Desgravamen`
+        }
+        if (val.codificacion == "10") {
+            return `<strong>${val.codificacion}</strong> - Seguro Cesantía`
+        }
+        if (val.codificacion == "04") {
+            return `<strong>${val.codificacion}</strong> - Hoja Contrato Credito`
+        }
+        if (val.codificacion == "00") {
+            return `<strong>${val.codificacion}</strong> - Afecto 15%`
+        }
+
+    });
+    return strOut.join('<br />');
+}

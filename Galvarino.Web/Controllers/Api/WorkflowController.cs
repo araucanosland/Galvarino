@@ -40,7 +40,7 @@ namespace Galvarino.Web.Controllers.Api
             try
             {
                 /* TODO Validar que sea de la oficina y que este en la etapa correcta de solicitud*/
-                var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito);
+                var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito && x.TipoExpediente == TipoExpediente.Legal);
                 var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
                 var ofipago = _wfService.ObtenerVariable("OFICINA_PAGO", expediente.Credito.NumeroTicket);
                 var laOficinaPago = _context.Oficinas.Include(k => k.OficinaProceso).FirstOrDefault(ofi => ofi.Codificacion == ofipago);
@@ -84,7 +84,7 @@ namespace Galvarino.Web.Controllers.Api
             try
             {
                 /* TODO Validar que sea de la oficina y que este en la etapa correcta de solicitud*/
-                var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito);
+                var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito && x.TipoExpediente == TipoExpediente.Legal);
                 var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
                 var ofipago = _wfService.ObtenerVariable("OFICINA_PAGO", expediente.Credito.NumeroTicket);
                 var laOficinaPago = _context.Oficinas.Include(k => k.OficinaProceso).FirstOrDefault(ofi => ofi.Codificacion == ofipago);
@@ -201,7 +201,7 @@ namespace Galvarino.Web.Controllers.Api
                             where (
                                            ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
                                                && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null))
-
+                                               && expediente.TipoExpediente == TipoExpediente.Legal
                                            && tarea.Estado == EstadoTarea.Activada
                                            && ((!string.IsNullOrEmpty(etapaIn) && etapa.NombreInterno == etapaIn) || (string.IsNullOrEmpty(etapaIn)))
                                          
@@ -253,6 +253,7 @@ namespace Galvarino.Web.Controllers.Api
                            ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
                             && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null))
                             && tarea.Estado == EstadoTarea.Activada
+                            && expediente.TipoExpediente == TipoExpediente.Legal
                             && ((!string.IsNullOrEmpty(etapaIn) && etapa.NombreInterno == etapaIn) || (string.IsNullOrEmpty(etapaIn)))
                             && (varibles.Clave == "NULO" || varibles.Clave == "ACUERDO_PAGO_TOTAL")
                                  )
@@ -334,8 +335,10 @@ namespace Galvarino.Web.Controllers.Api
                                                && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null))
                                        )
                                 && tarea.Estado == EstadoTarea.Activada
+                                && expediente.TipoExpediente == TipoExpediente.Legal
                                 && etapa.NombreInterno == etapaIn
                                 && packnota.NotariaEnvio.Id == notaria
+                         
 
                            select new
                            {
@@ -376,7 +379,7 @@ namespace Galvarino.Web.Controllers.Api
             switch (tipoDocumento)
             {
                 case "nomina-notaria":
-                    var packNotaria = await _context.PacksNotarias.Include(p => p.Expedientes).Include(p => p.Oficina).Where(p => p.Oficina.Codificacion == oficinaUsuario).ToListAsync();
+                    var packNotaria = await _context.PacksNotarias.Include(p => p.Expedientes).Include(p => p.Oficina).Where(p => p.Oficina.Codificacion == oficinaUsuario  ).ToListAsync();
                     return Ok(ObjetoOficinaUsuario.PacksNotaria);
 
                 case "valija-oficina":
@@ -464,7 +467,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     elExpediente.ValijaOficina = valijaMatrix;
                     expedientesModificados.Add(elExpediente);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
@@ -496,7 +499,7 @@ namespace Galvarino.Web.Controllers.Api
                 foreach (var item in entrada)
                 {
 
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
@@ -543,7 +546,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada.ExpedientesGenericos)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     elExpediente.PackNotaria = packNotaria;
                     expedientesModificados.Add(elExpediente);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
@@ -570,7 +573,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
                 //await _context.SaveChangesAsync();
@@ -595,7 +598,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     _wfService.AsignarVariable("REPARO_REVISION_DOCUMENTO_LEGALIZADO", item.Reparo.ToString(), elExpediente.Credito.NumeroTicket);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
@@ -636,7 +639,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada.Expedientes)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     elExpediente.PackNotaria = packNotaria;
                     expedientesModificados.Add(elExpediente);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
@@ -684,7 +687,7 @@ namespace Galvarino.Web.Controllers.Api
                 foreach (var item in entrada)
                 {
                     var credito = _context.Creditos.FirstOrDefault(x => x.FolioCredito == item.FolioCredito);
-                    var elExpediente = _context.ExpedientesCreditos.FirstOrDefault(ex => ex.CreditoId == credito.Id);
+                    var elExpediente = _context.ExpedientesCreditos.FirstOrDefault(ex => ex.CreditoId == credito.Id && ex.TipoExpediente==TipoExpediente.Legal);
                     elExpediente.ValijaValorada = valijaEnvio;
                     expedientesModificados.Add(elExpediente);
                     _wfService.AsignarVariable("USUARIO_DESPACHA_A_OF_PARTES", User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""), elExpediente.Credito.NumeroTicket);
@@ -711,7 +714,7 @@ namespace Galvarino.Web.Controllers.Api
         {
             List<string> ticketsAvanzar = new List<string>();
 
-            var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
+            var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento && x.TipoExpediente == TipoExpediente.Legal);
 
             foreach (var item in elExpediente)
             {
@@ -764,7 +767,7 @@ namespace Galvarino.Web.Controllers.Api
         {
 
             List<string> ticketsAvanzar = new List<string>();
-            var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
+            var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento && x.TipoExpediente == TipoExpediente.Legal);
 
             foreach (var item in elExpediente)
             {
@@ -796,7 +799,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.Documentos).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.Documentos).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     
                     foreach (var estado in _context.Variables.Where(a => a.NumeroTicket == elExpediente.Credito.NumeroTicket && elExpediente.Credito.FolioCredito == item.FolioCredito))// && a.Clave == "NULO" || a.Clave== "ACUERDO_PAGO_TOTAL").FirstOrDefault();
                     {
@@ -873,7 +876,7 @@ namespace Galvarino.Web.Controllers.Api
                 var opt = new string[] { "Seleccione", "Nulo", "Acuerdo Total de Pago" };
                 foreach (var item in entrada)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal) ;
                   
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
@@ -904,7 +907,7 @@ namespace Galvarino.Web.Controllers.Api
                 var opt = new string[] { "Sin Reparos", "Sin Firma de Notario", "Sin Timbre de Notario", "Sin Firma ni Timbre", "Ilegible" };
                 foreach (var item in entrada)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     _wfService.AsignarVariable("DEVOLUCION_A_SUCURSAL", item.Reparo > 0 ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
                     if (item.Reparo > 0)
                     {
@@ -944,7 +947,7 @@ namespace Galvarino.Web.Controllers.Api
 
             foreach (var item in entrada)
             {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                 _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", 1.ToString(), elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
@@ -982,7 +985,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada.ExpedientesGenericos)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     elExpediente.ValijaValorada = valijaEnvio;
                     expedientesModificados.Add(elExpediente);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
@@ -1007,7 +1010,7 @@ namespace Galvarino.Web.Controllers.Api
             try
             {
                 List<string> ticketsAvanzar = new List<string>();
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento && x.TipoExpediente == TipoExpediente.Legal);
 
                 foreach (var item in elExpediente)
                 {
@@ -1036,7 +1039,7 @@ namespace Galvarino.Web.Controllers.Api
             List<string> ticketsAvanzar = new List<string>();
             foreach (var item in entrada)
             {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
@@ -1427,7 +1430,7 @@ namespace Galvarino.Web.Controllers.Api
             List<string> ticketsAvanzar = new List<string>();
             foreach (var item in entrada)
             {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                 _wfService.AsignarVariable("EXPEDIENTE_FALTANTE_CUSTODIA", item.Faltante ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
@@ -1448,7 +1451,7 @@ namespace Galvarino.Web.Controllers.Api
             List<string> ticketsAvanzar = new List<string>();
             foreach (var item in entrada)
             {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente==TipoExpediente.Legal);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
@@ -1485,7 +1488,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada.ExpedientesGenericos)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     elExpediente.PackNotaria = packNotaria;
                     expedientesModificados.Add(elExpediente);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
@@ -1511,7 +1514,7 @@ namespace Galvarino.Web.Controllers.Api
 
             foreach (var item in entrada)
             {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
 
@@ -1528,7 +1531,7 @@ namespace Galvarino.Web.Controllers.Api
 
             foreach (var item in entrada)
             {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                 _wfService.AsignarVariable("REPARO_REVISION_DOCUMENTO_LEGALIZADO", item.Reparo.ToString(), elExpediente.Credito.NumeroTicket);
                 ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
             }
@@ -1566,7 +1569,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
                     elExpediente.PackNotaria = packNotaria;
                     expedientesModificados.Add(elExpediente);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
@@ -1603,7 +1606,7 @@ namespace Galvarino.Web.Controllers.Api
                                             expediente,
                                             cargainicial
                                         }
-                                ).Where(x => x.cargainicial.CodigoOficinaIngreso == codificacionOficinaLogedIn)
+                                ).Where(x => x.cargainicial.CodigoOficinaIngreso == codificacionOficinaLogedIn && x.expediente.TipoExpediente == TipoExpediente.Legal)
                                 .OrderBy(ord => ord.expediente.Credito.FechaDesembolso).ThenBy(ord => ord.expediente.Credito.FolioCredito)
                                 .ToListAsync();
 
@@ -1639,7 +1642,7 @@ namespace Galvarino.Web.Controllers.Api
                 foreach (var item in entrada)
                 {
                     var folio = item.FolioCredito;
-                    var expediente = _context.ExpedientesCreditos.Include(exp => exp.Credito).FirstOrDefault(exp => exp.Credito.FolioCredito == folio);
+                    var expediente = _context.ExpedientesCreditos.Include(exp => exp.Credito).FirstOrDefault(exp => exp.Credito.FolioCredito == folio && exp.TipoExpediente == TipoExpediente.Legal);
                     almacen.Expedientes.Add(expediente);
 
                 }
@@ -1666,7 +1669,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 foreach (var item in entrada)
                 {
-                    var credito = await _context.Creditos.FirstOrDefaultAsync(xcred => xcred.FolioCredito == item.FolioCredito);
+                    var credito = await _context.Creditos.FirstOrDefaultAsync(xcred => xcred.FolioCredito == item.FolioCredito );
                     _wfService.AsignarVariable(item.Marca, "1", credito.NumeroTicket);
                     ticketsAvanzar.Add(credito.NumeroTicket);
                 }
@@ -1689,6 +1692,10 @@ namespace Galvarino.Web.Controllers.Api
         [HttpGet("reasignaciones/oficinas")]
         public IActionResult ConsultaExpedienteReasignacion([FromQuery] string q)
         {
+            try
+            {
+
+           
 
             var fdata = (from cargas in _context.CargasIniciales
                          join comercial in _context.Oficinas on cargas.CodigoOficinaIngreso equals comercial.Codificacion
@@ -1705,6 +1712,12 @@ namespace Galvarino.Web.Controllers.Api
 
 
             return Ok(fdata.FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
 
@@ -1722,7 +1735,7 @@ namespace Galvarino.Web.Controllers.Api
                     var oficinaReasigna = _context.Oficinas.Include(f => f.OficinaProceso).FirstOrDefault(d => d.Id == codOficinaReasignacion);
                     var credito = _context.Creditos.FirstOrDefault(cred => cred.FolioCredito == folio);
                     string opOriginal = cargaInicial.CodigoOficinaPago;
-                    var lasolicitud = _context.Solicitudes.Include(sol => sol.Tareas).FirstOrDefault(sl => sl.NumeroTicket == credito.NumeroTicket);
+                    var lasolicitud = _context.Solicitudes.Include(sol => sol.Tareas).FirstOrDefault(sl => sl.NumeroTicket == credito.NumeroTicket && sl.Proceso.Id==1);
                     var latarea = lasolicitud.Tareas.FirstOrDefault(tar => tar.Estado == EstadoTarea.Activada);
                     var laoforig = _context.Oficinas.Include(f => f.OficinaProceso).FirstOrDefault(of => of.Codificacion == opOriginal);
 

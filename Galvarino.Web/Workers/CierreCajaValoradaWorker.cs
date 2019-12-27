@@ -76,7 +76,7 @@ namespace Galvarino.Web.Workers
 
                         foreach (var item in folios)
                         {
-                            var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item);
+                            var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item && x.TipoExpediente==TipoExpediente.Legal);
                             elExpediente.CajaValorada = caja;
                             expedientesModificados.Add(elExpediente);
                             ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);

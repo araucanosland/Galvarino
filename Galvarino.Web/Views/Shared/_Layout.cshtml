@@ -344,7 +344,7 @@
                                     </li>
 
                                     <!--Category name-->
-                                    <li class="list-header">Etapas</li>
+                                    <li class="list-header">Etapas Créditos</li>
                                     <!--Menu list item-->
                                     @if (User.IsInRole("Encargado Expedientes") || User.IsInRole("Mantenedor de Sistema"))
                                     {
@@ -422,7 +422,7 @@
                                                 <li><a href="/wf/v1/despacho-reparo-oficina-partes">Despacho Reparos Of. de Partes</a></li>
                                                 <li><a href="/wf/v1/despacho-a-custodia">Despacho a Custodia</a></li>
                                                 <li><a href="/wf/v1/despacho-a-custodia-nomina-especial">Despacho a Bodega Nómina Especial</a></li>
-                                                
+
                                                 <li class="list-divider"></li>
                                                 <li><a href="/wf/v1/envio-a-notaria-rm">Envío a Notaría</a></li>
                                                 <li><a href="/wf/v1/recepciona-notaria-rm">Recepción Notaría</a></li>
@@ -448,6 +448,95 @@
                                             <!--Submenu-->
                                             <ul class="collapse">
                                                 <li><a href="/wf/v1/recepcion-custodia">Recepción Custodia</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+
+                                    <!--Category name-->
+                                    <li class="list-header">Etapas Set Complementario</li>
+                                    <!--Menu list item-->
+                                    @if (User.IsInRole("Encargado Expedientes") || User.IsInRole("Mantenedor de Sistema"))
+                                    {
+                                        <li>
+                                            <a href="#">
+                                                <i class="demo-pli-office"></i>
+                                                <span class="menu-title">Oficina</span>
+                                                <i class="arrow"></i>
+                                            </a>
+
+                                            <!--Submenu-->
+                                            <ul class="collapse">
+
+                                                <li><a href="/wf/v1/preparar-nomina-sc">Preparar Nómina </a></li>
+                                                <li><a href="/wf/v1/despacho-of-partes-sc">Despacho a Of. Partes</a></li>
+
+                                                <li><a href="/wf/v1/solucion-expediente-faltante-setcomplementario">Devolución Documento con Reparo </a></li>
+
+                                                
+                                                <li class="list-divider"></li>
+                                                <li><a href="/wf/v1/recepcion-valija-documentos-sc">Recepción Valija Doc. Crédito</a></li>
+                                                <li><a href="/wf/v1/apertura-valija-documentos-sc">Apertura Valija Doc. Crédito</a></li>
+
+
+
+
+
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @if (User.IsInRole("Oficina Partes") || User.IsInRole("Mantenedor de Sistema"))
+                                    {
+                                        <li>
+                                            <a href="#">
+                                                <i class="demo-pli-layout-grid"></i>
+                                                <span class="menu-title">Of. Partes</span>
+                                                <i class="arrow"></i>
+                                            </a>
+
+                                            <!--Submenu-->
+                                            <ul class="collapse">
+                                                <li><a href="/wf/v1/recpecion-of-partes-sc">Recepción de Of. de Partes</a></li>
+                                                <li><a href="/wf/v1/despacho-oficina-evaluadora-sc">Despacho a Of. Evaluadora</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @if (User.IsInRole("Mesa Control") || User.IsInRole("Mantenedor de Sistema"))
+                                    {
+                                        <li>
+                                            <a href="#">
+                                                <i class="demo-pli-list-view"></i>
+                                                <span class="menu-title">Mesa de Control</span>
+                                                <i class="arrow"></i>
+                                            </a>
+
+                                            <!--Submenu-->
+                                            <ul class="collapse">
+                                                <li><a href="/wf/v1/recepcion-valija-Sc">Recepción Valija</a></li>
+                                                <li><a href="/wf/v1/apertura-valija-Sc">Apertura Valija</a></li>
+                                                <li><a href="/wf/v1/analisis-mesa-control-Sc">Análisis Expedientes</a></li>
+                                                <li><a href="/wf/v1/despacho-a-suscursal-sc">Despacho Doc. a Sucursales</a></li>
+                                                <li><a href="/wf/v1/despacho-a-custodia-sc">Despacho Seguros a Custodia </a></li>
+                                             
+
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @if (User.IsInRole("Custodia") || User.IsInRole("Mantenedor de Sistema"))
+                                    {
+                                        <li>
+                                            <a href="#">
+                                                <i class="demo-pli-recycling"></i>
+                                                <span class="menu-title">Custodia</span>
+                                                <i class="arrow"></i>
+                                            </a>
+
+                                            <!--Submenu-->
+                                            <ul class="collapse">
+                                                <li><a href="/wf/v1/recepcion-custodia-sc">Recepción Custodia Set Complementario</a></li>
                                             </ul>
                                         </li>
                                     }
@@ -505,27 +594,29 @@
                                     }
 
 
+
+
                                     @*
-                                        <!--Category name-->
-                                        <li class="list-header">Opciones</li>
+        <!--Category name-->
+        <li class="list-header">Opciones</li>
 
-                                        <!--Menu list item-->
-                                        <li>
-                                            <a href="#">
-                                                <i class="demo-pli-warning-window"></i>
-                                                <span class="menu-title">Grid System</span>
-                                                <i class="arrow"></i>
-                                            </a>
+        <!--Menu list item-->
+        <li>
+            <a href="#">
+                <i class="demo-pli-warning-window"></i>
+                <span class="menu-title">Grid System</span>
+                <i class="arrow"></i>
+            </a>
 
-                                            <!--Submenu-->
-                                            <ul class="collapse">
-                                                <li><a href="grid-bootstrap.html">Bootstrap Grid</a></li>
-                                                <li><a href="grid-liquid-fixed.html">Liquid Fixed</a></li>
-                                                <li><a href="grid-match-height.html">Match Height</a></li>
-                                                <li><a href="grid-masonry.html">Masonry</a></li>
+            <!--Submenu-->
+            <ul class="collapse">
+                <li><a href="grid-bootstrap.html">Bootstrap Grid</a></li>
+                <li><a href="grid-liquid-fixed.html">Liquid Fixed</a></li>
+                <li><a href="grid-match-height.html">Match Height</a></li>
+                <li><a href="grid-masonry.html">Masonry</a></li>
 
-                                            </ul>
-                                        </li>*@
+            </ul>
+        </li>*@
 
                                 </ul>
 

@@ -17,7 +17,29 @@ namespace Galvarino.Web.Models.Helper
         public CajaValorada CajaValorada { get; set; }
         public ValijaOficina ValijaOficina { get; set; }
         public ICollection<Variable> Variables { get; set; }
+        public ICollection<CargaInicial> OficinaEvaluadora { get; set; }
+        public ICollection<Oficina> OficinaPagadora { get; set; }
+       
+
     }
+
+
+    public class PdfEnvioSucursalModelHelper
+    {
+        public string FechaImpresion { get; set; }
+        public string CodigoSeguimiento { get; set; }
+        public string MarcaDocto { get; set; }
+        public string Reparos { get; set; }
+        public PackNotaria PackNotaria { get; set; }
+        public ValijaValorada ValijaValorada { get; set; }
+        public ICollection<Credito> Credito { get; set; }
+        public ICollection<ExpedienteCredito> ExpedienteCredito { get; set; }
+        public ICollection<Oficina> OficinaPagadora { get; set; }
+        public ICollection<CargaInicial> OficinaEvaluadora { get; set; }
+        public ICollection<Documento> Documento { get; set; }
+      
+    }
+
 
     public class ReporteValija
     {
@@ -25,5 +47,6 @@ namespace Galvarino.Web.Models.Helper
         public string oficina { get; set; }
         public int cantidadExpedientes { get; set; }
         public DateTime? fechaPistoleo { get; set; }
+
     }
 }

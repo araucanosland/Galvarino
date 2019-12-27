@@ -1,0 +1,155 @@
+﻿@{
+    ViewData["Title"] = "Apertura de Valija";
+}
+
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/AperturaValijaDocumentosSc.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/AperturaValijaDocumentosSc.min.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
+
+}
+<style type="text/css">
+    .glyphicon-check {
+        color: #810052;
+        cursor: pointer;
+    }
+
+    .glyphicon-unchecked {
+        color: #666;
+        cursor: pointer;
+    }
+
+    .checkbox label:after,
+    .radio label:after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+
+    .checkbox .cr,
+    .radio .cr {
+        position: relative;
+        display: inline-block;
+        border: 1px solid #a9a9a9;
+        border-radius: .25em;
+        width: 1.3em;
+        height: 1.3em;
+        float: left;
+        margin-right: .5em;
+    }
+
+    .radio .cr {
+        border-radius: 50%;
+    }
+
+        .checkbox .cr .cr-icon,
+        .radio .cr .cr-icon {
+            position: absolute;
+            font-size: .8em;
+            line-height: 0;
+            top: 50%;
+            left: 20%;
+        }
+
+        .radio .cr .cr-icon {
+            margin-left: 0.04em;
+        }
+
+    .checkbox label input[type="checkbox"],
+    .radio label input[type="radio"] {
+        display: none;
+    }
+
+        .checkbox label input[type="checkbox"] + .cr > .cr-icon,
+        .radio label input[type="radio"] + .cr > .cr-icon {
+            transform: scale(3) rotateZ(-20deg);
+            opacity: 0;
+            transition: all .3s ease-in;
+        }
+
+        .checkbox label input[type="checkbox"]:checked + .cr > .cr-icon,
+        .radio label input[type="radio"]:checked + .cr > .cr-icon {
+            transform: scale(1) rotateZ(0deg);
+            opacity: 1;
+        }
+
+        .checkbox label input[type="checkbox"]:disabled + .cr,
+        .radio label input[type="radio"]:disabled + .cr {
+            opacity: .5;
+        }
+</style>
+
+<div class="row">
+    <table id="tabla-generica" data-toggle="table"
+           data-url="/api/wfSc/v1/listar-valijas-documentos-oficina-ingreso-sc/OFICINA_EVALUADORA_APERTURA//@ProcesoDocumentos.ETAPA_APERTURA_VALIJA_DOCUMENTOS_OFICINA_DESTINO"
+           data-search="true"
+           data-show-refresh="false"
+           data-show-toggle="false"
+           data-show-columns="false"
+           data-sort-name="FechaEnvio"
+           data-sort-order="desc"
+           data-page-list="[]"
+           data-page-size="20"
+           data-pagination="true"
+           data-show-pagination-switch="false">
+        <thead>
+            <tr>
+                <th data-field="CodigoSeguimiento" data-align="center" data-sortable="true" data-formatter="linkFolio">Folio Valija</th>
+                <th data-field="NroExpedientes" data-align="center" data-sortable="true">N° Expedientes</th>
+                <th data-field="FechaEnvio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Envío</th>
+                <th data-field="NombreOficina" data-align="center" data-sortable="true">Oficina Envío</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+
+<!--Default Bootstrap Modal-->
+<!--===================================================-->
+<div class="modal fade" id="modal-pistoleo" role="dialog" tabindex="-1" aria-labelledby="modal-pistoleo" aria-hidden="true" data-backdrop="static"
+     data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="frm-pistoleo">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Expedientes en Valija: <label id="folioValijia"></label></h4>
+                </div>
+
+                <!--Modal body-->
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label class="control-label">Pistolea los documentos para validarlos</label>
+                        <input type="text" id="folio-shot" class="form-control solo-numeros" maxlength="@ViewBag.CantidadCaracteresFolio" placeholder="Pistolea el documento" autocomplete="off" />
+                    </div>
+
+                    <div class="well contenedor-folios">
+
+                    </div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-generar-generico">Recepcionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--===================================================-->
+<!--End Default Bootstrap Modal-->

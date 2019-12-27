@@ -46,7 +46,7 @@ namespace Galvarino.Web.Controllers
                     OficinaLegalizacion = oficinaLegalizacion,
                     Usuarios = _context.Users.Include(u => u.Oficina).ToList()
                 });
-            }catch(Exception)
+            }catch(Exception ex)
             {
                 return View("NoEncontrado");
             }

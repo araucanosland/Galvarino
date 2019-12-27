@@ -1,0 +1,164 @@
+﻿@{
+    ViewData["Title"] = "Preparar Nómina Set Complementario";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+
+}
+
+
+@section script{
+
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/prepararnominaSc.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/prepararNominaSc.min.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
+
+}
+
+    <style type="text/css">
+        .glyphicon-check {
+            color: #810052;
+            cursor: pointer;
+        }
+
+        .glyphicon-unchecked {
+            color: #666;
+            cursor: pointer;
+        }
+        .checkbox label:after,
+        .radio label:after {
+            content: '';
+            display: table;
+            clear: both;
+        }
+
+        .checkbox .cr,
+        .radio .cr {
+            position: relative;
+            display: inline-block;
+            border: 1px solid #a9a9a9;
+            border-radius: .25em;
+            width: 1.3em;
+            height: 1.3em;
+            float: left;
+            margin-right: .5em;
+        }
+
+        .radio .cr {
+            border-radius: 50%;
+        }
+
+            .checkbox .cr .cr-icon,
+            .radio .cr .cr-icon {
+                position: absolute;
+                font-size: .8em;
+                line-height: 0;
+                top: 50%;
+                left: 20%;
+            }
+
+            .radio .cr .cr-icon {
+                margin-left: 0.04em;
+            }
+
+        .checkbox label input[type="checkbox"],
+        .radio label input[type="radio"] {
+            display: none;
+        }
+
+            .checkbox label input[type="checkbox"] + .cr > .cr-icon,
+            .radio label input[type="radio"] + .cr > .cr-icon {
+                transform: scale(3) rotateZ(-20deg);
+                opacity: 0;
+                transition: all .3s ease-in;
+            }
+
+            .checkbox label input[type="checkbox"]:checked + .cr > .cr-icon,
+            .radio label input[type="radio"]:checked + .cr > .cr-icon {
+                transform: scale(1) rotateZ(0deg);
+                opacity: 1;
+            }
+
+            .checkbox label input[type="checkbox"]:disabled + .cr,
+            .radio label input[type="radio"]:disabled + .cr {
+                opacity: .5;
+            }
+    </style>
+<div class="row">
+    <div class="col-sm-6 table-toolbar-left">
+        <div class="btn-group">
+            <button class="btn btn-default" data-target="#modal-pistoleo" data-toggle="modal"><i class="glyphicon glyphicon-barcode"></i></button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <table id="tabla-generica"
+           data-toggle="table"
+           data-url="/api/wfsc/v1/nomina-setcomplementario/@ProcesoDocumentos.ETAPA_PREPARAR_NOMINA_SET_COMPLEMENTARIO"
+           data-search="false"
+           data-show-refresh="false"
+           data-show-toggle="false"
+           data-show-columns="false"
+           data-sort-name="folioCredito"
+           data-page-list="[]"
+           data-page-size="200"
+           data-side-pagination="server"
+           data-pagination="true" data-show-pagination-switch="false">
+        <thead>
+            <tr>
+                <th data-field="folioCredito" data-sortable="true">Folio Crédito</th>
+                <th data-field="rutCliente" data-align="center" data-sortable="true">Rut Afiliado</th>
+                <th data-field="tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                 <th data-field="descipcionOficina" data-sortable="true" >Of. Envío (Of. Evaluadora)</th>
+                <th data-field="folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentosSetComplementarios">Documentos</th>
+                <th data-field="fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Colocación</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<input type="hidden" id="etapa-actual" value="@ProcesoDocumentos.ETAPA_PREPARAR_NOMINA_SET_COMPLEMENTARIO" />
+<!--Default Bootstrap Modal-->
+<!--===================================================-->
+<div class="modal fade" id="modal-pistoleo" role="dialog" tabindex="-1" aria-labelledby="modal-pistoleo" aria-hidden="true" data-backdrop="static"
+     data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="frm-pistoleo">
+                <!--Modal header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
+                    <h4 class="modal-title">Validación de Documentos para Nómina Set Complementario</h4>
+                </div>
+
+                <!--Modal body-->
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">Pistolea el documento</label>
+                        <input type="text" id="folio-shot" class="form-control solo-numeros" maxlength="23" placeholder="Pistolea el documento" autocomplete="off" />
+                    </div>
+                    <div class="well contenedor-folios">
+
+                    </div>
+                </div>
+
+                <!--Modal footer-->
+                <div class="modal-footer">
+                    <button data-dismiss="modal" class="btn btn-default" type="button">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-generar-generico">Finalizado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--===================================================-->
+<!--End Default Bootstrap Modal-->
+<canvas id="barcode"></canvas>
+
