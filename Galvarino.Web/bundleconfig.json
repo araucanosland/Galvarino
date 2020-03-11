@@ -11,6 +11,7 @@
       "wwwroot/js/constantes.js",
       "wwwroot/js/extensiones.js",
       "wwwroot/js/configuracion.js"
+
     ],
     "minify": {
       "enabled": true,
@@ -362,6 +363,199 @@
       "outputMode": "singleLine"
     },
     "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/analisisMsControlSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/analisisMsControlSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/analisisNominaEspecial.min.js",
+    "inputFiles": [
+      "wwwroot/js/analisisNominaEspecial.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/AperturaValijaDocumentosSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/AperturaValijaDocumentosSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/aperturaValijaSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/aperturaValijaSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/despachoaDocSucursalesSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/despachoaDocSucursalesSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/despachoaOfPartesSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/despachoaOfPartesSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/despachoCustodiaNominaEspecial.min.js",
+    "inputFiles": [
+      "wwwroot/js/despachoCustodiaNominaEspecial.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/despachoCustodiaSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/despachoCustodiaSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/despachoOficinaEvaluadoraSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/despachoOficinaEvaluadoraSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/ni-generadasSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/ni-generadasSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/prepararNominaSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/prepararNominaSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/recepcionCustodiaSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/recepcionCustodiaSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/recepcionMsControlSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/recepcionMsControlSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/recepcionOfPartesSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/recepcionOfPartesSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/recepcionValijaDocumentosSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/recepcionValijaDocumentosSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/solucionSucursalPagadoraSc.min.js",
+    "inputFiles": [
+      "wwwroot/js/solucionSucursalPagadoraSc.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
   }
+
 
 ]

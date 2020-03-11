@@ -14,18 +14,10 @@ namespace Galvarino.Web.Services.Workflow.Transition
 
         public override bool Validar()
         {
-            bool retorno = false;
-            try
+            bool retorno = true;
+            if (Variable("LEGALIZADO_ANTES") == "1" || Variable("ACUERDO_PAGO_TOTAL") == "1" || Variable("NULO") == "1")
             {
-                if (Variable("LEGALIZADO_ANTES") == "0" || Variable("ACUERDO_PAGO_TOTAL") == "0" || Variable("NULO") == "0")  
-                {
-                    retorno = true;
-                }
-            }
-            catch (Exception)
-            {
-                //Si no existe variable por defectgo avanza
-                retorno = true;
+                retorno = false;
             }
             return retorno;
         }

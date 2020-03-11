@@ -320,7 +320,7 @@ namespace Galvarino.Web.Services.Workflow
 
         public void CompletarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
-            Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
+            Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso && p.Id==1);
             Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
             Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
 
@@ -450,7 +450,7 @@ namespace Galvarino.Web.Services.Workflow
 
         public Solicitud GenerarSolicitud(string nombreInternoProceso, string identificacionUsuario, string resumen)
         {
-            Proceso proceso = _context.Procesos.Include(e => e.Etapas).FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
+            Proceso proceso = _context.Procesos.Include(e => e.Etapas).FirstOrDefault(p => p.NombreInterno == nombreInternoProceso && p.Id==1);
             string ticket = GeneraTicket(proceso.Id.ToString());
             Solicitud solicitud = new Solicitud
             {

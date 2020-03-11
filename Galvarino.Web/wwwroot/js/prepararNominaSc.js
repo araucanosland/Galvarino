@@ -1,6 +1,6 @@
 ﻿window._ingresados = [];
 window._creados = [];
-const enumTipoDocumentosSC = new Array('', '', '', '', '', '', 'Informe Crédito', 'Seguro Desgravamen', 'Seguro Cesantía', 'Hoja Contrato Crédito', 'Afecto 15%')
+const enumTipoDocumentosSC = new Array('', '', '', '', '', '', 'Informe Crédito', 'Seguro Desgravamen', 'Seguro Cesantía', 'Hoja Contrato','Ficha Aval', 'Afecto 15%')
 const enumAfecto = { Afecto : 00 };
 
 const eventos = {
@@ -54,9 +54,10 @@ const metodos = {
                
                 if (doc.codificacion == "00")//codificion Afecto 15%
                 {
-                   
+                    debugger;
                     var valueFolio = formatoValue(exp.rutAfiliado, exp.folioCredito)
                     if (_creados.indexOf(exp.folioCredito) == -1) {
+                        debugger;
                         internos += ` <li class="divider"></li> 
                                        <li><div class="checkbox">
                                        <label>
@@ -67,6 +68,7 @@ const metodos = {
                                        </li >`
 
                     } else {
+                        debugger;
                         internos += ` <li class="divider"></li> 
                                        <li><div class="checkbox">
                                        <label>
@@ -185,8 +187,7 @@ function CheckAvaluo(obj, nombreCheckBox) {
 }
 
 $(function () {
-
-
+   
     $(document).on(eventos.pistolaDisparada, function (event, params) {
       
         let expediente = params;

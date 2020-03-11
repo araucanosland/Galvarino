@@ -40,7 +40,7 @@ const metodos = {
 
         $('.contenedor-folios').html("");
         $.each(_ingresados, function(i, exp){
-            
+            debugger;
             let internos = ``;
 
             $.each(exp.obtenido.documentos, function(i, doc){
@@ -63,7 +63,8 @@ const metodos = {
             
 
     },
-    avanzarWf: function(){
+    avanzarWf: function () {
+        debugger;
         let foliosEnvio = [];
         $.each(_ingresados, function (i, exp) {
             if(exp.obtenido.documentos.length === exp.documentos.length)

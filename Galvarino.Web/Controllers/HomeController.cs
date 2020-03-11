@@ -66,7 +66,7 @@ namespace Galvarino.Web.Controllers
             }
             catch (Exception ex)
             {
-                return View("SinPermiso");
+                return View();
             }
         }
 

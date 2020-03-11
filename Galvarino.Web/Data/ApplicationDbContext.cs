@@ -19,7 +19,7 @@ namespace Galvarino.Web.Data
     {
         public DbSet<Organizacion> Organizaciones { get; set; }
 
-        public DbSet<Etapa> Etapas { get; set; }
+        public DbSet<Etapa> Etapas {  get; set; }
         public DbSet<Proceso> Procesos { get; set; }
         public DbSet<Solicitud> Solicitudes { get; set; }
         public DbSet<Tarea> Tareas { get; set; }

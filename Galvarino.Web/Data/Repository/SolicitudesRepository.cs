@@ -66,48 +66,61 @@ namespace Galvarino.Web.Data.Repository
 
                 using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
                 {
-                    
-                    string sql = "SELECT  distinct      cr.FolioCredito, "+
-                       " cr.RutCliente, "+
-                       " cr.TipoCredito, "+
-                       " cr.FechaDesembolso, "+
-                       "  pkn.CodigoSeguimiento seguimientoNotaria, " +
+
+                    string sql = "SELECT  distinct  cr.FolioCredito, " +
+                       " cr.RutCliente, " +
+                       " cr.TipoCredito, " +
+                       " cr.FechaDesembolso, " +
+                       " pkn.CodigoSeguimiento seguimientoNotaria, " +
                        " pkn.FechaEnvio fechaEnvioNotaria, " +
-                       " vv.CodigoSeguimiento seguimientoValija,"+
-                       " vv.FechaEnvio fechaEnvioValija,"+
-                       " et.NombreInterno, "+
-                       " ta.UnidadNegocioAsignada,"+ 
-                       " ci.CodigoOficinaIngreso, "+
-                       " ci.CodigoOficinaPago, "+
-                       " o.Nombre descipcionOficina,"+
-                       " opag.Nombre descipcionOficinapagadora,"+
-                       " variab.Valor reparo"+
-                       " FROM[dbo].[ExpedientesComplementarios]  ec" +
-                       " INNER JOIN[dbo].[Creditos] cr ON cr.id = ec.creditoid" +
-                       "  INNER JOIN[dbo].[Solicitudes] sl ON sl.NumeroTicket=ec.NumeroTicket" +
-                       " INNER join[dbo].[Tareas] ta on ta.solicitudid=sl.Id" +
-                       " INNER JOIN[dbo].[Etapas] et ON et.Id=ta.EtapaId" +
-                       " INNER JOIN[dbo].[ExpedientesCreditos] ex ON ex.CreditoId = ec.creditoid" +
-                       " LEFT JOIN[dbo].[PacksNotarias] pkn ON ex.PackNotariaId = pkn.Id"+
-                       " LEFT JOIN[dbo].[ValijasValoradas] vv ON ex.ValijaValoradaId = vv.Id" +
-                       "  INNER JOIN[dbo].CargasIniciales ci ON ci.FolioCredito = cr.FolioCredito"+
-                       " INNER JOIN[dbo].Oficinas o ON ci.CodigoOficinaIngreso = o.Codificacion" +
-                        "   INNER JOIN [dbo].Oficinas opag ON ci.CodigoOficinaPago = opag.Codificacion" +
-                        " LEFT OUTER JOIN Variables variab on variab.NumeroTicket = ec.NumeroTicket and variab.Clave = 'DEVOLUCION_A_SUCURSAL_PAGO_SET_COMPLEMENTARIOS'"+
-                       " where ta.Estado = 'Activada'" +
-                       " and TipoExpediente=2" +
-                      " and et.ProcesoId = 2"+
-                       " and (ta.AsignadoA in (" + theRoles + ")  or ta.AsignadoA =  '" + rut + "')";
-                   
-                    if (theSteps == "'DESPACHO_A_DOCUMENTOS_A_SUCURSAL'")
+                       //" vv.CodigoSeguimiento seguimientoValija," +
+                       //" vv.FechaEnvio fechaEnvioValija," +
+                       " et.NombreInterno, " +
+                       " ta.UnidadNegocioAsignada," +
+                       " ci.CodigoOficinaIngreso, " +
+                       " ci.CodigoOficinaPago, " +
+                       " o.Nombre descipcionOficina," +
+                       " opag.Nombre descipcionOficinapagadora,";
+                    if (theSteps == "'ANALISIS_MESA_CONTROL_SET_COMPLEMETARIOS'")
                     {
-                        sql = sql + " and  ci.CodigoOficinaIngreso!= ci.CodigoOficinaPago";
+                        sql = sql + " variab.Valor reparo";
+                    }
+                    else
+                    {
+                        sql = sql + " '' reparo" ;
 
                     }
-                    else if (theSteps == "'PREPARAR_NÓMINA_SET_COMPLEMENTARIO'")
+
+                    sql = sql + " FROM [" + _conf.GetValue<string>("schema") + @"].[ExpedientesComplementarios]  ec" +
+                    " INNER JOIN [" + _conf.GetValue<string>("schema") + @"].[Creditos] cr ON cr.id = ec.creditoid" +
+                    " INNER JOIN[" + _conf.GetValue<string>("schema") + @"].[Solicitudes] sl ON sl.NumeroTicket=ec.NumeroTicket" +
+                    " INNER join[" + _conf.GetValue<string>("schema") + @"].[Tareas] ta on ta.solicitudid=sl.Id" +
+                    " INNER JOIN[" + _conf.GetValue<string>("schema") + @"].[Etapas] et ON et.Id=ta.EtapaId" +
+                    " INNER JOIN [" + _conf.GetValue<string>("schema") + @"].[ExpedientesCreditos] ex ON ex.CreditoId = ec.creditoid" +
+                    " LEFT JOIN [" + _conf.GetValue<string>("schema") + @"].[PacksNotarias] pkn ON ex.PackNotariaId = pkn.Id" +
+                    " LEFT JOIN [" + _conf.GetValue<string>("schema") + @"].[ValijasValoradas] vv ON ex.ValijaValoradaId = vv.Id" +
+                    " INNER JOIN [" + _conf.GetValue<string>("schema") + @"].CargasIniciales ci ON ci.FolioCredito = cr.FolioCredito" +
+                    " INNER JOIN [" + _conf.GetValue<string>("schema") + @"].Oficinas o ON ci.CodigoOficinaIngreso = o.Codificacion" +
+                    " INNER JOIN [" + _conf.GetValue<string>("schema") + @"].Oficinas opag ON ci.CodigoOficinaPago = opag.Codificacion";
+
+                    if (theSteps == "'ANALISIS_MESA_CONTROL_SET_COMPLEMETARIOS'")
+                        sql = sql + " LEFT OUTER JOIN Variables variab on variab.NumeroTicket = ec.NumeroTicket and variab.Clave = 'DEVOLUCION_A_SUCURSAL_PAGO_SET_COMPLEMENTARIOS'";
+
+
+                    sql = sql + " where ta.Estado = 'Activada'" +
+                    " and et.ProcesoId = 2" +
+                    " and (ta.AsignadoA in (" + theRoles + ")  or ta.AsignadoA =  '" + rut + "')";
+
+                    if (theSteps == "'DESPACHO_A_DOCUMENTOS_A_SUCURSAL'")
+                    {
+                        sql = sql + "  and  ci.CodigoOficinaIngreso!= ci.CodigoOficinaPago";
+
+                    }
+                    else if (theSteps == "'PREPARAR_NOMINA_SET_COMPLEMENTARIO'" || theSteps == "'DESPACHO_OFICINA_DE_PARTES_SET_COMPLEMENTARIO'" || theSteps == "'SOLUCION_REPAROS_SUCURSAL_PAGADORA'")
                     {
                         sql = sql + " and (ci.CodigoOficinaPago in (" + theOffices + "))";
                     }
+
                     sql = sql + " and (et.NombreInterno in (" + theSteps + "))" +
                     " and ('' = '' or pkn.NotariaEnvioId = '')    ";
 
@@ -118,16 +131,16 @@ namespace Galvarino.Web.Data.Repository
 
                     if (sucursal != "")
                     {
-                        sql = sql + " AND ( ci.CodigoOficinaIngreso= '" + sucursal + "' Or '" + sucursal + "'='AA00')";
+                        sql = sql + " AND ( ci.CodigoOficinaIngreso= '" + sucursal + "' Or '" + sucursal + "'='AA00') and ex.ValijaValoradaId is not null ";
 
 
                     }
-                    sql = sql + " order by cr.folioCredito asc";
+                    sql = sql + "  order by cr.folioCredito asc";
 
 
-                     var item = con.Query<SolicitudResult>(sql, commandTimeout: 300, buffered: true);
+                    var item = con.Query<SolicitudResult>(sql, commandTimeout: 400, buffered: true);
                     respuesta = item.ToList();
-                    
+
                     //respuesta = con.Query<SolicitudResult>(sql).AsList() ;
                 }
 
@@ -142,11 +155,11 @@ namespace Galvarino.Web.Data.Repository
                         {
 
                             string sql = @"
-                   select d.Id,d.Resumen,d.Codificacion,d.TipoDocumento,ExpedienteCreditoId
-                   from ExpedientesCreditos ec
-                   , Documentos d
-                   ,ConfiguracionDocumentos cd
-                   ,Creditos c
+                   select  d.Id,d.Resumen,d.Codificacion,d.TipoDocumento,ExpedienteCreditoId
+                   from [" + _conf.GetValue<string>("schema") + @"].ExpedientesCreditos ec
+                   , [" + _conf.GetValue<string>("schema") + @"].Documentos d
+                   ,[" + _conf.GetValue<string>("schema") + @"].ConfiguracionDocumentos cd
+                   ,[" + _conf.GetValue<string>("schema") + @"].Creditos c
                    where d.ExpedienteCreditoId = ec.Id
                    and cd.Codificacion = d.Codificacion
                    and d.Codificacion in('10','09') 
@@ -160,7 +173,7 @@ namespace Galvarino.Web.Data.Repository
 
                         });
                     }
-                    else if (theSteps == "'DESPACHO_A_DOCUMENTOS_A_SUCURSAL'")
+                    else if (theSteps == "'DESPACHO_A_DOCUMENTOS_A_SUCURSAL'" || theSteps == "'RECEPCION_DOCUMENTOS_OF_EVALUADORA'")
                     {
 
                         respuesta.ForEach(s =>
@@ -168,10 +181,10 @@ namespace Galvarino.Web.Data.Repository
 
                             string sql = @"
                    select d.Id,d.Resumen,d.Codificacion,d.TipoDocumento,ExpedienteCreditoId
-                   from ExpedientesCreditos ec
-                   , Documentos d
-                   ,ConfiguracionDocumentos cd
-                   ,Creditos c
+                   from [" + _conf.GetValue<string>("schema") + @"].ExpedientesCreditos ec
+                   , [" + _conf.GetValue<string>("schema") + @"].Documentos d
+                   ,[" + _conf.GetValue<string>("schema") + @"].ConfiguracionDocumentos cd
+                   ,[" + _conf.GetValue<string>("schema") + @"].Creditos c
                    where d.ExpedienteCreditoId = ec.Id
                    and cd.Codificacion = d.Codificacion
                    and d.Codificacion not in('10','09') 
@@ -195,10 +208,10 @@ namespace Galvarino.Web.Data.Repository
 
                             string sql = @"
                    select d.Id,d.Resumen,d.Codificacion,d.TipoDocumento,ExpedienteCreditoId
-                   from ExpedientesCreditos ec
-                   , Documentos d
-                   ,ConfiguracionDocumentos cd
-                   ,Creditos c
+                   from [" + _conf.GetValue<string>("schema") + @"].ExpedientesCreditos ec
+                   , [" + _conf.GetValue<string>("schema") + @"].Documentos d
+                   ,[" + _conf.GetValue<string>("schema") + @"].ConfiguracionDocumentos cd
+                   ,[" + _conf.GetValue<string>("schema") + @"].Creditos c
                    where d.ExpedienteCreditoId = ec.Id
                    and cd.Codificacion = d.Codificacion
                    and ec.CreditoId=c.Id
@@ -210,6 +223,8 @@ namespace Galvarino.Web.Data.Repository
 
 
                         });
+
+
                     }
 
 
@@ -219,7 +234,7 @@ namespace Galvarino.Web.Data.Repository
                 return respuesta;
             }
             catch (Exception ex)
-           {
+            {
 
                 throw;
             }
@@ -271,18 +286,51 @@ namespace Galvarino.Web.Data.Repository
             using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
             {
                 string sql = "  select distinct  o.Codificacion, o.Nombre from Etapas e" +
-                       " inner join Tareas t on t.EtapaId = e.id" +
-                       " inner join Solicitudes s on s.id = t.SolicitudId" +
-                       " inner join ExpedientesComplementarios ec on ec.NumeroTicket = s.NumeroTicket" +
-                       " inner join CargasIniciales ci on ci.FolioCredito = ec.FolioCredito" +
-                       " inner join Oficinas o on o.Codificacion = ci.CodigoOficinaIngreso" +
+                       " inner join [" + _conf.GetValue<string>("schema") + @"].Tareas t on t.EtapaId = e.id" +
+                       " inner join [" + _conf.GetValue<string>("schema") + @"].Solicitudes s on s.id = t.SolicitudId" +
+                       " inner join [" + _conf.GetValue<string>("schema") + @"].ExpedientesComplementarios ec on ec.NumeroTicket = s.NumeroTicket" +
+                       " inner join [" + _conf.GetValue<string>("schema") + @"].CargasIniciales ci on ci.FolioCredito = ec.FolioCredito" +
+                       " inner join [" + _conf.GetValue<string>("schema") + @"].Oficinas o on o.Codificacion = ci.CodigoOficinaIngreso" +
                        " where t.Estado = 'Activada'" +
                        " and ci.CodigoOficinaIngreso != ci.CodigoOficinaPago" +
-                       " and t.EtapaId = 42";
+                       " AND e.NombreInterno = 'DESPACHO_A_DOCUMENTOS_A_SUCURSAL'";
                 respuesta = con.Query<dynamic>(sql).AsList();
             }
             return respuesta;
         }
+
+
+        public int listarDocumentosReparosSc(string[] roles, string rut, string[] oficinas, string[] etapas)
+        {
+
+            var theRoles = "'" + String.Join("','", roles) + "'";
+            var theOffices = "'" + String.Join("','", oficinas) + "'";
+            var theSteps = "'" + String.Join("','", etapas) + "'";
+
+            //var respuesta = new List<dynamic>();
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                string sql = @" select count(*) from [" + _conf.GetValue<string>("schema") + @"].Tareas t
+                         ,[" + _conf.GetValue<string>("schema") + @"].Solicitudes s
+                         ,[" + _conf.GetValue<string>("schema") + @"].Etapas e
+                         ,[" + _conf.GetValue<string>("schema") + @"].ExpedientesComplementarios ec
+                         ,[" + _conf.GetValue<string>("schema") + @"].CargasIniciales ci
+                        where t.SolicitudId = s.Id
+                        and t.Estado = 'Activada'
+                        and t.EtapaId = e.Id
+                        and ec.NumeroTicket = s.NumeroTicket
+                        and ci.FolioCredito = ec.FolioCredito
+                        and(ci.CodigoOficinaPago in (" + theOffices + @"))
+                        and (t.AsignadoA in (" + theRoles + @") or t.AsignadoA = '" + rut + @"')
+                        and (e.NombreInterno in (" + theSteps + "))";
+
+                var result = con.ExecuteScalar<int>(sql);
+                return result;
+            }
+           
+        }
+
+
 
 
         public IEnumerable<SolicitudResult> listarSolicitudes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "")
@@ -339,7 +387,9 @@ namespace Galvarino.Web.Data.Repository
                     " + sqlTrozoFechaConsulta + @"
                     order by " + (order == null ? "cr.FechaDesembolso" : order);
                 _logger.LogDebug(sql);
-                respuesta = con.Query<SolicitudResult>(sql).AsList();
+                //respuesta = con.Query<SolicitudResult>(sql).AsList();
+                var item = con.Query<SolicitudResult>(sql, commandTimeout: 400, buffered: true);
+                respuesta = item.ToList();
             }
 
 
@@ -425,12 +475,83 @@ namespace Galvarino.Web.Data.Repository
             var respuestaOficinas = new List<dynamic>();
             using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
             {
-                string sql = @"select Id,Nombre from oficinas order by 2";
+                string sql = @"select Id,Nombre from [" + _conf.GetValue<string>("schema") + @"].oficinas order by 2";
                 respuestaOficinas = con.Query<dynamic>(sql).AsList();
 
             }
 
             return respuestaOficinas;
+        }
+
+
+        public IEnumerable<ValijaValorada> listarNominasGeneradasOfPagoSc()
+        {
+            var respuesta = new List<ValijaValorada>();
+            var expdientes = new List<ExpedienteCredito>();
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                string sql = @"select distinct vv.* from[" + _conf.GetValue<string>("schema") + @"]. ExpedientesComplementarios ec
+                             ,[" + _conf.GetValue<string>("schema") + @"].ValijasValoradas vv
+                             where ec.CodigoSeguimiento is not null
+                             and vv.CodigoSeguimiento=ec.CodigoSeguimiento";
+                respuesta = con.Query<ValijaValorada>(sql).AsList();
+                respuesta.ForEach(s =>
+                {
+
+                    string sqlExpediente = @"
+                            select ec.* from [" + _conf.GetValue<string>("schema") + @"].ValijasValoradas vv
+                            ,[" + _conf.GetValue<string>("schema") + @"].ExpedientesCreditos ec
+                            ,[" + _conf.GetValue<string>("schema") + @"].ExpedientesComplementarios ecom
+                            where vv.CodigoSeguimiento=ecom.CodigoSeguimiento
+                            and ec.TipoExpediente=2
+                            and ec.CreditoId=ecom.CreditoId
+                            and vv.CodigoSeguimiento='" + s.CodigoSeguimiento + "'";
+
+                    expdientes = con.Query<ExpedienteCredito>(sqlExpediente).AsList();
+
+                    s.Expedientes = expdientes;
+
+
+                });
+
+                return respuesta;
+            }
+
+        }
+
+
+
+        public IEnumerable<ValijaValorada> listarNominasGeneradasSc()
+        {
+            var respuesta = new List<ValijaValorada>();
+            var expdientes = new List<ExpedienteCredito>();
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                string sql = @"select distinct  vv.* from ValijasValoradas vv
+                            ,ExpedientesCreditos ec
+                            where vv.Id=ec.ValijaValoradaId
+                            and ec.TipoExpediente=2";
+                respuesta = con.Query<ValijaValorada>(sql).AsList();
+                respuesta.ForEach(s =>
+                {
+
+                    string sqlExpediente = @"
+                              select ec.* from ValijasValoradas vv
+                            ,ExpedientesCreditos ec
+                            ,ExpedientesComplementarios ecom
+                            where vv.Id=ec.ValijaValoradaId
+                            and ec.CreditoId=ecom.CreditoId
+                            and vv.CodigoSeguimiento='" + s.CodigoSeguimiento + "'";
+                    expdientes = con.Query<ExpedienteCredito>(sqlExpediente).AsList();
+
+                    s.Expedientes = expdientes;
+
+
+                });
+
+                return respuesta;
+            }
+
         }
 
 
@@ -466,7 +587,7 @@ namespace Galvarino.Web.Data.Repository
             var theRoles = "'" + String.Join("','", roles) + "'";
             var theOffices = "'" + String.Join("','", oficinas) + "'";
             var theSteps = "'" + String.Join("','", etapas) + "'";
-            var RolVisualizador="";
+            var RolVisualizador = "";
             foreach (var item in roles)
             {
                 if ("Mantenedor de Sistema" == item)
@@ -487,20 +608,27 @@ namespace Galvarino.Web.Data.Repository
                        inner join[" + _conf.GetValue<string>("schema") + @"].[creditos] c on c.FolioCredito=ecom.FolioCredito
                        inner join[" + _conf.GetValue<string>("schema") + @"].[ExpedientesCreditos] exp on exp.CreditoId=c.Id
                        inner join[" + _conf.GetValue<string>("schema") + @"].[CargasIniciales] ci on ci.FolioCredito=c.FolioCredito
-                      inner join[" + _conf.GetValue<string>("schema") + @"].[Oficinas] ofc on ci.CodigoOficinaIngreso = ofc.Codificacion
-             where vav.MarcaAvance = '" + marcaAvance + @"'
+                       inner join[" + _conf.GetValue<string>("schema") + @"].[Oficinas] ofc on ci.CodigoOficinaIngreso = ofc.Codificacion
+                       inner join [" + _conf.GetValue<string>("schema") + @"].Solicitudes s on s.NumeroTicket=ecom.NumeroTicket
+					   inner join [" + _conf.GetValue<string>("schema") + @"].Tareas ta on ta.SolicitudId=s.Id
+                         inner join [" + _conf.GetValue<string>("schema") + @"].etapas e on e.id=ta.etapaId
+                     where vav.MarcaAvance = '" + marcaAvance + @"'
                    and exp.tipoExpediente=2";
 
-                
-                if (theSteps == "'RECEPCION_VALIJA_DOCUMENTOS_OFICINA_DESTINO'"  && RolVisualizador != "Mantenedor de Sistema")// valida perfil de visualcio de oficinas de ingreso
+
+                if (theSteps == "'RECEPCION_VALIJA_DOCUMENTO_OFICINA_DESTINO'" && RolVisualizador != "Mantenedor de Sistema")// valida perfil de visualcio de oficinas de ingreso
                 {
-                    sql = sql + " and ci.CodigoOficinaIngreso in (" + theOffices + @")";
+                    sql = sql + " and ci.CodigoOficinaIngreso in (" + theOffices + @") ";
                 }
                 if (theSteps == "'APERTURA_VALIJA_DOCUMENTOS_OFICINA_DESTINO'" && RolVisualizador != "Mantenedor de Sistema")// valida perfil de visualcio de oficinas de ingreso
                 {
                     sql = sql + " and ci.CodigoOficinaIngreso in (" + theOffices + @")";
                 }
-              
+
+                sql = sql + " and ta.Estado = 'Activada'" +
+                      "  and ((ta.AsignadoA in (" + theRoles + ") or ta.AsignadoA = '" + rut + "'))" +
+                      "  and e.NombreInterno=" + theSteps + "";
+
                 sql = sql + @" GROUP BY vav.CodigoSeguimiento,
                                     vav.FechaEnvio,
                                     ofc.Nombre";
@@ -510,6 +638,197 @@ namespace Galvarino.Web.Data.Repository
                 respuesta = con.Query<dynamic>(sql).AsList();
             }
             return respuesta;
+        }
+
+
+        public void ReasginarEstadoTarea(string folioCredito, int nuevaEtapa)
+        {
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                var creditos = _context.Creditos.Where(a => a.FolioCredito == folioCredito).FirstOrDefault();
+                string actualizar = @" declare @p_id_solicitud int" +
+                     " declare @p_unidadNegocio varchar(5)" +
+                     " declare @p_id_etapa int" +
+                     " declare @p_existe int" +
+                     " declare @p_ValorUsuarioAsignado varchar(50)" +
+                     " set  @p_ValorUsuarioAsignado =(select ValorUsuarioAsignado From Etapas" +
+                     " where id = " + nuevaEtapa + "" +
+                     " and ProcesoId = 1) " +
+
+                    "  if (@p_ValorUsuarioAsignado= 'Mesa Control')" +
+                    " begin" +
+                     " set @p_unidadNegocio=null" +
+                     " end" +
+                     " else" +
+                     " Begin" +
+                     " set @p_unidadNegocio=(select top 1 UnidadNegocioAsignada " +
+                    " from [" + _conf.GetValue<string>("schema") + @"].Tareas a inner" +
+                    " join Solicitudes b on a.SolicitudId = b.Id" +
+                    " where b.NumeroTicket = '" + creditos.NumeroTicket + "'" +
+                    " and UnidadNegocioAsignada is not null" + " order by 1 asc) " +
+                    "End" +
+                    " set @p_id_solicitud = (select id from Solicitudes where NumeroTicket = '" + creditos.NumeroTicket + "')" +
+                    " update a" +
+                    " set a.EjecutadoPor = 'wfboot', a.Estado = 'Finalizada', a.FechaTerminoFinal = GETDATE()" +
+                    " from [" + _conf.GetValue<string>("schema") + @"].Tareas a inner" +
+                    " join [" + _conf.GetValue<string>("schema") + @"].Solicitudes b on a.SolicitudId = b.Id and a.estado='Activada'" +
+                    " where b.NumeroTicket = '" + creditos.NumeroTicket + "'" +
+                    " insert into [" + _conf.GetValue<string>("schema") + @"].Tareas(SolicitudId, EtapaId, AsignadoA, ReasignadoA, EjecutadoPor, Estado, FechaInicio, FechaTerminoEstimada, FechaTerminoFinal, UnidadNegocioAsignada)  " +
+                    " values           (@p_id_solicitud,'" + nuevaEtapa + @"', @p_ValorUsuarioAsignado, null, null, 'Activada', GETDATE(), null, null, @p_unidadNegocio) ";
+
+
+                con.Execute(actualizar.ToString(), null, null, 240);
+
+            }
+        }
+
+
+
+        public int analizarDocumentosSc(string folioCredito)
+         {
+            var expedientes = _context.ExpedientesComplementarios.Where(a => a.FolioCredito == folioCredito);
+
+            if (expedientes == null)//no existen en expedientes complementarios
+                return 1;
+            var cargariniciales = _context.CargasIniciales.Where(a => a.FolioCredito == folioCredito).FirstOrDefault();
+
+            if (cargariniciales.CodigoOficinaIngreso != cargariniciales.CodigoOficinaPago)
+            {
+                // se agregan los documentos del credito
+                var documentos = _context.Documentos.Include(d => d.ExpedienteCredito).ThenInclude(c => c.Credito).Where(c => c.ExpedienteCredito.Credito.FolioCredito == folioCredito && c.ExpedienteCredito.TipoExpediente == TipoExpediente.Complementario).FirstOrDefault();
+                using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+                {
+                    string sql = @"delete documentos where expedientecreditoid=" + documentos.ExpedienteCredito.Id;
+                    con.Execute(sql.ToString(), null, null, 240);
+
+                    var configuracion = _context.ConfiguracionDocumentos.Where(a => a.TipoExpediente == TipoExpediente.Complementario && a.Codificacion == "03" || a.Codificacion == "04" || a.Codificacion == "09").ToList();
+
+
+                    foreach (var c in configuracion)
+                    {
+                        sql = @"
+                         INSERT INTO [" + _conf.GetValue<string>("schema") + @"].[Documentos]
+                         ([Resumen]
+                         ,[Codificacion]
+                         ,[TipoDocumento]
+                         ,[ExpedienteCreditoId])
+                         VALUES
+                         ('" + c.TipoDocumento.ToString("D") + @"'
+                         ,'" + c.Codificacion + @"'
+                         ,'" + c.TipoDocumento + @"'
+                         ,'" + documentos.ExpedienteCredito.Id + @"')";
+                        con.Execute(sql.ToString(), null, null, 240);
+                    }
+
+                    
+                    if (cargariniciales.Aval == "1")
+                    {
+
+                        var aval = _context.ConfiguracionDocumentos.Where(a => a.Codificacion == "05" && TipoExpediente.Complementario == a.TipoExpediente).FirstOrDefault();
+                        sql = @"
+                         INSERT INTO [" + _conf.GetValue<string>("schema") + @"].[Documentos]
+                         ([Resumen]
+                         ,[Codificacion]
+                         ,[TipoDocumento]
+                         ,[ExpedienteCreditoId])
+                         VALUES
+                         ('" + aval.TipoDocumento.ToString("D") + @"'
+                         ,'" + aval.Codificacion + @"'
+                         ,'" + aval.TipoDocumento + @"'
+                         ,'" + documentos.ExpedienteCredito.Id + @"')";
+                        con.Execute(sql.ToString(), null, null, 240);
+                    }
+
+                    if (cargariniciales.SeguroCesantia == "1")
+                    {
+
+                        var segurocesantia = _context.ConfiguracionDocumentos.Where(a => a.Codificacion == "10" && TipoExpediente.Complementario == a.TipoExpediente).FirstOrDefault();
+                        sql = @"
+                         INSERT INTO [" + _conf.GetValue<string>("schema") + @"].[Documentos]
+                         ([Resumen]
+                         ,[Codificacion]
+                         ,[TipoDocumento]
+                         ,[ExpedienteCreditoId])
+                         VALUES
+                         ('" + segurocesantia.TipoDocumento.ToString("D") + @"'
+                         ,'" + segurocesantia.Codificacion + @"'
+                         ,'" + segurocesantia.TipoDocumento + @"'
+                         ,'" + documentos.ExpedienteCredito.Id + @"')";
+                        con.Execute(sql.ToString(), null, null, 240);
+                    }
+                    if (cargariniciales.Afecto == "1")
+                    {
+
+                        var afecto = _context.ConfiguracionDocumentos.Where(a => a.Codificacion == "00" && TipoExpediente.Complementario == a.TipoExpediente).FirstOrDefault();
+                        sql = @"
+                         INSERT INTO [" + _conf.GetValue<string>("schema") + @"].[Documentos]
+                         ([Resumen]
+                         ,[Codificacion]
+                         ,[TipoDocumento]
+                         ,[ExpedienteCreditoId])
+                         VALUES
+                         ('" + afecto.TipoDocumento.ToString("D") + @"'
+                         ,'" + afecto.Codificacion + @"'
+                         ,'" + afecto.TipoDocumento + @"'
+                         ,'" + documentos.ExpedienteCredito.Id + @"')";
+                        con.Execute(sql.ToString(), null, null, 240);
+                    }
+
+
+                }
+
+            }
+            else
+            {
+                //se agregan solo los seguros
+                var documentos = _context.Documentos.Include(d => d.ExpedienteCredito).ThenInclude(c => c.Credito).Where(c => c.ExpedienteCredito.Credito.FolioCredito == folioCredito && c.ExpedienteCredito.TipoExpediente == TipoExpediente.Complementario).FirstOrDefault();
+                using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+                {
+                    string sql = @"delete documentos where expedientecreditoid=" + documentos.ExpedienteCredito.Id;
+                    con.Execute(sql.ToString(), null, null, 240);
+
+                    var configuracion = _context.ConfiguracionDocumentos.Where(a => a.TipoExpediente == TipoExpediente.Complementario && a.Codificacion == "09").ToList();
+
+                    foreach (var c in configuracion)
+                    {
+                        sql = @"
+                         INSERT INTO [" + _conf.GetValue<string>("schema") + @"].[Documentos]
+                         ([Resumen]
+                         ,[Codificacion]
+                         ,[TipoDocumento]
+                         ,[ExpedienteCreditoId])
+                         VALUES
+                         ('" + c.TipoDocumento.ToString("D") + @"'
+                         ,'" + c.Codificacion + @"'
+                         ,'" + c.TipoDocumento + @"'
+                         ,'" + documentos.ExpedienteCredito.Id + @"')";
+                        con.Execute(sql.ToString(), null, null, 240);
+                    }
+
+                    if (cargariniciales.SeguroCesantia == "1")
+                    {
+
+                        var segurocesantia = _context.ConfiguracionDocumentos.Where(a => a.Codificacion == "10" && TipoExpediente.Complementario == a.TipoExpediente).FirstOrDefault();
+                        sql = @"
+                         INSERT INTO [" + _conf.GetValue<string>("schema") + @"].[Documentos]
+                         ([Resumen]
+                         ,[Codificacion]
+                         ,[TipoDocumento]
+                         ,[ExpedienteCreditoId])
+                         VALUES
+                         ('" + segurocesantia.TipoDocumento.ToString("D") + @"'
+                         ,'" + segurocesantia.Codificacion + @"'
+                         ,'" + segurocesantia.TipoDocumento + @"'
+                         ,'" + documentos.ExpedienteCredito.Id + @"')";
+                        con.Execute(sql.ToString(), null, null, 240);
+                    }
+
+
+                }
+            }
+
+
+            return 1;
         }
 
 
@@ -538,6 +857,8 @@ namespace Galvarino.Web.Data.Repository
             }
             return respuesta;
         }
+
+       
     }
 
 
@@ -559,5 +880,8 @@ namespace Galvarino.Web.Data.Repository
         public string descipcionOficinapagadora { get; set; }
         public string descipcionOficina { get; set; }
     }
+
+
+
 
 }

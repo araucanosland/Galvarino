@@ -1,6 +1,6 @@
 ﻿window._ingresados = [];
 window._creados = [];
-const enumTipoDocumentosSC = new Array('', '', '', '', '', '', 'Plan Cuota', 'Seguro Desgravamen', 'Seguro Cesantía', 'Ficha Explicativa', 'Afecto 15%')
+const enumTipoDocumentosSC = new Array('', '', '', '', '', '', 'Informe Crédito', 'Seguro Desgravamen', 'Seguro Cesantía', 'Hoja Contrato', 'Ficha Aval', 'Afecto 15%')
 const enumAfecto = { Afecto: 00 };
 
 const metodos = {

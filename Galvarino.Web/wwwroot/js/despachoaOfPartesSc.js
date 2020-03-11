@@ -2,9 +2,9 @@
 
 const metodos = {
     avanzarWf: function () {
-
+        debugger;
         let data = $('#tabla-generica').bootstrapTable('getData');
-
+        debugger;
 
         if (data.length == 0) {
             $.niftyNoty({
@@ -21,8 +21,7 @@ const metodos = {
 
         $.each(data, function (index, element) {
             _procesar.push({
-                FolioCredito: element.folioCredito,
-                Reparo: element.reparo != null ? element.reparo : 0
+                FolioCredito: element.folioCredito
             });
         });
 
@@ -90,6 +89,7 @@ $(function () {
     });
 
     $("#btn-generar-generico").on("click", function () {
+        debugger;
         metodos.avanzarWf();
     });
 

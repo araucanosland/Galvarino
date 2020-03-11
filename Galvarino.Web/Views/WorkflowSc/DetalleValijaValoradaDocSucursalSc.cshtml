@@ -3,6 +3,7 @@
     Layout = null;
     string Separador = "- ";
     int Enumeracion = 1;
+    int cantidad = 1;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -76,14 +77,14 @@
             <tr>
                 <th style="text-align:center;">
                     <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
-                    @if (Model.ValijaValorada.MarcaAvance == "OF_PARTES_DOCUMENTOS")
-                    {
-                        <h4><strong>Oficina Remitente:</strong> Mesa de Control</h4>
-                    }
-                    else if (Model.ValijaValorada.MarcaAvance == "DEVOLVER")
-                    {
-                        <h4><strong>Oficina Destino:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
-                    }
+                    @*@if (Model.ValijaValorada.MarcaAvance == "OF_PARTES_DOCUMENTOS")
+                        {*@
+                    <h4><strong>Oficina Remitente:</strong> Mesa de Control</h4>
+                    @*// }
+                        else if (Model.ValijaValorada.MarcaAvance == "DEVOLVER")
+                        {
+                            <h4><strong>Oficina Destino:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
+                        }*@
                 </th>
             </tr>
 
@@ -95,110 +96,120 @@
         <thead>
             <tr>
                 <th>
-                    <h3>Nómina de Documentos Créditos</h3>
+                    <h3>Reasignación Set Complementario</h3>
                     <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
-                   
+                     <h4><strong>Oficina Remitente:</strong> Mesa de Control</h4>
+                    
+                </th>
 
-                   </th>
+                <th style="text-align:right;"><canvas id="barcode"></canvas></th>
+            </tr>
+        </thead>
+    </table>
+    <br />
+    <br />
+    <br />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Folio</th>
+                <th>Rut</th>
+                <th>Suc.Pago</th>
+                <th>Tipo</th>
+                <th>Suc.Custodia</th>
+                <th>Documentos</th>
+                <th>Fecha Otorgamiento</th>
 
-                    <th style="text-align:right;"><canvas id="barcode"></canvas></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var xfile in Model.ValijaValorada.Expedientes)
+            {
 
-            </thead>
-        </table>
-        <br />
-        <br />
-        <br />
-        <table class="table">
-            <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Folio</th>
-                    <th>Rut</th>
-                    <th>Tipo</th>
-                    <th>Of.Envío</th>
-                    <th>Documentos</th>
-                    <th>Fecha Otorgamiento</th>
+                    <td>@Enumeracion</td>
+                    <td>@xfile.Credito.FolioCredito</td>
+                    <td>@xfile.Credito.RutCliente</td>
 
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var xfile in Model.ValijaValorada.Expedientes)
-                {
-
-                    <tr>
-                        <td>@Enumeracion</td>
-                        <td>@xfile.Credito.FolioCredito</td>
-                        <td>@xfile.Credito.RutCliente</td>
-                        <td>@xfile.Credito.TipoCredito</td>
-
-
-                        @foreach (var x in Model.OficinaEvaluadora)
+                    @foreach (var x in Model.OficinaEvaluadora)
+                    {
+                        @if (x.FolioCredito == xfile.Credito.FolioCredito)
                         {
-                            @if (x.FolioCredito == xfile.Credito.FolioCredito)
-                            {
-                                @if (x.CodigoOficinaIngreso == x.CodigoOficinaPago)
-                                {
-                                    <td>Mesa de Control </td>
-                                }
-                                else
-                                {
-                                    <td>@(Model.OficinaPagadora.FirstOrDefault(d => d.Codificacion == x.CodigoOficinaIngreso).Nombre)  </td>
 
-                                }
+                            <td>@(Model.OficinaPagadora.FirstOrDefault(d => d.Codificacion == x.CodigoOficinaPago).Nombre)  </td>
+
+                                                                                                         }
 
 
-                            }
+                    }
+
+
+                    <td>@xfile.Credito.TipoCredito</td>
+
+
+                    @foreach (var x in Model.OficinaEvaluadora)
+                    {
+                        @if (x.FolioCredito == xfile.Credito.FolioCredito)
+                        {
+
+                            <td>@(Model.OficinaPagadora.FirstOrDefault(d => d.Codificacion == x.CodigoOficinaIngreso).Nombre)  </td>
+
+
 
 
                         }
 
-                        <td>
-                            @foreach (var doc in xfile.Documentos)
+
+                    }
+
+                    <td>
+                        @foreach (var doc in xfile.Documentos.OrderByDescending(d=>d.Codificacion))
+                        {
+                            @if (xfile.Documentos.Last().Id == doc.Id)
                             {
-                                @if (xfile.Documentos.Last().Id == doc.Id)
-                                {
-                                    <strong>@doc.Codificacion</strong> @Separador @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim()
-                                }
-                                else
-                                {
-                                    @if (@doc.Codificacion != "09" && @doc.Codificacion != "10")
-                                    {
-                                        <strong>@doc.Codificacion</strong> @Separador @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim() <br />
-                                    }
-                                }
-
-
+                                <strong>@doc.Codificacion</strong> @Separador @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim()
                             }
-                        </td>
-                        <td>@xfile.Credito.FechaDesembolso.ToShortDateString()</td>
+                            else
+                            {
+                                @if (@doc.Codificacion != "09" && @doc.Codificacion != "10")
+                                {
+                                    <strong>@doc.Codificacion</strong> @Separador @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim() <br />
+                                }
+                            }
 
 
-                    </tr>
-                    Enumeracion++;
-                }
-
-            </tbody>
-
-        </table>
-
-        <br /><br /><br />
-        <footer>
-            <table class="pie-pagina">
-                <tr>
-                    <td>
-                        ______________________<br />
-                        Firma Emisor
+                        }
                     </td>
-                    <td>
-                        ______________________<br />
-                        Firma Receptor
-                    </td>
+                    <td>@xfile.Credito.FechaDesembolso.ToShortDateString()</td>
+
+
                 </tr>
-            </table>
-        </footer>
+                Enumeracion++;
+            }
+
+        </tbody>
+
+    </table>
+
+    <br /><br /><br />
+    <footer>
+        <table class="pie-pagina">
+            <tr>
+                <td>
+                    ______________________<br />
+                    Firma Emisor
+                </td>
+                <td>
+                    ______________________<br />
+                    Firma Receptor
+                </td>
+            </tr>
+        </table>
+    </footer>
 
 
-        <script type="text/javascript">
+    <script type="text/javascript">
     JsBarcode("#barcode", "@Model.CodigoSeguimiento");</script>
-    </body>
+</body>
 </html>

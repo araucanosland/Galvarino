@@ -10,6 +10,22 @@
     <li class="active">@ViewData["Title"]</li>
 }
 
+<style>
+
+    .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+        color: #25476a;
+        border-color: transparent;
+    }
+
+
+        .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+            color: #555;
+            cursor: default;
+            background-color: #dbdbdb;
+            border: 1px solid #ddd;
+            border-bottom-color: transparent;
+        }
+</style>
 
 
 <div class="row">
@@ -33,45 +49,126 @@
                 <td>@Model.OficinaLegal.Nombre</td>
             </tr>
 
-            @if(!Model.OficinaLegal.EsRM)
+            @if (!Model.OficinaLegal.EsRM)
             {
                 <tr>
                     <td><strong>Oficina de Legalización</strong></td>
                     <td>@Model.OficinaLegalizacion.Nombre</td>
                 </tr>
             }
-            
+
         </table>
     </div>
     <div class="col-lg-7 col-lg-offset-1">
-        <h4>Seguimiento Workflow</h4>
-        <!-- Timeline -->
-        <!--===================================================-->
-        <div class="timeline">
-            
-            @foreach (var entry in Model.Solicitud.Tareas.OrderByDescending(d => d.FechaInicio))
-            {
-                <div class="timeline-entry">
-                    <div class="timeline-stat">
-                        <div class="timeline-icon @(entry.Estado == EstadoTarea.Activada ? "bg-success" : "")"></div>
-                        <div class="timeline-time">@entry.FechaInicio.ToShortDateString()</div>
-                    </div>
-                    <div class="timeline-label text-left">
-                        <p class="text-bold text-warning">@entry.Etapa.Nombre</p>
-                        <p class="mar-no pad-btm"><strong>Asignado a:</strong> @entry.AsignadoA</p>
-                        @if(entry.Estado == EstadoTarea.Finalizada)
-                        {
-                            <p class="mar-no pad-btm"><strong>Ejecutado Por:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Nombres : entry.EjecutadoPor)</p>
-                            <p class="mar-no pad-btm"><strong>Oficina:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Oficina.Nombre : entry.EjecutadoPor)</p>                            
-                        }
-                    </div>
-                </div>
-            }
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" href="#pagares" role="tab" data-toggle="tab">Set Legal</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#comercial" role="tab" data-toggle="tab">Set Complementario</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#seguros" role="tab" data-toggle="tab">Seg. Obligatorios</a>
+            </li>
+        </ul>
 
-            
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="pagares">
+                <h4>Seguimiento Pagarés</h4>
+                <!-- Timeline -->
+                <!--===================================================-->
+                <div class="timeline">
+
+                    @foreach (var entry in Model.Solicitud.Tareas.OrderByDescending(d => d.FechaInicio))
+                    {
+                        <div class="timeline-entry">
+                            <div class="timeline-stat">
+                                <div class="timeline-icon @(entry.Estado == EstadoTarea.Activada ? "bg-success" : "")"></div>
+                                <div class="timeline-time">@entry.FechaInicio.ToShortDateString()</div>
+                            </div>
+                            <div class="timeline-label text-left">
+                                <p class="text-bold text-warning">@entry.Etapa.Nombre</p>
+                                <p class="mar-no pad-btm"><strong>Asignado a:</strong> @entry.AsignadoA</p>
+                                @if (entry.Estado == EstadoTarea.Finalizada)
+                                {
+                                    <p class="mar-no pad-btm"><strong>Ejecutado Por:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Nombres : entry.EjecutadoPor)</p>
+                                    <p class="mar-no pad-btm"><strong>Oficina:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Oficina.Nombre : entry.EjecutadoPor)</p>
+                                }
+                            </div>
+                        </div>
+                    }
+
+
+                </div>
+                <!--===================================================-->
+                <!-- End Timeline -->
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="comercial">
+                <h4>Seguimiento Set Comercial</h4>
+                <!-- Timeline -->
+                <!--===================================================-->
+                <div class="timeline">
+
+                    @foreach (var entry in Model.TareasDocumentosSc.OrderByDescending(d => d.FechaInicio))
+                    {
+                        <div class="timeline-entry">
+                            <div class="timeline-stat">
+                                <div class="timeline-icon @(entry.Estado == EstadoTarea.Activada ? "bg-success" : "")"></div>
+                                <div class="timeline-time">@entry.FechaInicio.ToShortDateString()</div>
+                            </div>
+                            <div class="timeline-label text-left">
+                                <p class="text-bold text-warning">@entry.Etapa.Nombre</p>
+                                <p class="mar-no pad-btm"><strong>Asignado a:</strong> @entry.AsignadoA</p>
+                                @if (entry.Estado == EstadoTarea.Finalizada)
+                                {
+                                    <p class="mar-no pad-btm"><strong>Ejecutado Por:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Nombres : entry.EjecutadoPor)</p>
+                                    <p class="mar-no pad-btm"><strong>Oficina:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Oficina.Nombre : entry.EjecutadoPor)</p>
+                                }
+                            </div>
+                        </div>
+                    }
+
+
+                </div>
+                <!--===================================================-->
+                <!-- End Timeline -->
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="seguros">
+
+                <h4>Seguimiento Seguros</h4>
+                <!-- Timeline -->
+                <!--===================================================-->
+                <div class="timeline">
+
+                    @foreach (var entry in Model.TareasSegurosSc.OrderByDescending(d => d.FechaInicio))
+                    {
+                        <div class="timeline-entry">
+                            <div class="timeline-stat">
+                                <div class="timeline-icon @(entry.Estado == EstadoTarea.Activada ? "bg-success" : "")"></div>
+                                <div class="timeline-time">@entry.FechaInicio.ToShortDateString()</div>
+                            </div>
+                            <div class="timeline-label text-left">
+                                <p class="text-bold text-warning">@entry.Etapa.Nombre</p>
+                                <p class="mar-no pad-btm"><strong>Asignado a:</strong> @entry.AsignadoA</p>
+                                @if (entry.Estado == EstadoTarea.Finalizada)
+                                {
+                                    <p class="mar-no pad-btm"><strong>Ejecutado Por:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Nombres : entry.EjecutadoPor)</p>
+                                    <p class="mar-no pad-btm"><strong>Oficina:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Oficina.Nombre : entry.EjecutadoPor)</p>
+                                }
+                            </div>
+                        </div>
+                    }
+
+
+                </div>
+                <!--===================================================-->
+                <!-- End Timeline -->
+
+            </div>
         </div>
-        <!--===================================================-->
-        <!-- End Timeline -->
+
+
 
     </div>
 </div>

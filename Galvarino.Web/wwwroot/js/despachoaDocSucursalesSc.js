@@ -21,8 +21,7 @@ const metodos = {
 
         $.each(data, function (index, element) {
             _procesar.push({
-                FolioCredito: element.folioCredito,
-                Reparo: element.reparo != null ? element.reparo : 0
+                FolioCredito: element.folioCredito
             });
         });
 
@@ -45,11 +44,17 @@ const metodos = {
                 onHidden: function () {
                     debugger;
                     window.open(`/wf/v1/detalle-valija-valorada-Doc-Sucursal-sc/${data.codigoSeguimiento}`, "_blank");
+                    window.location.reload(true);
                 }
+                
+               
+                    
             });
 
 
-        }).fail(function (errMsg) {
+            }
+            
+        ).fail(function (errMsg) {
             $.niftyNoty({
                 type: "warning",
                 container: "floating",

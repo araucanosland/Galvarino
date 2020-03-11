@@ -14,6 +14,7 @@ using Galvarino.Web.Models.Workflow;
 using Microsoft.AspNetCore.Authorization;
 using Galvarino.Web.Models.Security;
 using Galvarino.Web.Data.Repository;
+using System.Security.Claims;
 
 namespace Galvarino.Web.Controllers.Api
 {
@@ -110,6 +111,30 @@ namespace Galvarino.Web.Controllers.Api
             var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.ValijaOficina.CodigoSeguimiento == folioCaja && d.TipoExpediente == TipoExpediente.Legal);
             return Ok(expedientes);
         }
-        
+
+
+        [HttpGet("obtener-canitdad/Etapa-Sc/{etapa}")]
+        public IActionResult ObtenercantidadEtapaSc([FromRoute] string etapa = "")
+        {
+            var rolesUsuario = User.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToArray();
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var ObjetoOficinaUsuario = _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefault(ofc => ofc.Codificacion == oficinaUsuario);
+            var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id && ofc.EsMovil == true);
+            var ofinales = new List<Oficina>();
+            ofinales.Add(ObjetoOficinaUsuario);
+            ofinales.AddRange(OficinasUsuario.ToList());
+
+            var lasOff = ofinales.Select(x => x.Codificacion).ToArray();
+            var lasEtps = new string[] { etapa };
+           
+
+
+            int salida = _solicitudRepository.listarDocumentosReparosSc(rolesUsuario, User.Identity.Name, lasOff, lasEtps);
+            return Ok(salida);
+        }
+
+
+
+
     }
 }

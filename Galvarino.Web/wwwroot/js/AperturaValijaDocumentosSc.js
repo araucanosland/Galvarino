@@ -1,6 +1,6 @@
 ﻿window._ingresados = [];
 window._creados = [];
-const enumTipoDocumentosSC = new Array('', '', '', '', '', '', 'Plan Cuota', 'Seguro Desgravamen', 'Seguro Cesantía', 'Ficha Explicativa', 'Afecto 15%')
+const enumTipoDocumentosSC = new Array('', '', '', '', '', '', 'Informe Crédito', 'Seguro Desgravamen', 'Seguro Cesantía', 'Hoja Contrato', 'Ficha Aval', 'Afecto 15%')
 const enumAfecto = { Afecto: 00 };
 
 const metodos = {
@@ -38,15 +38,18 @@ const metodos = {
         this.render();
     },
     render: function () {
-        debugger;
+     
+
+       
+
         $('.contenedor-folios').html("");
         $.each(_ingresados, function (i, exp) {
-            debugger;
+
             let internos = ``;
             var i;
             $.each(exp.obtenido.documentos, function (i, doc) {
                 let calssE = exp.pistoleado.indexOf(doc.codificacion) > -1 ? "glyphicon-ok" : "glyphicon-remove";
-                debugger;
+
                 if (doc.codificacion == "00")//codificion Afecto 15%
                 {
                     var valueFolio = formatoValue(exp.rutAfiliado, exp.folioCredito)
@@ -108,10 +111,10 @@ const metodos = {
         });
 
         let folioValija = $('#folioValijia').text();
-          debugger;
+
         $.ajax({
             type: "POST",
-            url: `/api/wfSc/v1/apertura-valija-Docmentos-creditosc/${folioValija}`,
+            url: `/api/wfSc/v1/Cierre-valija-credito-sc/${folioValija}`,
             data: JSON.stringify(foliosEnvio),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
@@ -120,7 +123,7 @@ const metodos = {
             $.niftyNoty({
                 type: "success",
                 container: "floating",
-                title: "Apertura de Valija",
+                title: "Cierre de Valija",
                 message: "Valija: " + folioValija + " Aperturada.<br/><small>Estamos actualizando el estado de la valija..</small>",
                 closeBtn: true,
                 timer: 5000
@@ -185,21 +188,21 @@ function CheckAvaluo(obj, nombreCheckBox) {
 
 
 $(function () {
-
+    debugger;
 
     $("#modal-pistoleo").on("shown.bs.modal", function (event) {
         $("#folio-shot").focus();
     });
 
     $("#modal-pistoleo").on("show.bs.modal", function (event) {
-        debugger;
+
         const folioValija = $(event.relatedTarget).data("folio");
         $('#folioValijia').text(folioValija);
         $.ajax({
             type: "GET",
-            url: `/api/wfSc/v1/listar-expedientes-valija-Documentos-sc/${folioValija}`
+            url: `/api/wfSc/v1/listar-valija-Documentos-Oficinadestino-sc/${folioValija}`
         }).done(function (data) {
-            debugger;
+
             _ingresados = data.map(function (expediente) {
                 return {
                     codigoTipoDocumento: "",

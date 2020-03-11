@@ -1,0 +1,107 @@
+﻿@{
+    Layout = null;
+}
+
+<!--Open Sans Font [ OPTIONAL ]-->
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+<link href="https://fonts.googleapis.com/css?family=Satisfy" rel="stylesheet">
+<link href="~/lib/css/font-awesome.min.css" rel="stylesheet">
+<link href="~/css/main.min.css" rel="stylesheet">
+<link href="~/lib/css/bootstrap-datepicker.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.bootstrap.min.css" rel="stylesheet">
+
+
+<div class="row">
+    @*<table id="tabla-generica" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th data-field="folioCredito" data-sortable="true">Folio Crédito</th>
+                <th data-field="rutCliente" data-align="center" data-sortable="true">Rut Afiliado</th>
+                <th data-field="tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                <th data-field="descipcionOficina" data-sortable="true">Of. Envío (Of. Evaluadora)</th>
+                <th data-field="folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentosSetComplementarios">Documentos</th>
+                <th data-field="fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Colocación</th>
+
+
+
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>*@
+    <table id="tabla-generica"
+               data-toggle="table"
+               data-url="/api/wfsc/v1/nomina-setcomplementario/@ProcesoDocumentos.ETAPA_PREPARAR_NOMINA_SET_COMPLEMENTARIO"
+               data-search="false"
+               data-show-refresh="false"
+               data-show-toggle="false"
+               data-show-columns="false"
+               data-sort-name="folioCredito"
+               data-page-list="[]"
+               data-page-size="20"
+               data-side-pagination="server"
+               data-pagination="true" data-show-pagination-switch="false">
+            <thead>
+                <tr>
+                    <th data-field="folioCredito" data-sortable="true">Folio Crédito</th>
+                    <th data-field="rutCliente" data-align="center" data-sortable="true">Rut Afiliado</th>
+                    <th data-field="tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                    <th data-field="descipcionOficina" data-sortable="true">Of. Envío (Of. Evaluadora)</th>
+                    <th data-field="folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentosSetComplementarios">Documentos</th>
+                    <th data-field="fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Colocación</th>
+                </tr>
+            </thead>
+        </table>
+</div>
+
+<script src="~/js/main.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.colVis.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        var table = $('#tabla-generica').DataTable({
+        });
+        table.buttons().container()
+            .appendTo('#tabla-generica_wrapper .col-sm-6:eq(0)');
+             @*$.ajax({
+                    type: "GET",
+                    dataType: "json",
+                    url: "/reportes/reporte-setcomplementario/@ProcesoDocumentos.ETAPA_PREPARAR_NOMINA_SET_COMPLEMENTARIO",
+                    success: function (data) {
+                        debugger;
+                        var table = $('#tabla-generica').DataTable({
+                            "searching": false, // false to disable search (or any other option)
+                            lengthChange: false,
+                            buttons: ['copy', 'excel', 'pdf'],
+                            data: data,
+                            columns: [
+                                { 'data': 'folioCredito' },
+                                { 'data': 'rutCliente' },
+                                { 'data': 'tipoCredito'},
+                                { 'data': 'descipcionOficina'},
+                                { 'data': 'folioCredito'},
+                                { 'data': 'fechaDesembolso' }
+                                ]
+                        });
+
+                        table.buttons().container()
+                            .appendTo('#tabla-generica_wrapper .col-sm-6:eq(0)');
+
+                    }
+                });*@
+
+            });
+</script>
+
+
+

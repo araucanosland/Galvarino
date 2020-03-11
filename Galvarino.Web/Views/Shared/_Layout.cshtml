@@ -18,6 +18,8 @@
     <link href="~/lib/css/font-awesome.min.css" rel="stylesheet">
     <link href="~/css/main.min.css" rel="stylesheet">
     <link href="~/lib/css/bootstrap-datepicker.min.css" rel="stylesheet">
+
+       
     @RenderSection("style", false)
     <!--=================================================-->
 
@@ -343,6 +345,28 @@
                                         </ul>
                                     </li>
 
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-pli-file"></i>
+                                            <span class="menu-title">Nóminas Set Compl.</span>
+                                            <i class="arrow"></i>
+                                        </a>
+                                        <ul class="collapse">
+                                            @if (User.IsInRole("Encargado Expedientes") || User.IsInRole("Mantenedor de Sistema"))
+                                            {
+                                                <li><a href="/wf/v1/notas-internas-sc/generadas/valija-valorada">Nóminas a Of. de Partes</a></li>
+                                            }
+
+
+                                            @if (User.IsInRole("Mesa Control") || User.IsInRole("Mantenedor de Sistema"))
+                                            {
+                                                <li><a href="/wf/v1/notas-internas-sc/generadas/valija-oficina-documento-of-Pago">Cajas Valoradas Doc. Of. de Pago</a></li>
+                                                <li><a href="/wf/v1/notas-internas-sc/generadas/caja-valorada-custodia">Cajas Valoradas a Custodia</a></li>
+                                            }
+
+                                        </ul>
+                                    </li>
+
                                     <!--Category name-->
                                     <li class="list-header">Etapas Créditos</li>
                                     <!--Menu list item-->
@@ -471,13 +495,13 @@
                                                 <li><a href="/wf/v1/preparar-nomina-sc">Preparar Nómina </a></li>
                                                 <li><a href="/wf/v1/despacho-of-partes-sc">Despacho a Of. Partes</a></li>
 
-                                                <li><a href="/wf/v1/solucion-expediente-faltante-setcomplementario">Devolución Documento con Reparo </a></li>
+                                                <li><a href="/wf/v1/solucion-expediente-faltante-setcomplementario"><span id="alerta"></span>Documento con Reparo </a></li>
 
-                                                
+
                                                 <li class="list-divider"></li>
                                                 <li><a href="/wf/v1/recepcion-valija-documentos-sc">Recepción Valija Doc. Crédito</a></li>
                                                 <li><a href="/wf/v1/apertura-valija-documentos-sc">Apertura Valija Doc. Crédito</a></li>
-
+                                                <li><a href="/wf/v1/recepcion-sucursal-evaluadora-sc">Recepción Doc. Of. Evaluadora</a></li>
 
 
 
@@ -519,7 +543,7 @@
                                                 <li><a href="/wf/v1/analisis-mesa-control-Sc">Análisis Expedientes</a></li>
                                                 <li><a href="/wf/v1/despacho-a-suscursal-sc">Despacho Doc. a Sucursales</a></li>
                                                 <li><a href="/wf/v1/despacho-a-custodia-sc">Despacho Seguros a Custodia </a></li>
-                                             
+
 
                                             </ul>
                                         </li>
@@ -559,6 +583,9 @@
                                                 <li><a href="/configuraciones/usuarios">Usuarios</a></li>
                                                 <li><a href="/configuraciones/notarias">Notarías</a></li>
                                                 <li><a href="/wf/v1/reasignaciones/oficinas">Reasignación Oficina</a></li>
+                                                <li><a href="/configuracion/reasignar-etapa-credito">Reasignar Etapa</a></li>
+
+
                                             </ul>
                                         </li>
 
@@ -597,26 +624,26 @@
 
 
                                     @*
-        <!--Category name-->
-        <li class="list-header">Opciones</li>
+                                        <!--Category name-->
+                                        <li class="list-header">Opciones</li>
 
-        <!--Menu list item-->
-        <li>
-            <a href="#">
-                <i class="demo-pli-warning-window"></i>
-                <span class="menu-title">Grid System</span>
-                <i class="arrow"></i>
-            </a>
+                                        <!--Menu list item-->
+                                        <li>
+                                            <a href="#">
+                                                <i class="demo-pli-warning-window"></i>
+                                                <span class="menu-title">Grid System</span>
+                                                <i class="arrow"></i>
+                                            </a>
 
-            <!--Submenu-->
-            <ul class="collapse">
-                <li><a href="grid-bootstrap.html">Bootstrap Grid</a></li>
-                <li><a href="grid-liquid-fixed.html">Liquid Fixed</a></li>
-                <li><a href="grid-match-height.html">Match Height</a></li>
-                <li><a href="grid-masonry.html">Masonry</a></li>
+                                            <!--Submenu-->
+                                            <ul class="collapse">
+                                                <li><a href="grid-bootstrap.html">Bootstrap Grid</a></li>
+                                                <li><a href="grid-liquid-fixed.html">Liquid Fixed</a></li>
+                                                <li><a href="grid-match-height.html">Match Height</a></li>
+                                                <li><a href="grid-masonry.html">Masonry</a></li>
 
-            </ul>
-        </li>*@
+                                            </ul>
+                                        </li>*@
 
                                 </ul>
 
@@ -645,7 +672,7 @@
             <!-- Remove the class "show-fixed" and "hide-fixed" to make the content always appears. -->
             <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-            <p class="pad-lft">&#0169; 2018 Información Analítica, La Araucana</p>
+            <p class="pad-lft">&#0169; 2020 Información Analítica, La Araucana</p>
 
 
 
@@ -663,11 +690,26 @@
     <!-- END OF CONTAINER -->
     <!--JAVASCRIPT-->
     <!--=================================================-->
+
+
+    <input type="hidden" id="etapa-solucion-reparos-sc" value="@ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL_PAGADORA" />
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.4/es6-shim.min.js"></script>
     <script src="~/js/main.min.js"></script>
     <script src="~/lib/js/bootstrap-datepicker.min.js"></script>
-    @RenderSection("script", false)>
+
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/layout.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/layout.min.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
+
+
+    @RenderSection("script", false)
     <!--=================================================-->
+
 
 </body>
 </html>

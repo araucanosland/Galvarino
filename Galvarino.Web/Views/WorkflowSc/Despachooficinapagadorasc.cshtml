@@ -20,7 +20,7 @@
   }
   
 
-    <input type="hidden" id="la_etapa" value="@ProcesoDocumentos.ETAPA_DESPACHO_A_DOCUMENTOS_A_SUCURSAL" />
+    <input type="hidden" id="etapa" value="@ProcesoDocumentos.ETAPA_DESPACHO_A_DOCUMENTOS_A_SUCURSAL" />
     <div class="row">
         <div class="col-sm-6 table-toolbar-left">
             <form id="form-pistoleo">
@@ -37,7 +37,7 @@
     </div>
     <div class="row">
         <table id="tabla-generica" data-toggle="table"
-               data-url="/api/wfSc/v1/listar-valijas-documentos-oficina-ingreso-sc/OF_PARTES_DOCUMENTOS"
+               data-url="/api/wfSc/v1/listar-valijas-documentos-oficina-ingreso-sc/OF_PARTES_DOCUMENTOS/@ProcesoDocumentos.ETAPA_DESPACHO_DOCUMENTO_OFICINA_DESTINO"
                data-search="false"
                data-show-refresh="false"
                data-show-toggle="false"

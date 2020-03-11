@@ -33,6 +33,18 @@ namespace Galvarino.Web.Controllers
             try{
                 var credito = _context.Creditos.FirstOrDefault(cred => cred.FolioCredito == folioCredito);
                 var solicitud = _context.Solicitudes.Include(sol => sol.Tareas).ThenInclude(tar => tar.Etapa).FirstOrDefault(sol => sol.NumeroTicket == credito.NumeroTicket);
+
+                var xcompl = _context.ExpedientesComplementarios.Where(a => a.FolioCredito == folioCredito).FirstOrDefault();
+                List<Tarea> tareasDocumentosSc = new List<Tarea>();
+                List<Tarea> tareasSegurosSc=new List<Tarea>();
+                if (xcompl != null)
+                {
+                     tareasDocumentosSc = _context.Solicitudes.Include(sol => sol.Tareas).ThenInclude(tar => tar.Etapa).FirstOrDefault(sol => sol.NumeroTicket == xcompl.NumeroTicket).Tareas.Where(a => a.Etapa.ValorDuracion == "D" || a.Etapa.ValorDuracion == "A").ToList();
+                     tareasSegurosSc = _context.Solicitudes.Include(sol => sol.Tareas).ThenInclude(tar => tar.Etapa).FirstOrDefault(sol => sol.NumeroTicket == xcompl.NumeroTicket).Tareas.Where(a => a.Etapa.ValorDuracion == "S" || a.Etapa.ValorDuracion == "A").ToList();
+
+                }
+                
+
                 var oficinaComercial = _context.Oficinas.FirstOrDefault(o => o.Codificacion == _wfService.ObtenerVariable("OFICINA_INGRESO", credito.NumeroTicket));
                 var oficinaLegal = _context.Oficinas.FirstOrDefault(o => o.Codificacion == _wfService.ObtenerVariable("OFICINA_PAGO", credito.NumeroTicket));
                 var oficinaLegalizacion = _context.Oficinas.FirstOrDefault(l => l.Codificacion == _wfService.ObtenerVariable("OFICINA_PROCESA_NOTARIA", credito.NumeroTicket));
@@ -44,7 +56,9 @@ namespace Galvarino.Web.Controllers
                     OficinaComercial = oficinaComercial,
                     OficinaLegal = oficinaLegal,
                     OficinaLegalizacion = oficinaLegalizacion,
-                    Usuarios = _context.Users.Include(u => u.Oficina).ToList()
+                    Usuarios = _context.Users.Include(u => u.Oficina).ToList(),
+                    TareasDocumentosSc= tareasDocumentosSc,
+                    TareasSegurosSc= tareasSegurosSc
                 });
             }catch(Exception ex)
             {
@@ -62,6 +76,7 @@ namespace Galvarino.Web.Controllers
         public Oficina OficinaLegal { get; set; }
         public Oficina OficinaLegalizacion { get; set; }
         public IEnumerable<Usuario> Usuarios { get; set; }
-        
+        public IEnumerable<Tarea> TareasDocumentosSc { get; set; }
+        public IEnumerable<Tarea> TareasSegurosSc { get; set; }
     }
 }

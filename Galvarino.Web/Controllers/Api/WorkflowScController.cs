@@ -2,6 +2,7 @@
 using Galvarino.Web.Data.Repository;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Helper;
+using Galvarino.Web.Models.Mappings;
 using Galvarino.Web.Models.Security;
 using Galvarino.Web.Models.Workflow;
 using Galvarino.Web.Services.Notification;
@@ -69,7 +70,7 @@ namespace Galvarino.Web.Controllers.Api
         {
 
             List<string> ticketsAvanzar = new List<string>();
-          
+
             //var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento && x.TipoExpediente == TipoExpediente.Complementario);
 
             var elExpediente = _context.ExpedientesComplementarios.Where(d => d.CodigoSeguimiento == codigoSeguimiento).ToList();
@@ -131,11 +132,11 @@ namespace Galvarino.Web.Controllers.Api
             //var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento && x.TipoExpediente == TipoExpediente.Complementario);
 
             var elExpediente = _context.ExpedientesComplementarios.Where(d => d.CodigoSeguimiento == codigoSeguimiento).ToList();
-            
+
 
             foreach (var item in elExpediente)
             {
-               // var expedienteComplementario = _context.ExpedientesComplementarios.Where(x => x.FolioCredito == item.Credito.FolioCredito).FirstOrDefault();
+                // var expedienteComplementario = _context.ExpedientesComplementarios.Where(x => x.FolioCredito == item.Credito.FolioCredito).FirstOrDefault();
                 ticketsAvanzar.Add(item.NumeroTicket);
             }
 
@@ -188,7 +189,7 @@ namespace Galvarino.Web.Controllers.Api
             }
         }
 
-        [Route("analisis-mesa-control-sc")]
+        [HttpPost("analisis-mesa-control-sc")]
         public async Task<IActionResult> AnalisisMesaControlSc([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
 
@@ -198,7 +199,7 @@ namespace Galvarino.Web.Controllers.Api
                 List<string> ticketsAvanzarReparo = new List<string>();
                 List<string> seguimiento = new List<string>();
                 List<EnvioNotariaFormHelper> expedientesReparo = new List<EnvioNotariaFormHelper>();
-                var opt = new string[] { "Sin Reparos", "Falta Documento" };
+                var opt = new string[] { "Sin Reparos", "Falta Documento", "Sin Firma ni Timbre", "Ilegible" };
                 foreach (var item in entrada)
                 {
                     var ExpedienteCred = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Complementario);
@@ -234,7 +235,7 @@ namespace Galvarino.Web.Controllers.Api
 
                     }
 
-                       
+
                 }
 
                 await _wfService.AvanzarSetComplementario(ProcesoDocumentos.ETAPA_NOMINA_SET_COMPLEMENTARIO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL_SET_COMPLEMETARIOS, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
@@ -248,7 +249,7 @@ namespace Galvarino.Web.Controllers.Api
         }
 
 
-      
+
 
         [Route("despacho-a-custodia-sc/chequear-caja-valorada")]
         public IActionResult ChequearCajaValoradaSc()
@@ -319,7 +320,7 @@ namespace Galvarino.Web.Controllers.Api
                     var salida = new
                     {
                         caja = existe,
-                        documentos =  documentos.OrderBy(d => d.Pistoleados).ToList()
+                        documentos = documentos.OrderBy(d => d.Pistoleados).ToList()
                     };
                     return Ok(salida);
                 }
@@ -338,7 +339,7 @@ namespace Galvarino.Web.Controllers.Api
         {
             try
             {
-               
+
 
                 //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
                 var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
@@ -348,7 +349,7 @@ namespace Galvarino.Web.Controllers.Api
                 ofinales.Add(ObjetoOficinaUsuario);
                 ofinales.AddRange(OficinasUsuario.ToList());
 
-               
+
                 User.IsInRole("Mesa Control");
                 _context.Database.SetCommandTimeout(300);
 
@@ -361,7 +362,7 @@ namespace Galvarino.Web.Controllers.Api
                                join expediente in _context.ExpedientesCreditos.Include(exp => exp.Documentos) on credito equals expediente.Credito
 
                                where (
-                                             //  credito.FolioCredito=="093000419104"
+                                                //  credito.FolioCredito=="093000419104"
                                                 ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA)))
                                                && (((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null))
                                                && expediente.TipoExpediente == TipoExpediente.Complementario
@@ -424,7 +425,7 @@ namespace Galvarino.Web.Controllers.Api
 
             foreach (var item in expcomp)
             {
-                creditos.Add( _context.Creditos.Where(a => a.Id == item.CreditoId).FirstOrDefault());
+                creditos.Add(_context.Creditos.Where(a => a.Id == item.CreditoId).FirstOrDefault());
                 //valorada.Add(_context.ValijasValoradas.Where(a => a.CodigoSeguimiento == item.CodigoSeguimiento && a.CodigoSeguimiento == folioValija && a.MarcaAvance == "OF_PARTES_DOCUMENTOS").FirstOrDefault());
 
             }
@@ -433,17 +434,52 @@ namespace Galvarino.Web.Controllers.Api
             {
                 excred.Add(_context.ExpedientesCreditos.Where(a => a.CreditoId == item.Id).FirstOrDefault());
             }
-             foreach (var item in excred)
+            foreach (var item in excred)
             {
 
-                var doc = _context.Documentos.Where(a => a.ExpedienteCredito.CreditoId == item.CreditoId && a.Codificacion!="10" && a.Codificacion!="09" ).ToList();
-               
+                var doc = _context.Documentos.Where(a => a.ExpedienteCredito.CreditoId == item.CreditoId && a.Codificacion != "10" && a.Codificacion != "09").ToList();
+
             }
 
 
             //var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.ValijaValorada.CodigoSeguimiento == folioValija && d.TipoExpediente == TipoExpediente.Complementario);
             return Ok(excred);
         }
+
+
+
+        [HttpGet("listar-valija-Documentos-Oficinadestino-sc/{folioValija}")]
+        public IActionResult ListarvalijaDocumentosOficinadestinosc(string folioValija)
+        {
+
+            // var expcomp = new List<ExpedienteComplementario>();
+            var valorada = new ValijaValorada();
+            var creditos = new List<Credito>();
+            var excred = new List<ExpedienteCredito>();
+            List<Documento> docu = new List<Documento>();
+            //expcomp = _context.ExpedientesComplementarios.Where(a => a.CodigoSeguimiento == folioValija).ToList();
+            valorada = _context.ValijasValoradas.Where(a => a.CodigoSeguimiento == folioValija && a.MarcaAvance == "OFICINA_EVALUADORA_APERTURA").FirstOrDefault();
+
+            var expcomp = _context.ExpedientesComplementarios.Where(a => a.CodigoSeguimiento == valorada.CodigoSeguimiento).ToList();
+
+
+            foreach (var item in expcomp)
+            {
+                creditos.Add(_context.Creditos.Where(a => a.Id == item.CreditoId).FirstOrDefault());
+
+                excred.Add(_context.ExpedientesCreditos.Where(a => a.CreditoId == item.CreditoId && a.TipoExpediente == TipoExpediente.Complementario).FirstOrDefault());
+            }
+            foreach (var item in excred)
+            {
+
+                var doc = _context.Documentos.Where(a => a.ExpedienteCredito.Id == item.Id && a.Codificacion != "10" && a.Codificacion != "09").ToList();
+
+            }
+
+            //var expedientes = _context.ExpedientesCreditos.Include(e => e.Documentos).Include(e => e.Credito).Where(d => d.ValijaValorada.CodigoSeguimiento == folioValija && d.TipoExpediente == TipoExpediente.Complementario);
+            return Ok(excred);
+        }
+
 
         [HttpPost("apertura-valija-Docmentos-creditosc/{codigoSeguimiento}")]
         public async Task<IActionResult> AperturaValijaDocumentosSc([FromBody] IEnumerable<ExpedienteGenerico> entrada, [FromRoute] string codigoSeguimiento)
@@ -478,6 +514,42 @@ namespace Galvarino.Web.Controllers.Api
                 return BadRequest();
             }
         }
+
+
+
+
+        [HttpPost("Cierre-valija-credito-sc/{codigoSeguimiento}")]
+        public async Task<IActionResult> CierrevalijaValijaDocumentosSc([FromBody] IEnumerable<ExpedienteGenerico> entrada, [FromRoute] string codigoSeguimiento)
+        {
+
+            try
+            {
+                List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+                List<string> ticketsAvanzar = new List<string>();
+
+                var elExpedienteApertura = _context.ExpedientesComplementarios.Where(d => d.CodigoSeguimiento == codigoSeguimiento).ToList();
+
+                foreach (var item in elExpedienteApertura)
+                {
+                    ticketsAvanzar.Add(item.NumeroTicket);
+                }
+
+                var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
+                laValija.MarcaAvance = "FN";
+                _context.ValijasValoradas.Update(laValija);
+                await _context.SaveChangesAsync();
+
+                await _wfService.AvanzarSetComplementario(ProcesoDocumentos.ETAPA_NOMINA_SET_COMPLEMENTARIO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA_DOCUMENTOS_OFICINA_DESTINO, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+
+
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
 
 
 
@@ -548,7 +620,7 @@ namespace Galvarino.Web.Controllers.Api
             }
         }
 
-       
+
 
         [HttpPost("despacho-sucursal-oficiana-partes-sc")]
         public async Task<IActionResult> DespachoSucOfPartesSc([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
@@ -637,12 +709,12 @@ namespace Galvarino.Web.Controllers.Api
                     //var elExpediente = _context.ExpedientesCreditos.FirstOrDefault(ex => ex.CreditoId == credito.Id && ex.TipoExpediente == TipoExpediente.Complementario);
                     //elExpediente.ValijaValorada = valijaEnvio;
                     //expedientesModificados.Add(elExpediente);
-                   
+
                     var elExpedienteComplementario = _context.ExpedientesComplementarios.Where(d => d.CreditoId == credito.Id).FirstOrDefault();
-                    elExpedienteComplementario.CodigoSeguimiento= codSeg;
+                    elExpedienteComplementario.CodigoSeguimiento = codSeg;
                     ticketsAvanzar.Add(elExpedienteComplementario.NumeroTicket);
                     _wfService.AsignarVariable("USUARIO_DESPACHA_A_OF_PARTES_DOCUMENTOS_SET_COMPLEMENTARIO", User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""), elExpedienteComplementario.NumeroTicket);
-                     expedientesModificados.Add(elExpedienteComplementario);
+                    expedientesModificados.Add(elExpedienteComplementario);
 
                 }
 
@@ -703,6 +775,42 @@ namespace Galvarino.Web.Controllers.Api
         }
 
 
+
+        [HttpGet("documentos-generados-sc/{tipoDocumento}")]
+        public async Task<IActionResult> ListarMisDocumentosGenerados(string tipoDocumento)
+        {
+            try
+            {
+
+
+                var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+                var ObjetoOficinaUsuario = await _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefaultAsync(ofc => ofc.OficinaProceso.Codificacion == oficinaUsuario);
+                var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id);
+
+                switch (tipoDocumento)
+                {
+
+                    case "valija-oficina-documento-of-Pago":
+                        var valijaValodaraOfPago = _solicitudRepository.listarNominasGeneradasOfPagoSc();
+                        return Ok(valijaValodaraOfPago);
+
+                    case "valija-valorada":
+                        var valijaValodara = _solicitudRepository.listarNominasGeneradasSc();
+                        return Ok(valijaValodara);
+                    default:
+                        throw new Exception("Debes Ingresar con una opcion de mostrado");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+
+
+
         [HttpPost("preparar-nomina-sc")]
         public async Task<IActionResult> PrepararNominaSetComercial([FromBody] IEnumerable<ExpedienteGenerico> entrada)
         {
@@ -710,7 +818,7 @@ namespace Galvarino.Web.Controllers.Api
             List<string> ticketsAvanzar = new List<string>();
             foreach (var item in entrada)
             {
-                 var ExpedienteCred = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente==TipoExpediente.Complementario);
+                var ExpedienteCred = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Complementario);
                 var elExpediente = _context.ExpedientesComplementarios.Where(d => d.CreditoId == ExpedienteCred.CreditoId).FirstOrDefault();
                 ticketsAvanzar.Add(elExpediente.NumeroTicket);
             }
@@ -728,7 +836,7 @@ namespace Galvarino.Web.Controllers.Api
             return Ok(valijas);
         }
         [HttpGet("listar-valijas-documentos-oficina-ingreso-sc/{marcavance?}/{etapaIn?}")]
-        public IActionResult ListarValijasOficinaIngresoSc(string marcavance = "",[FromRoute] string etapaIn = "")
+        public IActionResult ListarValijasOficinaIngresoSc(string marcavance = "", [FromRoute] string etapaIn = "")
         {
             var rolesUsuario = User.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToArray();
             var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
@@ -739,7 +847,7 @@ namespace Galvarino.Web.Controllers.Api
             ofinales.AddRange(OficinasUsuario.ToList());
             var lasEtps = new string[] { etapaIn };
             var lasOff = ofinales.Select(x => x.Codificacion).ToArray();
-           
+
             var valijas = _solicitudRepository.listarValijasEnviadasOficinaIngresoSc(marcavance, rolesUsuario, User.Identity.Name, lasOff, lasEtps);
 
             return Ok(valijas);
@@ -747,10 +855,16 @@ namespace Galvarino.Web.Controllers.Api
 
 
 
+        
+
+
+
+
         [HttpGet("nomina-setcomplementario/{etapaIn?}/{fechaCerrar?}")]
         public IActionResult ListarMisSolicitudes([FromRoute] string etapaIn = "", [FromRoute] string fechaCerrar = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20, [FromQuery] string sort = "", [FromQuery] string order = "", [FromQuery] string sucursal = "")
         {
 
+      
             //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
 
             var rolesUsuario = User.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToArray();
@@ -775,8 +889,11 @@ namespace Galvarino.Web.Controllers.Api
         }
 
 
+
+
+
         [HttpPost("solucion-reparo-sucursal-set-complementario")]
-        public async Task<IActionResult> SolucionReparosSucursalSc([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        public IActionResult SolucionReparosSucursalSc([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
             List<string> ticketsAvanzar = new List<string>();
             foreach (var item in entrada)
@@ -840,53 +957,10 @@ namespace Galvarino.Web.Controllers.Api
                 _context.PasosValijasValoradas.Add(registra);
                 await _context.SaveChangesAsync();
 
-                /*TODO: Convertir en consulta dapper para manejar mejor performance */
-                //var documentos = from pasoval in
-                //                     from mono in _context.PasosValijasValoradas
-                //                     join credit in _context.Creditos on mono.FolioCredito equals credit.FolioCredito
-                //                     select new
-                //                     {
-                //                         mono.FolioCredito,
-                //                         mono.CodigoCajaValorada,
-                //                         mono.Usuario,
-                //                         TotalDocumentos = credit.TipoCredito == TipoCredito.Normal ? 2 : 1
-                //                     }
-                //                 where pasoval.CodigoCajaValorada == codigoCaja && pasoval.Usuario == User.Identity.Name
-
-                //                 group pasoval by new { pasoval.FolioCredito, pasoval.TotalDocumentos } into slt
-                //                 select new
-                //                 {
-                //                     Folio = slt.Key.FolioCredito,
-                //                     Pistoleados = slt.Count(),
-                //                     Total = slt.Key.TotalDocumentos
-                //                 };
-
-
 
                 var documentos = _solicitudRepository.listarSegurosPorValijas(codigoCaja, User.Identity.Name);
-                //var documentos = from pasoval in
-                //                     from mono in _context.PasosValijasValoradas
-                //                     join credit in _context.Creditos on mono.FolioCredito equals credit.FolioCredito
-                //                     join expcred in _context.ExpedientesCreditos on credit.Id equals expcred.CreditoId
-                //                     join seguros in _context.Documentos on expcred.Id equals seguros.ExpedienteCredito.Id
-                //                     select new
-                //                     {
-                //                         mono.FolioCredito,
-                //                         mono.CodigoCajaValorada,
-                //                         mono.Usuario,
-                //                         TotalDocumentos = credit.TipoCredito == TipoCredito.Normal ? 2 : 1
-                //                     }
-                //                 where pasoval.CodigoCajaValorada == codigoCaja && pasoval.Usuario == User.Identity.Name
 
-                //                 group pasoval by new { pasoval.FolioCredito, pasoval.TotalDocumentos } into slt
-                //                 select new
-                //                 {
-                //                     Folio = slt.Key.FolioCredito,
-                //                     Pistoleados = slt.Count(),
-                //                     Total = slt.Key.TotalDocumentos
-                //                 };
-
-                var salida =  documentos.OrderBy(d => d.Pistoleados).ToList();
+                var salida = documentos.OrderBy(d => d.Pistoleados).ToList();
                 return Ok(salida);
             }
             catch (Exception ex)
@@ -920,7 +994,7 @@ namespace Galvarino.Web.Controllers.Api
 
 
 
-
+       
 
     }
 }

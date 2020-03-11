@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Preparar Nómina Set Complementario";
+    ViewData["Title"] = "Recepción Documentos Set Complementario";
 }
 
 @section breadcumbs{
@@ -9,17 +9,7 @@
 
 }
 
-@section script{
 
-    <!--Page Script-->
-    <environment include="Development">
-        <script src="~/js/prepararnominaSc.js"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="~/js/prepararNominaSc.min.js?g=@Guid.NewGuid().ToString()"></script>
-    </environment>
-
-}
 
 <style type="text/css">
     .glyphicon-check {
@@ -91,24 +81,18 @@
             opacity: .5;
         }
 </style>
-<div class="row">
-    <div class="col-sm-6 table-toolbar-left">
-        <div class="btn-group">
-            <button class="btn btn-default" data-target="#modal-pistoleo" data-toggle="modal"><i class="glyphicon glyphicon-barcode"></i></button>
-        </div>
-    </div>
-</div>
+
 <div class="row">
     <table id="tabla-generica"
            data-toggle="table"
-           data-url="/api/wfsc/v1/nomina-setcomplementario/@ProcesoDocumentos.ETAPA_PREPARAR_NOMINA_SET_COMPLEMENTARIO"
+           data-url="/api/wfsc/v1/nomina-setcomplementario/@ProcesoDocumentos.ETAPA_RECEPCION_DOCUMENTOS_OF_EVALUADORA"
            data-search="false"
            data-show-refresh="false"
            data-show-toggle="false"
            data-show-columns="false"
            data-sort-name="folioCredito"
            data-page-list="[]"
-           data-page-size="20"
+           data-page-size="200"
            data-side-pagination="server"
            data-pagination="true" data-show-pagination-switch="false">
         <thead>
@@ -125,40 +109,4 @@
 </div>
 
 <input type="hidden" id="etapa-actual" value="@ProcesoDocumentos.ETAPA_PREPARAR_NOMINA_SET_COMPLEMENTARIO" />
-<!--Default Bootstrap Modal-->
-<!--===================================================-->
-<div class="modal fade" id="modal-pistoleo" role="dialog" tabindex="-1" aria-labelledby="modal-pistoleo" aria-hidden="true" data-backdrop="static"
-     data-keyboard="false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form id="frm-pistoleo">
-                <!--Modal header-->
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
-                    <h4 class="modal-title">Validación de Documentos para Nómina Set Complementario</h4>
-                </div>
-
-                <!--Modal body-->
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="control-label">Pistolea el documento</label>
-                        <input type="text" id="folio-shot" class="form-control solo-numeros" maxlength="23" placeholder="Pistolea el documento" autocomplete="off" />
-                    </div>
-                    <div class="well contenedor-folios">
-
-                    </div>
-                </div>
-
-                <!--Modal footer-->
-                <div class="modal-footer">
-                    <button data-dismiss="modal" class="btn btn-default" type="button">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btn-generar-generico">Finalizado</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!--===================================================-->
-<!--End Default Bootstrap Modal-->
-<canvas id="barcode"></canvas>
 

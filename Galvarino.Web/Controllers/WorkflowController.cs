@@ -219,6 +219,8 @@ namespace Galvarino.Web.Controllers
         }
 
 
+       
+
         [Route("envio-a-notaria-rm")]
         public IActionResult EnvioNotariaRM()
         {
@@ -287,6 +289,17 @@ namespace Galvarino.Web.Controllers
             ViewBag.Offices =  _context.Oficinas.ToList();
             return View();
         }
+
+        [Route("reasignar-etapa-credito")]
+        public IActionResult ModifcarEstado()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            ViewBag.Offices = _context.Oficinas.ToList();
+            return View();
+        }
+
+
+
         #endregion
     }
 }

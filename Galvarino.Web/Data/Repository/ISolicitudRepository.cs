@@ -1,3 +1,4 @@
+using Galvarino.Web.Models.Application;
 using System.Collections.Generic;
 
 namespace Galvarino.Web.Data.Repository
@@ -13,10 +14,14 @@ namespace Galvarino.Web.Data.Repository
         IEnumerable<SolicitudResult> listarSolicitudesSc(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string sucrusal = "");
 
 
+        int listarDocumentosReparosSc(string[] roles, string rut, string[] oficinas, string[] etapas);
+
+
+
         IEnumerable<dynamic> listarValijasEnviadas(string marcaAvance);
 
-
-
+        IEnumerable<ValijaValorada> listarNominasGeneradasOfPagoSc();
+        IEnumerable<ValijaValorada>  listarNominasGeneradasSc();
 
         IEnumerable<dynamic> listarValijasEnviadasSc(string marcaAvance);
 
@@ -29,5 +34,8 @@ namespace Galvarino.Web.Data.Repository
 
         IEnumerable<dynamic> listarSucursalespoEtapa();
 
+        void ReasginarEstadoTarea(string folioCredito, int nuevaEtapa);
+
+        int analizarDocumentosSc(string folioCredito);
     }
 }

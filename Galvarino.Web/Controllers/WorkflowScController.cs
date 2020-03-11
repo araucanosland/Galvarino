@@ -126,6 +126,14 @@ namespace Galvarino.Web.Controllers
 
 
 
+        [Route("recepcion-sucursal-evaluadora-sc")]
+        public IActionResult RecepcionSucursalEvaluadoraSc()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+
         [Route("recepcion-valija-Sc")]
         public IActionResult RecepcionValijaSc()
         {
@@ -148,6 +156,15 @@ namespace Galvarino.Web.Controllers
         }
 
 
+
+        [Route("notas-internas-Sc/generadas/{tipoDocumento}")]
+        public IActionResult DocumentosGeneradosSc(string tipoDocumento)
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            ViewBag.tipoDocumento = tipoDocumento;
+            return View();
+        }
+
         [Route("detalle-valija-valorada-Doc-Sucursal-sc/{codigoSeguimiento}")]
         public async Task<IActionResult> DetalleValijaValoradaDocSucursalSc([FromRoute] string codigoSeguimiento)
         {
@@ -167,21 +184,21 @@ namespace Galvarino.Web.Controllers
 
             foreach (var item in expcomp)
             {
-                creditos.Add( await _context.Creditos.Where(a => a.Id == item.Id).FirstOrDefaultAsync());
+                creditos.Add( await _context.Creditos.Where(a => a.Id == item.CreditoId).FirstOrDefaultAsync());
                 valorada.Add(  _context.ValijasValoradas.Where(a => a.CodigoSeguimiento == item.CodigoSeguimiento && a.CodigoSeguimiento==codigoSeguimiento && a.MarcaAvance== "OF_PARTES_DOCUMENTOS").FirstOrDefault());
 
             }
 
             foreach (var item in creditos)
             {
-                excred.Add(_context.ExpedientesCreditos.Where(a => a.CreditoId == item.Id).FirstOrDefault());
+                excred.Add(_context.ExpedientesCreditos.Where(a => a.CreditoId == item.Id && TipoExpediente.Complementario == a.TipoExpediente).FirstOrDefault());
             }
             
 
-            foreach (var item in excred)
+            foreach (var expdiente in excred)
             {
                
-               var doc =_context.Documentos.Where(a => a.ExpedienteCredito.CreditoId == item.CreditoId && TipoExpediente.Complementario==item.TipoExpediente).ToList();
+               var doc =_context.Documentos.Where(a => a.ExpedienteCredito.Id == expdiente.Id && a.Codificacion!="09" && a.Codificacion != "10").ToList();
                
             }
 

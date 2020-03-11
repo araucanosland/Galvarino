@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Galvarino.Web.Models.Security;
+using System.Security.Claims;
 
 namespace Galvarino.Web.Controllers.Api
 {
@@ -46,7 +47,7 @@ namespace Galvarino.Web.Controllers.Api
         public async Task<IActionResult> ListarUsuarios()
         {
             return Ok();
-        } 
+        }
 
         [HttpGet("usuarios/{identificador}")]
         public IActionResult ObtenerUsuario([FromRoute] string identificador)
@@ -204,7 +205,7 @@ namespace Galvarino.Web.Controllers.Api
             {
                 Etapa etp = _context.Etapas.Include(f => f.Destinos).FirstOrDefault(x => x.Id == etapa.id);
                 etp.Nombre = etapa.nombre;
-                var ddd= '_';
+                var ddd = '_';
                 etp.NombreInterno = etapa.nombre.Replace(' ', ddd).ToUpper();
                 etp.Proceso = _context.Procesos.Find(etapa.proceso);
                 etp.Secuencia = 900;
@@ -292,22 +293,22 @@ namespace Galvarino.Web.Controllers.Api
             var tipoExpediente = Enum.Parse<TipoExpediente>(entrada.TipoExpediente);
             var tipoDocumento = Enum.Parse<TipoDocumento>(entrada.TipoDocumento);
 
-            var existe = _context.ConfiguracionDocumentos.FirstOrDefault(cdoc =>    cdoc.TipoCredito == tipoCredito 
-                                                                                &&  cdoc.TipoDocumento == tipoDocumento 
-                                                                                &&  cdoc.TipoExpediente == tipoExpediente
+            var existe = _context.ConfiguracionDocumentos.FirstOrDefault(cdoc => cdoc.TipoCredito == tipoCredito
+                                                                                && cdoc.TipoDocumento == tipoDocumento
+                                                                                && cdoc.TipoExpediente == tipoExpediente
                                                                         );
 
-            if(existe != null && entrada.Id == 0)
+            if (existe != null && entrada.Id == 0)
             {
                 throw new Exception("Registro Duplicado al Guardar");
             }
-            else if(existe != null && entrada.Id > 0)
+            else if (existe != null && entrada.Id > 0)
             {
                 existe.Codificacion = entrada.Codificacion;
                 _context.ConfiguracionDocumentos.Update(existe);
 
             }
-            else if(existe == null)
+            else if (existe == null)
             {
                 existe = new ConfiguracionDocumento
                 {
@@ -320,10 +321,75 @@ namespace Galvarino.Web.Controllers.Api
             }
 
             _context.SaveChanges();
-             
+
 
             return Ok();
         }
         #endregion
+
+
+        #region Reasginacion Etapas
+
+
+       
+
+
+
+        [HttpGet("obtener-etapa/tareas/{folioCredito}")]
+        public IActionResult ObtenerEtapaTareas([FromRoute] string folioCredito = "", [FromRoute] string etapaSolicitud = "")
+        {
+
+            try
+            {
+                var credito = _context.Creditos.FirstOrDefault(cred => cred.FolioCredito == folioCredito);
+                var solicitud = _context.Solicitudes.Include(sol => sol.Tareas).ThenInclude(tar => tar.Etapa).FirstOrDefault(sol =>sol.NumeroTicket == credito.NumeroTicket);
+
+                var tarpagare = _context.Tareas.Where(a => a.Solicitud.Id == solicitud.Id && a.Estado == EstadoTarea.Activada);
+                var xcompl = _context.ExpedientesComplementarios.Where(a => a.FolioCredito == folioCredito).FirstOrDefault();
+                List<Tarea> tareasDocumentosSc = new List<Tarea>();
+                List<Tarea> tareasSegurosSc = new List<Tarea>();
+                if (xcompl != null)
+                {
+                    tareasDocumentosSc = _context.Solicitudes.Include(sol => sol.Tareas).ThenInclude(tar => tar.Etapa).FirstOrDefault(sol => sol.NumeroTicket == xcompl.NumeroTicket).Tareas.Where(a => a.Etapa.ValorDuracion == "D" || a.Etapa.ValorDuracion == "A").ToList();
+                    tareasSegurosSc = _context.Solicitudes.Include(sol => sol.Tareas).ThenInclude(tar => tar.Etapa).FirstOrDefault(sol => sol.NumeroTicket == xcompl.NumeroTicket).Tareas.Where(a => a.Etapa.ValorDuracion == "S" || a.Etapa.ValorDuracion == "A").ToList();
+
+                }
+
+
+                var estapa = _context.Etapas.Where(a=>a.Proceso.Id==1);
+                var resultado = new ModeloBusqueda();
+
+                resultado.Credito = credito;
+                resultado.Solicitud = solicitud;
+                resultado.TareasPagres = tarpagare;
+                resultado.etapaTareas = estapa.OrderBy(a=>a.NombreInterno);
+                return Ok(resultado);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+
+        }
+
+        public class ModeloBusqueda
+        {
+            public Credito Credito { get; set; }
+            public Solicitud Solicitud { get; set; }
+            public Oficina OficinaComercial { get; set; }
+            public Oficina OficinaLegal { get; set; }
+            public Oficina OficinaLegalizacion { get; set; }
+            public IEnumerable<Usuario> Usuarios { get; set; }
+            public IEnumerable<Tarea> TareasPagres{ get; set; }
+            public IEnumerable<Tarea> TareasDocumentosSc { get; set; }
+            public IEnumerable<Tarea> TareasSegurosSc { get; set; }
+            public IEnumerable<Etapa> etapaTareas { get; set; }
+        }
+
+        #endregion
+
+
     }
 }

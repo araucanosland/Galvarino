@@ -180,8 +180,11 @@ function formatoListaDocumentos(val, row, inc)
 
 
 function formatoListaDocumentosSetComplementarios(val, row, inc) {
+    debugger;
     let strOut = row.documentos.map(function (val, idx) {
+        debugger;
         if (val.codificacion == "03") {
+            debugger;
             return `<strong>${val.codificacion}</strong> - Informe de Crédito`
         }
         if (val.codificacion == "09") {
@@ -191,7 +194,10 @@ function formatoListaDocumentosSetComplementarios(val, row, inc) {
             return `<strong>${val.codificacion}</strong> - Seguro Cesantía`
         }
         if (val.codificacion == "04") {
-            return `<strong>${val.codificacion}</strong> - Hoja Contrato Credito`
+            return `<strong>${val.codificacion}</strong> - Hoja de Contrato`
+        }
+        if (val.codificacion == "05") {             
+            return `<strong>${val.codificacion}</strong> - Ficha Aval`
         }
         if (val.codificacion == "00") {
             return `<strong>${val.codificacion}</strong> - Afecto 15%`

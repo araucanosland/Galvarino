@@ -1,4 +1,12 @@
-﻿const metodos = {
+﻿window.operateEvents = {
+
+    'change .reparo': function (e, value, row, index) {
+
+        row.reparo = parseInt($(e.target).val());
+    }
+};
+
+const metodos = {
     avanzarWf: function () {
 
         let data = $('#tabla-generica').bootstrapTable('getSelections');
@@ -41,9 +49,9 @@
 }
 
 
-function formatoReparo(val, row, inc) {
-
-    return opcionesReparosNotaria[val];
+function formatoReparoSetcompl(val, row, inc) {
+    debugger;
+    return opcionesReparosSetComplementario[val];
 }
 
 
