@@ -1,4 +1,4 @@
-@model Galvarino.Web.Models.Helper.PdfModelHelper
+﻿@model Galvarino.Web.Models.Helper.PdfModelHelper
 @{
     Layout = null;
     string Separador = "- ";
@@ -11,37 +11,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <link href="~/lib/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="~/lib/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="~/lib/js/jsBArcode.all.min.js"></script>
     <style type="text/css">
-        .tabla-orden{
+        .tabla-orden {
             width: 100%;
         }
-        .tabla-orden th{
-            vertical-align: top;
-            padding-top: 6px !important;
-        }
+
+            .tabla-orden th {
+                vertical-align: top;
+                padding-top: 6px !important;
+            }
+
         .alright {
             text-align: right;
         }
 
-        .pie-pagina{
+        .pie-pagina {
             vertical-align: bottom;
             width: 100%;
         }
 
-        .pie-pagina td {
-            text-align: center;
-        }
+            .pie-pagina td {
+                text-align: center;
+            }
 
         .new-page {
             page-break-before: always;
         }
 
-        thead { display: table-header-group; }
-        tfoot { display: table-row-group; }
-        tr { page-break-inside: avoid; }
-        
+        thead {
+            display: table-header-group;
+        }
+
+        tfoot {
+            display: table-row-group;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
     </style>
 </head>
 <body>
@@ -49,16 +58,16 @@
         <thead>
             <tr>
                 <th>
-                    
-                    @if(Model.ValijaValorada.MarcaAvance == "OF_PARTES")
+
+                    @if (Model.ValijaValorada.MarcaAvance == "OF_PARTES")
                     {
                         <h2 style="text-align:center;">Envío de Valija a Oficina de Partes</h2>
                     }
-                    else if(Model.ValijaValorada.MarcaAvance== "DEVOLVER")
+                    else if (Model.ValijaValorada.MarcaAvance == "DEVOLVER")
                     {
                         <h2 style="text-align:center;">Envío de Valija de Devoluciones</h2>
                     }
-                    
+
                 </th>
             </tr>
             <tr>
@@ -67,16 +76,17 @@
             <tr>
                 <th style="text-align:center;">
                     <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
-                    @if(Model.ValijaValorada.MarcaAvance == "OF_PARTES")
+                    @if (Model.ValijaValorada.MarcaAvance == "OF_PARTES")
                     {
                         <h4><strong>Oficina Remitente:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
                     }
-                    else if(Model.ValijaValorada.MarcaAvance == "DEVOLVER")
+                    else if (Model.ValijaValorada.MarcaAvance == "DEVOLVER")
                     {
                         <h4><strong>Oficina Destino:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
                     }
                 </th>
             </tr>
+
         </thead>
     </table>
 
@@ -87,22 +97,37 @@
                 <th>
                     <h3>Nómina Valija Valorada</h3>
                     <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
-                    @if(Model.ValijaValorada.MarcaAvance == "OF_PARTES")
+                    @if (Model.ValijaValorada.MarcaAvance == "OF_PARTES")
                     {
                         <h4><strong>Oficina Remitente:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
                     }
-                    else if(Model.ValijaValorada.MarcaAvance == "DEVOLVER")
+                    else if (Model.ValijaValorada.MarcaAvance == "DEVOLVER")
                     {
                         <h4><strong>Oficina Destino:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
                     }
                 </th>
+
                 <th style="text-align:right;"><canvas id="barcode"></canvas></th>
             </tr>
+            @if (Model.Variables.Count != 0)
+            {
+                <tr>
+                    <td style="text-align:left;">
+                        ATP: Acuerdo total de Pago
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:left;">
+                        N : Nulo
+                    </td>
+                </tr>
+
+            }
         </thead>
     </table>
-    <br/>
-    <br/>
-    <br/>
+    <br />
+    <br />
+    <br />
     <table class="table">
         <thead>
             <tr>
@@ -112,57 +137,77 @@
                 <th>Tipo</th>
                 <th>Documentos</th>
                 <th>Fecha Otorgamiento</th>
+                @if (Model.Variables.Count != 0)
+                {
+                    <th>Nóm. Esp.</th>
+                }
+
             </tr>
         </thead>
         <tbody>
-            @foreach(var xfile in Model.ValijaValorada.Expedientes)
+            @foreach (var xfile in Model.ValijaValorada.Expedientes)
             {
-                
+
                 <tr>
                     <td>@Enumeracion</td>
                     <td>@xfile.Credito.FolioCredito</td>
                     <td>@xfile.Credito.RutCliente</td>
                     <td>@xfile.Credito.TipoCredito</td>
                     <td>
-                        @foreach(var doc in xfile.Documentos)
+                        @foreach (var doc in xfile.Documentos)
                         {
-                            @if(xfile.Documentos.Last().Id == doc.Id)
+                            @if (xfile.Documentos.Last().Id == doc.Id)
                             {
-                                <strong>@doc.Codificacion</strong> @Separador  @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim()
+                                <strong>@doc.Codificacion</strong> @Separador @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim()
                             }
                             else
                             {
-                                <strong>@doc.Codificacion</strong> @Separador  @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim() <br />
+                                <strong>@doc.Codificacion</strong> @Separador @System.Text.RegularExpressions.Regex.Replace(doc.TipoDocumento.ToString(), "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim() <br />
                             }
-                            
+
 
                         }
                     </td>
                     <td>@xfile.Credito.FechaDesembolso.ToShortDateString()</td>
+
+                    @foreach (var xfile1 in Model.Variables.Where(p => p.NumeroTicket == xfile.Credito.NumeroTicket))
+                    {
+                        if (xfile1.Clave == "ACUERDO_PAGO_TOTAL" && xfile1.Valor == "1")
+                        {
+                            <td>ATP</td>
+                        }
+
+                        if (xfile1.Clave == "NULO" && xfile1.Valor == "1")
+                        {
+                            <td>N</td>
+                        }
+
+
+                    }
                 </tr>
                 Enumeracion++;
             }
-            
+
         </tbody>
 
     </table>
 
-    <br/><br/><br/>
+    <br /><br /><br />
     <footer>
         <table class="pie-pagina">
             <tr>
                 <td>
-                    ______________________<br/>
+                    ______________________<br />
                     Firma Emisor
                 </td>
                 <td>
-                    ______________________<br/>
+                    ______________________<br />
                     Firma Receptor
                 </td>
             </tr>
         </table>
     </footer>
-        
+
 
     <script type="text/javascript">
     JsBarcode("#barcode", "@Model.CodigoSeguimiento");</script>

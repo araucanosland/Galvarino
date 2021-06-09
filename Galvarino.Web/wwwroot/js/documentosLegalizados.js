@@ -30,9 +30,9 @@ const metodos = {
 
             $.ajax({
                 type: "GET",
-                url: `/api/wf/v1/obtener-expediente/${expedientex.folioCredito}`
+                url: `/api/wf/v1/obtener-expediente-nomina-especial/${expedientex.folioCredito}`
             }).done(function (data) {
-
+                debugger;
                 expedientex.obtenido = data;
 
                 let index = _ingresados.findIndex(function (expedientey) {
@@ -48,6 +48,7 @@ const metodos = {
                         _ingresados.push(expedientex);
                     }
                 }
+                debugger;
                 metodos.render();
             }).fail(function (errMsg) {
                 $.niftyNoty({
@@ -63,12 +64,12 @@ const metodos = {
         $("#folio-shot").val("");
     },
     render: function () {
-
+        debugger;
         $('.contenedor-folios').html("");
         $.each(_ingresados, function (i, exp) {
 
             let internos = ``;
-
+            debugger;
             $.each(exp.obtenido.documentos, function (i, doc) {
                 let calssE = exp.documentos.indexOf(doc.codificacion) > -1 ? "glyphicon-ok" : "glyphicon-remove";
                 internos += `<li><a href="#">${enumTipoDocumentos[doc.tipoDocumento]} <i class="glyphicon ${calssE}" /></a></li>`
@@ -129,7 +130,7 @@ const metodos = {
             return false;
         }
         //console.log(foliosEnvio);
-        
+
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/ingreso-expedientes-legalizados`,
@@ -159,13 +160,30 @@ const metodos = {
         }).always(function () {
             _ingresados = [];
         });
-   
-        
+
+
     }
 };
 
+
+function rdcheck(obj) {
+
+    if (obj.value == 'NULO')
+        $('#radio-acuerdo-pago-total').attr('disabled', true);
+    else
+        $('#radio-nulos').attr('disabled', true);
+
+
+    $('#folio-shot').attr('disabled', false);
+    $('#btn-generar-generico').attr('disabled', false);
+}
+
 $(function () {
-    
+    $('#folio-shot').attr('disabled', true);
+    $('#btn-generar-generico').attr('disabled', true);
+
+
+
     $('#form-pistoleo-detalle').on('submit', function (event) {
         event.preventDefault();
         metodos.disparo();

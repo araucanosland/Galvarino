@@ -44,7 +44,7 @@ namespace Galvarino.Web
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<ApplicationDbContext>(options =>{
+            services.AddDbContext<ApplicationDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
                 options.EnableSensitiveDataLogging();
             });
@@ -79,7 +79,7 @@ namespace Galvarino.Web
                 // Cookie settings
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromDays(20);
-                
+
                 options.LoginPath = "/";
                 options.AccessDeniedPath = "/Home/SinPermiso";
                 options.SlidingExpiration = true;
@@ -93,12 +93,12 @@ namespace Galvarino.Web
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
 
             /*Workers & background tasks*/
-            services.AddHostedService<CargaDatosCreditoService>();
-            services.AddHostedService<GeneraArchivoIronMountain>();
-            services.AddHostedService<CierrePagaresDeIronMountainWorker>();
-            //services.AddHostedService<CorrectorCargaInicialWorker>();
-
-            
+            //services.AddHostedService<CargaDatosCreditoService>();
+            // services.AddHostedService<CierrePagaresDeIronMountainWorker>();
+          services.AddHostedService<CargaInicialWorker>();
+          // services.AddHostedService<GeneraArchivoIronMountain>();
+          // services.AddHostedService<CargaGalvarinoHistorico>();
+           //services.AddHostedService<CargaGalvarinoVenta>();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);

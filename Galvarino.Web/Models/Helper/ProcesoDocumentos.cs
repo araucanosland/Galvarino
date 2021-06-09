@@ -6,6 +6,8 @@ namespace Galvarino.Web.Models.Helper
 {
     public sealed class ProcesoDocumentos
     {
+        public static readonly string ETAPA_ANALISIS_MESA_CONTROL_NOMINA_ESPECIAL = "ANÁLISIS_NÓMINA_ESPECIAL";
+        public static readonly string ETAPA_DESPACHO_A_CUSTODIA_NÓMINA_ESPECIAL = "DESPACHO_A_CUSTODIA_NÓMINA_ESPECIAL";
         public static readonly string NOMBRE_PROCESO = "SOLICITUD_CUSTODIA_DOCUMENTOS";
         public static readonly string ETAPA_ENVIO_NOTARIA = "ENVIO_NOTARIA";
         public static readonly string ETAPA_DESPACHO_OFICINA_NOTARIA = "DESPACHO_OFICINA_NOTARIA";

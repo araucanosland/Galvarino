@@ -71,6 +71,7 @@ namespace Galvarino.Web.Controllers
         [Route("detalle-valija-valorada/{codigoSeguimiento}")]
         public async Task<IActionResult> DetalleValijaValorada([FromRoute] string codigoSeguimiento)
         {
+            var variable = new List<Variable>();
             var valorada = await _context.ValijasValoradas
                                 .Include(pm => pm.Expedientes)
                                     .ThenInclude(e => e.Credito)
@@ -78,11 +79,23 @@ namespace Galvarino.Web.Controllers
                                     .ThenInclude(e => e.Documentos)
                                 .Include(pm => pm.Oficina)
                                 .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
+            foreach (var credir in valorada.Expedientes)
+            {
+                var especiales = new Variable();
+                especiales = _context.Variables.Where(p => p.NumeroTicket == credir.Credito.NumeroTicket && p.Valor == "1" && p.Tipo == "string").FirstOrDefault();
+                if (especiales != null)
+                {
+                    variable.Add(especiales);
+                }
+            }
+
+
             return new ViewAsPdf(new PdfModelHelper()
             {
                 FechaImpresion = valorada.FechaEnvio.ToShortDateString(),
                 CodigoSeguimiento = codigoSeguimiento,
-                ValijaValorada = valorada
+                ValijaValorada = valorada,
+                Variables = variable
             })
             {
                 PageSize = Size.Letter

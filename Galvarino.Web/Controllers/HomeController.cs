@@ -52,6 +52,8 @@ namespace Galvarino.Web.Controllers
         {        
             try
             {
+
+                
                 var user = await _signInManager.UserManager.FindByNameAsync(rut);
                 await _signInManager.SignInAsync(user, true);
                 //if(User.Identity.IsAuthenticated)
@@ -109,6 +111,14 @@ namespace Galvarino.Web.Controllers
         {
             return View();
         }
+
+
+
+        public IActionResult prueba()
+        {
+            return View();
+        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

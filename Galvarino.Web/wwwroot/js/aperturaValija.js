@@ -17,9 +17,9 @@ const metodos = {
             return x.folioCredito == expedientex.folioCredito
         });
 
-        if (_ingresados[index].pistoleado.indexOf(codigoTipoDocumento) == -1){
+        if (_ingresados[index].pistoleado.indexOf(codigoTipoDocumento) == -1) {
             _ingresados[index].pistoleado.push(codigoTipoDocumento);
-        }else{
+        } else {
             $.niftyNoty({
                 type: "warning",
                 container: "floating",
@@ -43,7 +43,8 @@ const metodos = {
                 let calssE = exp.pistoleado.indexOf(doc.codificacion) > -1 ? "glyphicon-ok" : "glyphicon-remove";
                 internos += `<li><a href="#">${enumTipoDocumentos[doc.tipoDocumento]} <i class="glyphicon ${calssE}" /></a></li>`
             });
-
+            let completado = exp.pistoleado.length > 0 ? exp.pistoleado.length === exp.obtenido.documentos.length ? true : false : false;
+            exp.completado = completado;
             let clasePrincipal = exp.pistoleado.length > 0 ? exp.pistoleado.length === exp.obtenido.documentos.length ? 'btn-success' : 'btn-warning' : 'btn-danger';
             let html = `<div class="btn-group dropdown mar-rgt mar-top">
                 <button class="btn ${clasePrincipal} dropdown-toggle dropdown-toggle-icon" data-toggle="dropdown" type="button" aria-expanded="false">
@@ -60,13 +61,51 @@ const metodos = {
 
     },
     avanzarWf: function () {
-        let foliosEnvio = _ingresados.map(function(expediente){
+        let _todosCompletados = true;
+        debugger;
+        let foliosEnvio = _ingresados.map(function (expediente) {
             return {
                 FolioCredito: expediente.folioCredito,
                 DocumentosPistoleados: expediente.pistoleado,
                 Faltante: expediente.obtenido.documentos.length != expediente.pistoleado.length
             }
         });
+
+
+        $.each(_ingresados, function (i, exp) {
+            debugger;
+            if (exp.completado == false) {
+                _todosCompletados = false;
+            }
+
+
+        });
+
+        //if (_todosCompletados == false) {
+        //    $.niftyNoty({
+        //        type: "danger",
+        //        container: "floating",
+        //        title: "Error Apertura Valija",
+        //        message: "Debe Pistolear Todos los Documentos",
+        //        closeBtn: true,
+        //        timer: 5000
+        //    });
+        //    return false;
+
+        //}
+
+        if (foliosEnvio.length == 0) {
+            $.niftyNoty({
+                type: "danger",
+                container: "floating",
+                title: "Error Apertura Valija",
+                message: "No puedes Generar una Nómina de Envío Sin Documentos",
+                closeBtn: true,
+                timer: 5000
+            });
+            return false;
+        }
+
 
         let folioValija = $('#folioValijia').text();
 
@@ -76,7 +115,7 @@ const metodos = {
             data: JSON.stringify(foliosEnvio),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
-               
+
 
             $.niftyNoty({
                 type: "success",
@@ -115,7 +154,7 @@ function linkFolio(val, row, inc) {
 }
 
 
-$(function(){
+$(function () {
 
 
     $("#modal-pistoleo").on("shown.bs.modal", function (event) {
@@ -126,12 +165,12 @@ $(function(){
 
         const folioValija = $(event.relatedTarget).data("folio");
         $('#folioValijia').text(folioValija);
-         $.ajax({
-             type: "GET",
-             url: `/api/app/v1/listar-expedientes-valija/${folioValija}`
-         }).done(function (data) {
+        $.ajax({
+            type: "GET",
+            url: `/api/app/v1/listar-expedientes-valija/${folioValija}`
+        }).done(function (data) {
 
-            _ingresados = data.map(function(expediente){
+            _ingresados = data.map(function (expediente) {
                 return {
                     codigoTipoDocumento: "",
                     folioCredito: expediente.credito.folioCredito,
@@ -146,16 +185,16 @@ $(function(){
 
             metodos.render();
 
-         }).fail(function (errMsg) {
-             $.niftyNoty({
-                 type: "danger",
-                 container: "floating",
-                 title: "Suceso Erroneo",
-                 message: "Error al Pistolear",
-                 closeBtn: true,
-                 timer: 5000
-             });
-         });
+        }).fail(function (errMsg) {
+            $.niftyNoty({
+                type: "danger",
+                container: "floating",
+                title: "Suceso Erroneo",
+                message: "Error al Pistolear",
+                closeBtn: true,
+                timer: 5000
+            });
+        });
     });
 
     $("#modal-pistoleo").on("hidden.bs.modal", function () {
@@ -169,7 +208,7 @@ $(function(){
     $("#frm-pistoleo").on("submit", function (event) {
         event.preventDefault()
         metodos.disparo();
-        
+
     });
 
     $("#btn-generar-generico").on("click", function () {

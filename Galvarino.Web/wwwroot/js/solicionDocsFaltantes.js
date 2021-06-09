@@ -18,7 +18,7 @@ const metodos = {
                 type: "success",
                 container: "floating",
                 title: "Solución de Reparos",
-                message: "Estamos procesando los reparos en los expedientes.<br/><small>Esta notificación se ceirra en 5 Seg.</small>",
+                message: "Estamos procesando los reparos en los expedientes.<br/><small>Esta notificación se cierra en 5 Seg.</small>",
                 closeBtn: true,
                 timer: 5000
             });

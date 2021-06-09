@@ -33,14 +33,25 @@
                 <td>@Model.OficinaLegal.Nombre</td>
             </tr>
 
-            @if(!Model.OficinaLegal.EsRM)
+            @if (!Model.OficinaLegal.EsRM)
             {
                 <tr>
                     <td><strong>Oficina de Legalización</strong></td>
                     <td>@Model.OficinaLegalizacion.Nombre</td>
                 </tr>
             }
-            
+
+            @if (Model.Caja != "")
+            {
+
+                <tr>
+                    <td><strong>SKP</strong></td>
+                    <td>@Model.Caja</td>
+                </tr>
+            }
+
+
+
         </table>
     </div>
     <div class="col-lg-7 col-lg-offset-1">

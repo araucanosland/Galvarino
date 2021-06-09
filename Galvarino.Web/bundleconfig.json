@@ -351,17 +351,43 @@
         },
         "sourceMap": true
     },
-    {
-        "outputFileName": "wwwroot/js/ni-generadas.min.js",
-        "inputFiles": [
-            "wwwroot/js/ni-generadas.js"
-        ],
-        "minify": {
-            "enabled": true,
-            "renameLocals": true,
-            "outputMode": "singleLine"
-        },
-        "sourceMap": true
-    }
+  {
+    "outputFileName": "wwwroot/js/ni-generadas.min.js",
+    "inputFiles": [
+      "wwwroot/js/ni-generadas.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/analisisNominaEspecial.min.js",
+    "inputFiles": [
+      "wwwroot/js/analisisNominaEspecial.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/despachoCustodiaNominaEspecial.min.js",
+    "inputFiles": [
+      "wwwroot/js/despachoCustodiaNominaEspecial.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  }
+
+
 
 ]

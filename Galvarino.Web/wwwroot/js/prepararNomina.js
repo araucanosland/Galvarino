@@ -5,6 +5,7 @@ const eventos = {
 }
 const metodos = {
     disparo: function () {
+
         var codigoTipoDocumento = $("#folio-shot").val().substring(formatoFolios.codigo.inicio, formatoFolios.codigo.fin);
         const expedientex = {
             codigoTipoDocumento,
@@ -15,7 +16,7 @@ const metodos = {
             obtenido: {},
             pistoleado: []
         }
-        
+
 
         var index = _ingresados.findIndex(function (x) {
             return x.folioCredito == expedientex.folioCredito
@@ -25,10 +26,10 @@ const metodos = {
         if (index > -1 && typeof _ingresados[index] != 'undefined' && _ingresados[index].documentos.indexOf(codigoTipoDocumento) > -1) {
 
             $.niftyNoty({
-                type: "danger",
+                type: "warning",
                 container: "floating",
-                title: "Suceso Erroneo",
-                message: "Error al Pistolear",
+                title: "Operacion Expediente",
+                message: "Documento ya pistoleado",
                 closeBtn: true,
                 timer: 5000
             });
@@ -49,6 +50,8 @@ const metodos = {
             });
 
             let clasePrincipal = exp.obtenido.documentos.length === exp.documentos.length ? 'btn-success' : 'btn-warning';
+            let completado = exp.obtenido.documentos.length === exp.documentos.length ? true : false;
+            exp.completado = completado;
             let html = `<div class="btn-group dropdown mar-rgt">
                 <button class="btn ${clasePrincipal} dropdown-toggle dropdown-toggle-icon" data-toggle="dropdown" type="button" aria-expanded="false">
                     ${exp.folioCredito} <i class="dropdown-caret"></i>
@@ -64,26 +67,53 @@ const metodos = {
 
     },
     avanzarWf: function () {
+
+        let _todosCompletados = true;
         let foliosEnvio = [];
         $.each(_ingresados, function (i, exp) {
+           
+            if (exp.completado == false) {
+                _todosCompletados = false;
+            }
+
+
             if (exp.obtenido.documentos.length === exp.documentos.length) {
+               
                 foliosEnvio.push({
                     FolioCredito: exp.folioCredito
                 });
             }
         });
-        if (foliosEnvio.length == 0) {
+
+        if (_todosCompletados == false) {
             $.niftyNoty({
                 type: "danger",
                 container: "floating",
-                title: "Error Despacho a Notaría",
-                message: "No puedes Generar una Nómina de Envío Sin Documentos",
+                title: "Error Preparar Nómina",
+                message: "Debe Pistolear Todos los Documentos",
                 closeBtn: true,
                 timer: 5000
             });
             return false;
+
         }
-        
+
+
+        if (foliosEnvio.length == 0) {
+            $.niftyNoty({
+                type: "danger",
+                container: "floating",
+                title: "Error Preparar Nómina",
+                message: "No puedes Generar una Nómina de Envío Sin Documentos",
+                closeBtn: false,
+                timer: 5000
+            });
+            return false;
+        }
+
+
+
+
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/preparar-nomina`,
@@ -95,7 +125,7 @@ const metodos = {
                 type: "success",
                 container: "floating",
                 title: "Despacho a Notaría",
-                message: "Estamos Generando la Nómina...<br/><small>Esta Tarea se ceirra en 5 Seg. y te redirige a tus solicitudes.</small>",
+                message: "Estamos Generando la Nómina...<br/><small>Esta Tarea se cierra en 5 Seg. y te redirige a tus solicitudes.</small>",
                 closeBtn: true,
                 timer: 5000,
                 onHidden: function () {

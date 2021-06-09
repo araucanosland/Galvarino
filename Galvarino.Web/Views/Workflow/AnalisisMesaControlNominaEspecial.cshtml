@@ -1,0 +1,59 @@
+﻿@{
+    ViewData["Title"] = "Análisis Mesa de Control Nómina Especial";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/analisisNominaEspecial.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/analisisNominaEspecial.min.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
+
+}
+
+<div class="row">
+    <div class="col-sm-6 table-toolbar-left">
+        <div class="btn-group">
+            <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Procesar Documentos</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="alert alert-info"><strong>Recuerda!</strong> Los documentos a procesar son solamente los de la pagina actual.</div>
+    </div>
+</div>
+<div class="row">
+    <table id="tabla-generica"
+           data-toggle="table"
+           data-url="/api/wf/v1/mis-solicitudes-mesa-control-Nomina-Espcecial/@ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL_NOMINA_ESPECIAL"
+           data-search="false"
+           data-show-refresh="false"
+           data-show-toggle="false"
+           data-show-columns="false"
+           data-sort-name="folioCredito"
+           data-page-list="[]"
+           data-page-size="30"
+           data-side-pagination="server"
+           data-pagination="true" data-show-pagination-switch="false">
+        <thead>
+            <tr>
+                <th data-field="folioCredito" data-align="center" data-events="operateEvents" data-formatter="formatoReparoNominaEspecial">Tipo Nómina Especial</th>
+                <th data-field="folioCredito" data-align="center" data-sortable="false">Folio Crédito</th>
+                <th data-field="rutCliente" data-align="center" data-sortable="true">Rut Afiliado</th>
+                <th data-field="tipoCredito" data-align="center" data-sortable="false" data-formatter="formatoTipoCredito">Tipo Crédito</th>
+                <th data-field="folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
+                <th data-field="fechaDesembolso" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Colocación</th>
+            </tr>
+        </thead>
+    </table>
+</div>
