@@ -32,6 +32,14 @@ namespace Galvarino.Web.Services
             return _kernel.GenerarSolicitud(nombreProceso, identificacionUsuario, resumenInstancia);
         }
 
+          public Solicitud InstanciarHistorico(string nombreProceso, string identificacionUsuario, string resumenInstancia, Dictionary<string, string> variables)
+        {
+            return _kernel.GenerarSolicitudHistorico(nombreProceso, identificacionUsuario, resumenInstancia, variables);
+
+
+        }
+
+
         public Solicitud Instanciar(string nombreProceso, string identificacionUsuario, string resumenInstancia, Dictionary<string,string> variables)
         {
             return _kernel.GenerarSolicitud(nombreProceso, identificacionUsuario, resumenInstancia, variables);
@@ -63,6 +71,17 @@ namespace Galvarino.Web.Services
             await Task.CompletedTask;
         }
 
+        public async Task AvanzarRangoHistorico(string nombreInternoProceso, string nombreInternoEtapa, IEnumerable<string> numeroTicket, string identificacionUsuario)
+        {
+            foreach (var item in numeroTicket)
+            {
+                _kernel.CompletarTareaMultiHistorico(nombreInternoProceso, nombreInternoEtapa, item, identificacionUsuario);
+            }
+            _kernel.CommitAvance();
+
+            await Task.CompletedTask;
+        }
+
         public Usuario QuienCerroEtapa(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket)
         {
             return _kernel.QuienCerroEtapa(nombreInternoProceso, nombreInternoEtapa, numeroTicket);
@@ -77,5 +96,9 @@ namespace Galvarino.Web.Services
         {
             _kernel.ForzarAvance(nombreInternoProceso, nombreInternoEtapaDestino, numeroTicket, identificacionUsuario);
         }
+
+        
+
+
     }
 }

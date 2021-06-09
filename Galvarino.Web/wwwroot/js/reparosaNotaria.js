@@ -43,7 +43,7 @@ const metodos = {
                 type: "success",
                 container: "floating",
                 title: "Despacho Reparos a Notaría",
-                message: "Estamos Generando la Nómina...<br/><small>Esta Tarea se ceirra en 5 Seg. y te redirige al Pdf de La Nómina de envío</small>",
+                message: "Estamos Generando la Nómina...<br/><small>Esta Tarea se cierra en 5 Seg. y te redirige al Pdf de La Nómina de envío</small>",
                 closeBtn: true,
                 timer: 5000,
                 onHidden: function(){

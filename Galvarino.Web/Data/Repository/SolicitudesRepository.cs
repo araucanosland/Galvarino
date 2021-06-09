@@ -59,21 +59,10 @@ namespace Galvarino.Web.Data.Repository
 
         public IEnumerable<dynamic> listarOficinas(string EsRM)
         {
-
-            int Variable;
-            if (EsRM == "false")
-            {
-                Variable = 0;
-            }
-            else
-            {
-                Variable = 1;
-            }
-
             var respuestaOficinas = new List<dynamic>();
             using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
             {
-                string sql = @"select Id,Nombre from oficinas where EsRM=" + Variable + "";
+                string sql = @"select Id,Nombre from oficinas order by 2 ";
                 respuestaOficinas = con.Query<dynamic>(sql).AsList();
 
             }
@@ -82,6 +71,71 @@ namespace Galvarino.Web.Data.Repository
         }
 
 
+        public IEnumerable<SolicitudResult> listarSolicitudesNominaEspecial(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "")
+        {
+            var theRoles = "'" + String.Join("','", roles) + "'";
+            var theOffices = "'" + String.Join("','", oficinas) + "'";
+            var theSteps = "'" + String.Join("','", etapas) + "'";
+            var respuesta = new List<SolicitudResult>();
+            var sqlTrozoFechaConsulta = "";
+
+
+            if (fechaConsulta != "")
+            {
+                sqlTrozoFechaConsulta = "and convert(date, cr.FechaDesembolso) = convert(date, '" + fechaConsulta + "')";
+            }
+
+
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                string sql = @"
+                    select  distinct 
+                            cr.FolioCredito,
+                            cr.RutCliente,
+                            cr.TipoCredito,
+                            cr.FechaDesembolso,
+                            pkn.CodigoSeguimiento seguimientoNotaria,
+                            pkn.FechaEnvio fechaEnvioNotaria,
+                            vv.CodigoSeguimiento seguimientoValija,
+                            vv.FechaEnvio fechaEnvioValija,
+                            vre.Valor reparo,
+                            vrn.Valor reparoNotaria,
+                            vdf.Valor documentosFaltantes,
+                            pvv.CodigoCajaValorada codigoCajaValorada
+
+                    from [" + _conf.GetValue<string>("schema") + @"].[Tareas] ta
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[Etapas] et on ta.EtapaId = et.Id
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[Solicitudes] sl on ta.SolicitudId = sl.Id
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[Creditos] cr on sl.NumeroTicket = cr.NumeroTicket
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[ExpedientesCreditos] ex on cr.Id = ex.CreditoId
+                    left join [" + _conf.GetValue<string>("schema") + @"].[PacksNotarias] pkn on ex.PackNotariaId = pkn.Id
+                    left join [" + _conf.GetValue<string>("schema") + @"].[ValijasValoradas] vv on ex.ValijaValoradaId = vv.Id
+                    left join [" + _conf.GetValue<string>("schema") + @"].[Variables] vre on sl.NumeroTicket = vre.NumeroTicket and vre.Clave = 'CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL'
+                    left join [" + _conf.GetValue<string>("schema") + @"].[Variables] vrn on sl.NumeroTicket = vrn.NumeroTicket and vrn.Clave = 'REPARO_REVISION_DOCUMENTO_LEGALIZADO'
+                    left join [" + _conf.GetValue<string>("schema") + @"].[Variables] vdf on sl.NumeroTicket = vdf.NumeroTicket and vdf.Clave = 'COLECCION_DOCUMENTOS_FALTANTES'
+                    left outer join [" + _conf.GetValue<string>("schema") + @"].[PasosValijasValoradas] pvv on pvv.FolioCredito=cr.FolioCredito
+					left outer join [" + _conf.GetValue<string>("schema") + @"].[CajasValoradas] cv on cv.CodigoSeguimiento=pvv.CodigoCajaValorada
+                    where ta.Estado = 'Activada'
+                    and ((ta.AsignadoA in (" + theRoles + @") or ta.AsignadoA = '" + rut + @"')
+                            and ((ta.UnidadNegocioAsignada in (" + theOffices + @") or ta.UnidadNegocioAsignada is null))
+                            and (et.NombreInterno in (" + theSteps + @"))
+                        )
+                    and ('" + notaria + @"' = '' or pkn.NotariaEnvioId = '" + notaria + @"') ";
+                _logger.LogDebug(sql);
+                respuesta = con.Query<SolicitudResult>(sql).AsList();
+            }
+
+
+            respuesta.ForEach(s =>
+            {
+                s.Documentos = _context.Documentos
+                               .Include(d => d.ExpedienteCredito)
+                               .ThenInclude(f => f.Credito)
+                               .Where(d => d.ExpedienteCredito.Credito.FolioCredito == s.FolioCredito && d.ExpedienteCredito.TipoExpediente == 0);
+            });
+
+            return respuesta;
+        }
 
 
         public IEnumerable<SolicitudResult> listarSolicitudes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "")

@@ -18,7 +18,7 @@ namespace Galvarino.Web.Controllers.Api
 {
     [Route("api/wf/v1")]
     [ApiController]
-    
+
     public class WorkflowController : ControllerBase
     {
 
@@ -33,6 +33,70 @@ namespace Galvarino.Web.Controllers.Api
             _mailService = mailService;
             _solicitudRepository = solicitudRepo;
         }
+
+        [HttpGet("mis-solicitudes-mesa-control-Nomina-Espcecial/{etapaIn?}")]
+        public async Task<IActionResult> ListarMisSolicitudesMSCNE([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20)
+        {
+            try
+            {
+                //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
+                var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+                var ObjetoOficinaUsuario = _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefault(ofc => ofc.Codificacion == oficinaUsuario);
+                var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id && ofc.EsMovil == true);
+                var ofinales = new List<Oficina>();
+                ofinales.Add(ObjetoOficinaUsuario);
+                ofinales.AddRange(OficinasUsuario.ToList());
+
+                /*Optimizando */
+                var laSalida = from tarea in _context.Tareas
+                               join etapa in _context.Etapas on tarea.Etapa equals etapa
+                               join solicitud in _context.Solicitudes on tarea.Solicitud equals solicitud
+                               join credito in _context.Creditos on solicitud.NumeroTicket equals credito.NumeroTicket
+                               join expediente in _context.ExpedientesCreditos.Include(exp => exp.Documentos) on credito equals expediente.Credito
+                               join varibles in _context.Variables on credito.NumeroTicket equals varibles.NumeroTicket
+
+                               where (
+                               ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
+                                && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null))
+                                && tarea.Estado == EstadoTarea.Activada
+                                && expediente.TipoExpediente == TipoExpediente.Legal
+                                && ((!string.IsNullOrEmpty(etapaIn) && etapa.NombreInterno == etapaIn) || (string.IsNullOrEmpty(etapaIn)))
+                                && (varibles.Clave == "NULO" || varibles.Clave == "ACUERDO_PAGO_TOTAL")
+                                     )
+                               select new
+                               {
+                                   credito.FolioCredito,
+                                   credito.RutCliente,
+                                   credito.TipoCredito,
+                                   expediente.Documentos,
+                                   credito.FechaDesembolso,
+                                   varibles.Clave
+                               };
+
+                _context.Database.SetCommandTimeout(180);
+                var salida = await laSalida.ToListAsync();
+
+
+                var lida = new
+                {
+                    total = salida.Count(),
+                    rows = salida.Skip(offset).Take(limit).ToList()
+                };
+                return Ok(lida);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex);
+            }
+
+        }
+
+
+
+
+
 
         [HttpGet("obtener-expediente/{folioCredito}/{etapaSolicitud?}")]
         public IActionResult ObtenerXpediente([FromRoute] string folioCredito, [FromRoute] string etapaSolicitud = "")
@@ -69,21 +133,21 @@ namespace Galvarino.Web.Controllers.Api
                     return NotFound("Carga del Expediente en la siguiente Oficina: " + laOficinaPago.Nombre);
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return NotFound("El Expediente aun no esta Cargado en Galvarino.");
             }
         }
 
         [HttpGet("mis-solicitudes/{etapaIn?}/{fechaCerrar?}")]
-        public IActionResult ListarMisSolicitudes([FromRoute] string etapaIn = "", [FromRoute] string fechaCerrar = "", [FromQuery] int offset = 0, [FromQuery] int limit=20, [FromQuery] string sort = "", [FromQuery] string order="", [FromQuery] string notaria="")
+        public IActionResult ListarMisSolicitudes([FromRoute] string etapaIn = "", [FromRoute] string fechaCerrar = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20, [FromQuery] string sort = "", [FromQuery] string order = "", [FromQuery] string notaria = "")
         {
 
             //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
 
             var rolesUsuario = User.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToArray();
-            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value; 
-            var ObjetoOficinaUsuario = _context.Oficinas.Include(of=> of.OficinaProceso).FirstOrDefault(ofc => ofc.Codificacion == oficinaUsuario);
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var ObjetoOficinaUsuario = _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefault(ofc => ofc.Codificacion == oficinaUsuario);
             var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id && ofc.EsMovil == true);
             var ofinales = new List<Oficina>();
             ofinales.Add(ObjetoOficinaUsuario);
@@ -93,11 +157,12 @@ namespace Galvarino.Web.Controllers.Api
             var lasEtps = new string[] { etapaIn };
             string orden = sort + " " + order;
             var salida = _solicitudRepository.listarSolicitudes(rolesUsuario, User.Identity.Name, lasOff, lasEtps, orden, fechaCerrar, notaria);
-            var lida = new {
+            var lida = new
+            {
                 total = salida.Count(),
                 rows = salida.Count() < offset ? salida : salida.Skip(offset).Take(limit).ToList()
             };
-            
+
             return Ok(lida);
         }
 
@@ -116,7 +181,7 @@ namespace Galvarino.Web.Controllers.Api
 
             var fdata = (from cargas in _context.CargasIniciales
                          join comercial in _context.Oficinas on cargas.CodigoOficinaIngreso equals comercial.Codificacion
-                         join legal in _context.Oficinas on cargas.CodigoOficinaPago equals legal.Codificacion 
+                         join legal in _context.Oficinas on cargas.CodigoOficinaPago equals legal.Codificacion
 
                          where cargas.FolioCredito == q
                          select new
@@ -127,7 +192,7 @@ namespace Galvarino.Web.Controllers.Api
 
                          }).ToList();
 
-           
+
             return Ok(fdata.FirstOrDefault());
         }
 
@@ -151,11 +216,12 @@ namespace Galvarino.Web.Controllers.Api
                            join solicitud in _context.Solicitudes on tarea.Solicitud equals solicitud
                            join credito in _context.Creditos on solicitud.NumeroTicket equals credito.NumeroTicket
                            join expediente in _context.ExpedientesCreditos.Include(exp => exp.Documentos) on credito equals expediente.Credito
-                           
+
 
                            where (
                                            ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
-                                               && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null))
+                                              // && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null)
+                                               )
 
                                            && tarea.Estado == EstadoTarea.Activada
                                            && ((!string.IsNullOrEmpty(etapaIn) && etapa.NombreInterno == etapaIn) || (string.IsNullOrEmpty(etapaIn)))
@@ -194,9 +260,9 @@ namespace Galvarino.Web.Controllers.Api
             ofinales.AddRange(OficinasUsuario.ToList());
             var lasOff = ofinales.Select(x => x.Codificacion).ToArray();
 
-            var offices = _solicitudRepository.listarResumenInicial(rolesUsuario, User.Identity.Name, lasOff);             
+            var offices = _solicitudRepository.listarResumenInicial(rolesUsuario, User.Identity.Name, lasOff);
 
-            return Ok(offices);            
+            return Ok(offices);
         }
 
         [HttpGet("mis-solicitudes/{etapaIn}/{notaria}")]
@@ -219,7 +285,7 @@ namespace Galvarino.Web.Controllers.Api
                            join credito in _context.Creditos on solicitud.NumeroTicket equals credito.NumeroTicket
                            join expediente in _context.ExpedientesCreditos.Include(exp => exp.Documentos) on credito equals expediente.Credito
                            join packnota in _context.PacksNotarias.Include(p => p.NotariaEnvio) on expediente.PackNotaria equals packnota
-                           
+
 
                            where (
                                            ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
@@ -228,7 +294,7 @@ namespace Galvarino.Web.Controllers.Api
                                 && tarea.Estado == EstadoTarea.Activada
                                 && etapa.NombreInterno == etapaIn
                                 && packnota.NotariaEnvio.Id == notaria
-                               
+
                            select new
                            {
 
@@ -289,7 +355,7 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpGet("solicitudes-reparo-devolicion/{oficina?}")]
-        public async Task<IActionResult> ListarOficinasReparo(string oficina="")
+        public async Task<IActionResult> ListarOficinasReparo(string oficina = "")
         {
 
             var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(x.AsignadoA)) && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION");
@@ -308,7 +374,7 @@ namespace Galvarino.Web.Controllers.Api
                         .Include(f => f.Credito)
                         .Include(s => s.ValijaValorada)
                         .FirstOrDefault(ex => ex.Credito.FolioCredito == folioCredito);
-                
+
 
                 salida.Add(new
                 {
@@ -318,7 +384,8 @@ namespace Galvarino.Web.Controllers.Api
                 });
             });
 
-            if(!string.IsNullOrEmpty(oficina)){
+            if (!string.IsNullOrEmpty(oficina))
+            {
                 salida = salida.Where(s => s.oficinaDevolucion.Codificacion == oficina).ToList();
             }
 
@@ -330,8 +397,9 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("despacho-oficina-matriz")]
         public async Task<IActionResult> DespachoOfMatriz([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            
-            try{
+
+            try
+            {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
                 List<string> ticketsAvanzar = new List<string>();
 
@@ -364,15 +432,15 @@ namespace Galvarino.Web.Controllers.Api
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
                 await _context.SaveChangesAsync();
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-                
+
 
                 return Ok(valijaMatrix);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest();
             }
-            
+
         }
 
         [HttpPost("recepcion-expedientes-matriz/{codigoSeguimiento}")]
@@ -382,15 +450,15 @@ namespace Galvarino.Web.Controllers.Api
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
                 List<string> ticketsAvanzar = new List<string>();
-                
+
                 foreach (var item in entrada)
                 {
-                    
+
                     var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
-                
-                
+
+
                 var laValija = _context.ValijasOficinas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
                 laValija.MarcaAvance = "OK";
                 _context.ValijasOficinas.Update(laValija);
@@ -416,11 +484,11 @@ namespace Galvarino.Web.Controllers.Api
                 var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
                 var oficinaEnvio = _context.Oficinas.Include(ofi => ofi.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
                 var notariaEnvio = _context.Notarias.FirstOrDefault(d => d.Id == entrada.CodNotaria);
-                            
+
                 DateTime now = DateTime.Now;
                 var codSeg = now.Ticks.ToString() + "N" + notariaEnvio.Id.ToString().PadLeft(2, '0').ToString();
-                
-                
+
+
                 var packNotaria = new PackNotaria
                 {
                     FechaEnvio = DateTime.Now,
@@ -442,10 +510,10 @@ namespace Galvarino.Web.Controllers.Api
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
                 await _context.SaveChangesAsync();
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-                
+
                 return Ok(packNotaria);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -468,7 +536,7 @@ namespace Galvarino.Web.Controllers.Api
 
                 return Ok();
             }
-            catch(Exception _x)
+            catch (Exception _x)
             {
                 return BadRequest(_x.Message);
             }
@@ -477,7 +545,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("revision-documentos")]
         public async Task<IActionResult> RevisionDocumentos([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            
+
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -492,7 +560,7 @@ namespace Galvarino.Web.Controllers.Api
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_REVISION_DOCUMENTOS, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
                 return Ok(entrada);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -508,8 +576,8 @@ namespace Galvarino.Web.Controllers.Api
 
                 var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
                 var oficinaEnvio = _context.Oficinas.Include(of => of.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
-                var notariaEnvio = entrada.Notaria > 0 ? _context.Notarias.FirstOrDefault(not=> not.Id == entrada.Notaria) : _context.Notarias.Include(nt => nt.Comuna).FirstOrDefault(not => not.Comuna.Id == oficinaEnvio.Comuna.Id);
-                
+                var notariaEnvio = entrada.Notaria > 0 ? _context.Notarias.FirstOrDefault(not => not.Id == entrada.Notaria) : _context.Notarias.Include(nt => nt.Comuna).FirstOrDefault(not => not.Comuna.Id == oficinaEnvio.Comuna.Id);
+
 
                 DateTime now = DateTime.Now;
                 var codSeg = now.Ticks.ToString() + "R" + notariaEnvio.Id.ToString().PadLeft(2, '0');
@@ -537,10 +605,10 @@ namespace Galvarino.Web.Controllers.Api
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_REPARO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
 
-                
+
                 return Ok(packNotaria);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -549,7 +617,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("despacho-sucursal-oficiana-partes")]
         public async Task<IActionResult> DespachoSucOfPartes([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            
+
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -557,29 +625,29 @@ namespace Galvarino.Web.Controllers.Api
 
                 var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
                 var oficinaEnvio = _context.Oficinas.FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
-                
+
                 DateTime now = DateTime.Now;
-                var codSeg = now.Ticks.ToString() + "X" + oficinaEnvio.Codificacion; 
+                var codSeg = now.Ticks.ToString() + "X" + oficinaEnvio.Codificacion;
 
                 var valijaEnvio = new ValijaValorada
                 {
                     FechaEnvio = DateTime.Now,
                     Oficina = oficinaEnvio,
-                    CodigoSeguimiento=codSeg,
+                    CodigoSeguimiento = codSeg,
                     MarcaAvance = "OF_PARTES"
                 };
                 _context.ValijasValoradas.Add(valijaEnvio);
                 await _context.SaveChangesAsync();
-                
+
                 foreach (var item in entrada)
                 {
                     var credito = _context.Creditos.FirstOrDefault(x => x.FolioCredito == item.FolioCredito);
-                    var elExpediente = _context.ExpedientesCreditos.FirstOrDefault(ex => ex.CreditoId == credito.Id);
+                    var elExpediente = _context.ExpedientesCreditos.FirstOrDefault(ex => ex.CreditoId == credito.Id && ex.TipoExpediente == TipoExpediente.Legal);
                     elExpediente.ValijaValorada = valijaEnvio;
                     expedientesModificados.Add(elExpediente);
                     _wfService.AsignarVariable("USUARIO_DESPACHA_A_OF_PARTES", User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""), elExpediente.Credito.NumeroTicket);
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                
+
                 }
 
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
@@ -587,10 +655,10 @@ namespace Galvarino.Web.Controllers.Api
 
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
 
-                
+
                 return Ok(valijaEnvio);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -645,28 +713,44 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("apertura-valija/{codigoSeguimiento}")]
         public async Task<IActionResult> AperturaValija([FromBody] IEnumerable<ExpedienteGenerico> entrada, [FromRoute] string codigoSeguimiento)
         {
-            
+
             try
             {
+                var estadonominaEspecial = "";
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
                 List<string> ticketsAvanzar = new List<string>();
 
 
                 foreach (var item in entrada)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.Documentos).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                    _wfService.AsignarVariable("EXPEDIENTE_FALTANTE", item.Faltante ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
-                    
-                    if(item.Faltante)
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.Documentos).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
+
+                    foreach (var estado in _context.Variables.Where(a => a.NumeroTicket == elExpediente.Credito.NumeroTicket && elExpediente.Credito.FolioCredito == item.FolioCredito))// && a.Clave == "NULO" || a.Clave== "ACUERDO_PAGO_TOTAL").FirstOrDefault();
                     {
-                        string jsonEnv = ""; int controlador = 0; string enviocorreo="";
-                        
-                        foreach(var dc in elExpediente.Documentos)
+                        if (estado.Clave == "NULO" || estado.Clave == "ACUERDO_PAGO_TOTAL")
+                            estadonominaEspecial = estado.Clave;
+
+                    }
+
+                    if (estadonominaEspecial == "")
+                    {
+                        _wfService.AsignarVariable("EXPEDIENTE_FALTANTE", item.Faltante ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
+                    }
+                    else
+                    {
+                        _wfService.AsignarVariable("EXPEDIENTE_FALTANTE", "2", elExpediente.Credito.NumeroTicket);
+                    }
+
+                    if (item.Faltante)
+                    {
+                        string jsonEnv = ""; int controlador = 0; string enviocorreo = "";
+
+                        foreach (var dc in elExpediente.Documentos)
                         {
-                            if(!item.DocumentosPistoleados.Any(d => d == dc.Codificacion))
+                            if (!item.DocumentosPistoleados.Any(d => d == dc.Codificacion))
                             {
                                 jsonEnv = jsonEnv + (controlador > 0 ? "," : "") + "\"" + dc.Codificacion + "\"";
-                                enviocorreo+= (controlador > 0 ? ", " : "") + dc.TipoDocumento.ToString(); 
+                                enviocorreo += (controlador > 0 ? ", " : "") + dc.TipoDocumento.ToString();
                                 controlador++;
                             }
                         }
@@ -688,7 +772,7 @@ namespace Galvarino.Web.Controllers.Api
                         var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
                         await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Faltantes: " + item.FolioCredito, mensaje);
                     }
-                    
+
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
@@ -696,10 +780,7 @@ namespace Galvarino.Web.Controllers.Api
                 laValija.MarcaAvance = "FN";
                 _context.ValijasValoradas.Update(laValija);
                 await _context.SaveChangesAsync();
-
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-
-                
                 return Ok();
             }
             catch (Exception)
@@ -708,41 +789,24 @@ namespace Galvarino.Web.Controllers.Api
             }
         }
 
-        [Route("analisis-mesa-control")]
-        public async Task<IActionResult> AnalisisMesaControl([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        [Route("analisis-mesa-control-nomina-especial")]
+        public async Task<IActionResult> AnalisisNominaEspecial([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
         {
-            
+
             try
             {
                 List<string> ticketsAvanzar = new List<string>();
                 List<EnvioNotariaFormHelper> expedientesReparo = new List<EnvioNotariaFormHelper>();
-                var opt = new string[] { "Sin Reparos", "Sin Firma de Notario", "Sin Timbre de Notario", "Sin Firma ni Timbre", "Ilegible" };
+                var opt = new string[] { "Seleccione", "Nulo", "Acuerdo Total de Pago" };
                 foreach (var item in entrada)
                 {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                    _wfService.AsignarVariable("DEVOLUCION_A_SUCURSAL", item.Reparo > 0 ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
-                    if(item.Reparo > 0){
-                        _wfService.AsignarVariable("CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL", item.Reparo.ToString(), elExpediente.Credito.NumeroTicket);
-                        _wfService.AsignarVariable("TEXTO_MOTIVO_DEVOLUCION_A_SUCURSAL", opt[item.Reparo], elExpediente.Credito.NumeroTicket);
-                        string mensaje = @"
-                        <table>
-                            <tr>
-                                <td><strong>Folio</strong></td>
-                                <td><strong>Reparo</strong></td>
-                            </tr>
-                            <tr>
-                                <td>" + item.FolioCredito + @"</td>
-                                <td>El Expediente contiene un documento " + opt[item.Reparo] + @"</td>
-                            </tr>
-                        </table>";
-                        var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
-                        await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Reparos: " + item.FolioCredito, mensaje);
-                    }
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito && x.TipoExpediente == TipoExpediente.Legal);
+
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-                
+                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL_NOMINA_ESPECIAL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+
                 return Ok();
             }
             catch (Exception)
@@ -750,144 +814,22 @@ namespace Galvarino.Web.Controllers.Api
                 return BadRequest();
             }
         }
-        //TODO Avanzar con la terminacion de la insercion de transaccion
-        [Route("solucion-expediente-faltante")]
-        public async Task<IActionResult> SolucionExpedienteFaltante([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+
+
+
+
+        [Route("despacho-a-custodia-nomina-especial/{codigoCaja}")]
+        public async Task<IActionResult> DespachoCustodiaNominaEspecial([FromRoute] string codigoCaja)
         {
-            List<string> ticketsAvanzar = new List<string>();
 
-            foreach (var item in entrada)
-            {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", 1.ToString(), elExpediente.Credito.NumeroTicket);
-                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-            }
-
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-            return Ok();
-
-        }
-
-        [Route("despacho-reparo-oficina-partes")]
-        public async Task<IActionResult> DespachoOfPtReparoSucursal([FromBody] ColeccionExpedientesGenerica entrada)
-        {
-            
             try
             {
-                List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
-                List<string> ticketsAvanzar = new List<string>();
 
-                var oficinaEnvio = _context.Oficinas.FirstOrDefault(o => o.Codificacion == entrada.CodOficina);
-
-
-                DateTime now = DateTime.Now;
-                var codSeg = now.Ticks.ToString() + "Z" + oficinaEnvio.Codificacion;
-
-                var valijaEnvio = new ValijaValorada
-                {
-                    FechaEnvio = DateTime.Now,
-                    Oficina = oficinaEnvio,
-                    CodigoSeguimiento = codSeg,
-                    MarcaAvance = "DEVOLVER"
-                };
-
-                _context.ValijasValoradas.Add(valijaEnvio);
-                await _context.SaveChangesAsync();
-
-                foreach (var item in entrada.ExpedientesGenericos)
-                {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                    elExpediente.ValijaValorada = valijaEnvio;
-                    expedientesModificados.Add(elExpediente);
-                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                }
-
-                _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
-                await _context.SaveChangesAsync();
-
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OF_PARTES_DEVOLUCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-                
-                return Ok(valijaEnvio);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpGet("despacho-oficina-correccion/{codigoSeguimiento}")]
-        public async Task<IActionResult> DespachoOfCorreccion([FromRoute] string codigoSeguimiento)
-        {
-            try
-            {
-                List<string> ticketsAvanzar = new List<string>();
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
-
-                foreach (var item in elExpediente)
-                {
-                    ticketsAvanzar.Add(item.Credito.NumeroTicket);
-                }
-
-                
-                var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
-                laValija.MarcaAvance = "DEVOLUCION_OP";
-                _context.ValijasValoradas.Update(laValija);
-                await _context.SaveChangesAsync();
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_CORRECCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-
-                return Ok();
-            }
-            catch (Exception)
-            {
-                
-                return BadRequest();
-            }
-        }
-
-        [HttpPost("solucion-reparo-sucursal")]
-        public async Task<IActionResult> SolucionReparosSucursal([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
-        {
-            List<string> ticketsAvanzar = new List<string>();
-            foreach (var item in entrada)
-            {
-                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
-                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-            }
-
-            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-            return Ok();
-        }
-
-        [Route("despacho-a-custodia/{codigoCaja}")]
-        public async Task<IActionResult> DespachoCustodia([FromRoute] string codigoCaja)
-        {
-            
-            try
-            {
-                //List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
-                //List<string> ticketsAvanzar = new List<string>();
-                //DateTime now = DateTime.Now;
-                //var codSeg = now.Ticks.ToString() + "CV" ;
 
                 var cajaval = _context.CajasValoradas.FirstOrDefault(d => d.CodigoSeguimiento == codigoCaja && d.Usuario == User.Identity.Name);
-                /*var folios = _context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name).GroupBy(d => d.FolioCredito).Select(d => d.Key).ToList();
-
-                foreach (var item in folios)
-                {
-                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item);
-                    elExpediente.CajaValorada = cajaval;
-                    expedientesModificados.Add(elExpediente);
-                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
-                }*/
-                //Sacar la caja del estado buffer
                 cajaval.MarcaAvance = "READYTOPROCESS";
                 _context.CajasValoradas.Update(cajaval);
-                //_context.ExpedientesCreditos.UpdateRange(expedientesModificados);
                 await _context.SaveChangesAsync();
-                //await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
-
-                //_context.PasosValijasValoradas.RemoveRange(_context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name));
-                //await _context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception ex)
@@ -896,88 +838,37 @@ namespace Galvarino.Web.Controllers.Api
             }
         }
 
-        [Route("despacho-a-custodia/generar-caja-valorada/{skp?}")]
-        public async Task<IActionResult> GenerarCajaValorada([FromRoute] string skp = "")
+        [HttpGet("mis-solicitudes-nomina-especial/{etapaIn?}/{fechaCerrar?}")]
+        public IActionResult ListarMisSolicitudesNominaEspecial([FromRoute] string etapaIn = "", [FromRoute] string fechaCerrar = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20, [FromQuery] string sort = "", [FromQuery] string order = "", [FromQuery] string notaria = "")
         {
-            try
+
+            //var rolUsuario =  //FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;    
+
+            var rolesUsuario = User.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToArray();
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var ObjetoOficinaUsuario = _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefault(ofc => ofc.Codificacion == oficinaUsuario);
+            var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id && ofc.EsMovil == true);
+            var ofinales = new List<Oficina>();
+            ofinales.Add(ObjetoOficinaUsuario);
+            ofinales.AddRange(OficinasUsuario.ToList());
+
+            var lasOff = ofinales.Select(x => x.Codificacion).ToArray();
+            var lasEtps = new string[] { etapaIn };
+            string orden = sort + " " + order;
+            var salida = _solicitudRepository.listarSolicitudesNominaEspecial(rolesUsuario, User.Identity.Name, lasOff, lasEtps, orden, fechaCerrar, notaria);
+            var lida = new
             {
-                var existe = _context.CajasValoradas.FirstOrDefault(ca => ca.Usuario == User.Identity.Name && ca.MarcaAvance == "BUFFER");
-                if(existe == null)
-                {
-                    CajaValorada cajaval = new CajaValorada
-                    {
-                        FechaEnvio = DateTime.Now,
-                        CodigoSeguimiento = skp,
-                        MarcaAvance = "BUFFER",
-                        Usuario = User.Identity.Name
-                    };
-                    _context.CajasValoradas.Add(cajaval);
-                    await _context.SaveChangesAsync();
+                total = salida.Count(),
+                rows = salida.Count() < offset ? salida : salida.Skip(offset).Take(limit).ToList()
+            };
 
-                    var salida = new
-                    {
-                        caja = cajaval,
-                        documentos = new List<string>()
-                    };
-                    return Ok(salida);
-                }
-                else
-                {
-
-                    var documentos = from pasoval in 
-                                            from mono in _context.PasosValijasValoradas 
-                                            join credit in _context.Creditos on mono.FolioCredito equals credit.FolioCredito
-                                            select new
-                                            {
-                                                mono.FolioCredito,
-                                                mono.CodigoCajaValorada,
-                                                mono.Usuario,
-                                                TotalDocumentos = credit.TipoCredito == TipoCredito.Normal ? 2 : 1
-                                            }
-                                     where pasoval.CodigoCajaValorada == existe.CodigoSeguimiento && pasoval.Usuario == User.Identity.Name
-                                     group pasoval by new { pasoval.FolioCredito, pasoval.TotalDocumentos } into slt
-                                     //from exps in _context.ExpedientesCreditos.Include(ex => ex.Documentos).Include(ex => ex.Credito)
-                                     //where exps.Credito.FolioCredito == slt.Key
-                                     select new
-                                     {
-                                         Folio = slt.Key.FolioCredito,
-                                         Pistoleados = slt.Count(),
-                                         Total = slt.Key.TotalDocumentos
-                                    };
-
-
-                    var salida = new
-                    {
-                        caja = existe,
-                        documentos = await documentos.OrderBy(d => d.Pistoleados).ToListAsync()
-                    };
-                    return Ok(salida);
-                }
-                
-            }
-            catch (Exception ex)
-            {
-                
-                return BadRequest(ex.Message);
-            }
+            return Ok(lida);
         }
 
-        [Route("despacho-a-custodia/chequear-caja-valorada")]
-        public IActionResult ChequearCajaValorada()
-        {
-            try
-            {
-                var existe = _context.CajasValoradas.FirstOrDefault(ca => ca.Usuario == User.Identity.Name && ca.MarcaAvance == "BUFFER");
-                return Ok(new { status = existe != null });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
 
-        [Route("despacho-a-custodia/caja-valorada/{codigoCaja}/agregar-documento/{folioDocumento}")]
-        public async Task<IActionResult> AgregarDocumentoCajaValorada([FromRoute] string codigoCaja, [FromRoute] string folioDocumento)
+
+        [Route("despacho-a-custodia-nomina-especial/caja-valorada/{codigoCaja}/agregar-documento/{folioDocumento}")]
+        public async Task<IActionResult> AgregarDocumentoCajaValoradaNominaEspecial([FromRoute] string codigoCaja, [FromRoute] string folioDocumento)
         {
             try
             {
@@ -1003,7 +894,7 @@ namespace Galvarino.Web.Controllers.Api
                 var etapaDocumento = _wfService.OntenerTareaActual(ProcesoDocumentos.NOMBRE_PROCESO, numeroTicket);
                 var asignadus = _context.Users.FirstOrDefault(us => us.Identificador == etapaDocumento.AsignadoA);
 
-                if(etapaDocumento.Etapa.NombreInterno != ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA)
+                if (etapaDocumento.Etapa.NombreInterno != ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA_NÓMINA_ESPECIAL)
                 {
                     throw new Exception($"Etapa de documento no corresponde. Etapa Actual es: ${etapaDocumento.Etapa.Nombre} y esta asignada a: ${asignadus.Nombres}");
                 }
@@ -1052,6 +943,383 @@ namespace Galvarino.Web.Controllers.Api
         }
 
 
+
+
+        [Route("analisis-mesa-control")]
+        public async Task<IActionResult> AnalisisMesaControl([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        {
+
+            try
+            {
+                List<string> ticketsAvanzar = new List<string>();
+                List<EnvioNotariaFormHelper> expedientesReparo = new List<EnvioNotariaFormHelper>();
+                var opt = new string[] { "Sin Reparos", "Sin Firma de Notario", "Sin Timbre de Notario", "Sin Firma ni Timbre", "Ilegible" };
+                foreach (var item in entrada)
+                {
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    _wfService.AsignarVariable("DEVOLUCION_A_SUCURSAL", item.Reparo > 0 ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
+                    if (item.Reparo > 0)
+                    {
+                        _wfService.AsignarVariable("CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL", item.Reparo.ToString(), elExpediente.Credito.NumeroTicket);
+                        _wfService.AsignarVariable("TEXTO_MOTIVO_DEVOLUCION_A_SUCURSAL", opt[item.Reparo], elExpediente.Credito.NumeroTicket);
+                        string mensaje = @"
+                        <table>
+                            <tr>
+                                <td><strong>Folio</strong></td>
+                                <td><strong>Reparo</strong></td>
+                            </tr>
+                            <tr>
+                                <td>" + item.FolioCredito + @"</td>
+                                <td>El Expediente contiene un documento " + opt[item.Reparo] + @"</td>
+                            </tr>
+                        </table>";
+                        var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                        await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Reparos: " + item.FolioCredito, mensaje);
+                    }
+                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+                }
+
+                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+        //TODO Avanzar con la terminacion de la insercion de transaccion
+        [Route("solucion-expediente-faltante")]
+        public async Task<IActionResult> SolucionExpedienteFaltante([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        {
+            List<string> ticketsAvanzar = new List<string>();
+
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                _wfService.AsignarVariable("DOCUMENTACION_FALTANTE_EN_TRANSITO", 1.ToString(), elExpediente.Credito.NumeroTicket);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DOCUMENTACION_FALTANTE, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+            return Ok();
+
+        }
+
+        [Route("despacho-reparo-oficina-partes")]
+        public async Task<IActionResult> DespachoOfPtReparoSucursal([FromBody] ColeccionExpedientesGenerica entrada)
+        {
+
+            try
+            {
+                List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+                List<string> ticketsAvanzar = new List<string>();
+
+                var oficinaEnvio = _context.Oficinas.FirstOrDefault(o => o.Codificacion == entrada.CodOficina);
+
+
+                DateTime now = DateTime.Now;
+                var codSeg = now.Ticks.ToString() + "Z" + oficinaEnvio.Codificacion;
+
+                var valijaEnvio = new ValijaValorada
+                {
+                    FechaEnvio = DateTime.Now,
+                    Oficina = oficinaEnvio,
+                    CodigoSeguimiento = codSeg,
+                    MarcaAvance = "DEVOLVER"
+                };
+
+                _context.ValijasValoradas.Add(valijaEnvio);
+                await _context.SaveChangesAsync();
+
+                foreach (var item in entrada.ExpedientesGenericos)
+                {
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                    elExpediente.ValijaValorada = valijaEnvio;
+                    expedientesModificados.Add(elExpediente);
+                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+                }
+
+                _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+                await _context.SaveChangesAsync();
+
+                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OF_PARTES_DEVOLUCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+
+                return Ok(valijaEnvio);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("despacho-oficina-correccion/{codigoSeguimiento}")]
+        public async Task<IActionResult> DespachoOfCorreccion([FromRoute] string codigoSeguimiento)
+        {
+            try
+            {
+                List<string> ticketsAvanzar = new List<string>();
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).Include(d => d.ValijaValorada).Where(x => x.ValijaValorada.CodigoSeguimiento == codigoSeguimiento);
+
+                foreach (var item in elExpediente)
+                {
+                    ticketsAvanzar.Add(item.Credito.NumeroTicket);
+                }
+
+
+                var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
+                laValija.MarcaAvance = "DEVOLUCION_OP";
+                _context.ValijasValoradas.Update(laValija);
+                await _context.SaveChangesAsync();
+                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_CORRECCION, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("solucion-reparo-sucursal")]
+        public async Task<IActionResult> SolucionReparosSucursal([FromBody] IEnumerable<EnvioNotariaFormHelper> entrada)
+        {
+            List<string> ticketsAvanzar = new List<string>();
+            foreach (var item in entrada)
+            {
+                var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
+                ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+            }
+
+            await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_SOLUCION_REPAROS_SUCURSAL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+            return Ok();
+        }
+
+        [Route("despacho-a-custodia/{codigoCaja}")]
+        public async Task<IActionResult> DespachoCustodia([FromRoute] string codigoCaja)
+        {
+
+            try
+            {
+                //List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
+                //List<string> ticketsAvanzar = new List<string>();
+                //DateTime now = DateTime.Now;
+                //var codSeg = now.Ticks.ToString() + "CV" ;
+
+                var cajaval = _context.CajasValoradas.FirstOrDefault(d => d.CodigoSeguimiento == codigoCaja && d.Usuario == User.Identity.Name);
+                /*var folios = _context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name).GroupBy(d => d.FolioCredito).Select(d => d.Key).ToList();
+
+                foreach (var item in folios)
+                {
+                    var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item);
+                    elExpediente.CajaValorada = cajaval;
+                    expedientesModificados.Add(elExpediente);
+                    ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+                }*/
+                //Sacar la caja del estado buffer
+                cajaval.MarcaAvance = "READYTOPROCESS";
+                _context.CajasValoradas.Update(cajaval);
+                //_context.ExpedientesCreditos.UpdateRange(expedientesModificados);
+                await _context.SaveChangesAsync();
+                //await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\",""));
+
+                //_context.PasosValijasValoradas.RemoveRange(_context.PasosValijasValoradas.Where(c => c.CodigoCajaValorada == codigoCaja && c.Usuario == User.Identity.Name));
+                //await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("despacho-a-custodia/generar-caja-valorada/{skp?}")]
+        public async Task<IActionResult> GenerarCajaValorada([FromRoute] string skp = "")
+        {
+            try
+            {
+
+                var existe = _context.CajasValoradas.FirstOrDefault(ca => ca.Usuario == User.Identity.Name && ca.MarcaAvance == "BUFFER");
+                if (existe == null)
+                {
+                    CajaValorada cajaval = new CajaValorada
+                    {
+                        FechaEnvio = DateTime.Now,
+                        CodigoSeguimiento = skp,
+                        MarcaAvance = "BUFFER",
+                        Usuario = User.Identity.Name
+                    };
+                    _context.CajasValoradas.Add(cajaval);
+                    await _context.SaveChangesAsync();
+
+                    var salida = new
+                    {
+                        caja = cajaval,
+                        documentos = new List<string>()
+                    };
+                    return Ok(salida);
+                }
+                else
+                {
+                   
+
+
+                    var documentosAux = from pasoval in
+                                         from mono in _context.PasosValijasValoradas
+                                         join credit in _context.Creditos on mono.FolioCredito equals credit.FolioCredito
+                                         select new
+                                         {
+                                             mono.FolioCredito,
+                                             mono.CodigoCajaValorada,
+                                             mono.Usuario,
+                                             TotalDocumentos = credit.TipoCredito == TipoCredito.Normal ? 3 : 1
+
+                                         }
+                                     where pasoval.CodigoCajaValorada == existe.CodigoSeguimiento && pasoval.Usuario == User.Identity.Name
+                                     group pasoval by new { pasoval.FolioCredito, pasoval.TotalDocumentos } into slt
+
+                                     select new
+                                     {
+                                         Folio = slt.Key.FolioCredito,
+                                         Pistoleados = slt.Count(),
+                                         Total = slt.Key.TotalDocumentos
+                                     };
+
+             
+                    List<DocumentoAux> documentos = new List<DocumentoAux>();
+                   foreach (var item in documentosAux)
+                    {
+                        DocumentoAux doc = new DocumentoAux();
+                        doc.Folio = item.Folio;
+                        doc.Pistoleados = item.Pistoleados;
+                        doc.Total = _context.Documentos.Where(d => d.ExpedienteCredito.Credito.FolioCredito == item.Folio).Count();
+                        documentos.Add(doc);
+                    }
+
+
+                    var salida = new
+                    {
+                        caja = existe,
+                        documentos = documentos.OrderBy(d => d.Pistoleados).ToList()
+                    };
+                    return Ok(salida);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("despacho-a-custodia/chequear-caja-valorada")]
+        public IActionResult ChequearCajaValorada()
+        {
+            try
+            {
+                var existe = _context.CajasValoradas.FirstOrDefault(ca => ca.Usuario == User.Identity.Name && ca.MarcaAvance == "BUFFER");
+                return Ok(new { status = existe != null });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("despacho-a-custodia/caja-valorada/{codigoCaja}/agregar-documento/{folioDocumento}")]
+        public async Task<IActionResult> AgregarDocumentoCajaValorada([FromRoute] string codigoCaja, [FromRoute] string folioDocumento)
+        {
+            try
+            {
+                /*Variables*/
+                string codigoDocumento = folioDocumento.Substring(0, 2);
+                string folioCredito = folioDocumento.Substring(2, 12);
+
+                /*Obtener la caja valorada para agregar documento*/
+                var cajaBuffer = _context.CajasValoradas.FirstOrDefault(cv => cv.CodigoSeguimiento == codigoCaja && cv.Usuario == User.Identity.Name && cv.MarcaAvance == "BUFFER");
+                if (cajaBuffer == null)
+                {
+                    throw new Exception("Caja Valorada No existe en este contexto");
+                }
+
+                /*Valido quer no pistolee el mismo dos veces*/
+                var existeDocumento = _context.PasosValijasValoradas.Any(pvv => pvv.FolioDocumento == folioDocumento);
+                if (existeDocumento)
+                {
+                    throw new Exception("Documento ya Pistoleado");
+                }
+
+                var numeroTicket = _context.Creditos.FirstOrDefault(cre => cre.FolioCredito == folioCredito).NumeroTicket;
+                var etapaDocumento = _wfService.OntenerTareaActual(ProcesoDocumentos.NOMBRE_PROCESO, numeroTicket);
+                var asignadus = _context.Users.FirstOrDefault(us => us.Identificador == etapaDocumento.AsignadoA);
+
+                if (etapaDocumento.Etapa.NombreInterno != ProcesoDocumentos.ETAPA_DESPACHO_A_CUSTODIA)
+                {
+                    throw new Exception($"Etapa de documento no corresponde. Etapa Actual es: ${etapaDocumento.Etapa.Nombre} y esta asignada a: ${asignadus.Nombres}");
+                }
+
+
+                //Se registra el nuevo folio dentro de la tabla de paso
+                var registra = new PasoValijaValorada
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    CodigoCajaValorada = codigoCaja,
+                    FolioCredito = folioCredito,
+                    FolioDocumento = folioDocumento,
+                    Usuario = User.Identity.Name
+                };
+
+                _context.PasosValijasValoradas.Add(registra);
+                await _context.SaveChangesAsync();
+
+                /*TODO: Convertir en consulta dapper para manejar mejor performance */
+                var documentosAux = from pasoval in
+                                     from mono in _context.PasosValijasValoradas
+                                     join credit in _context.Creditos on mono.FolioCredito equals credit.FolioCredito
+                                     select new
+                                     {
+                                         mono.FolioCredito,
+                                         mono.CodigoCajaValorada,
+                                         mono.Usuario,
+                                         TotalDocumentos = credit.TipoCredito == TipoCredito.Normal ? 2 : 1
+                                     }
+                                 where pasoval.CodigoCajaValorada == codigoCaja && pasoval.Usuario == User.Identity.Name
+                                 group pasoval by new { pasoval.FolioCredito, pasoval.TotalDocumentos } into slt
+                                 select new
+                                 {
+                                     Folio = slt.Key.FolioCredito,
+                                     Pistoleados = slt.Count(),
+                                     Total = slt.Key.TotalDocumentos
+                                 };
+
+
+
+
+
+                List<DocumentoAux> documentos = new List<DocumentoAux>();
+                foreach (var item in documentosAux)
+                {
+                    DocumentoAux doc = new DocumentoAux();
+                    doc.Folio = item.Folio;
+                    doc.Pistoleados = item.Pistoleados;
+                    doc.Total = _context.Documentos.Where(d => d.ExpedienteCredito.Credito.FolioCredito == item.Folio).Count();
+                    documentos.Add(doc);
+                }
+
+
+
+                var salida =  documentos.OrderBy(d => d.Pistoleados).ToList();
+                return Ok(salida);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpPost("recepcion-custodia/{codigoSeguimiento}")]
         public async Task<IActionResult> RecepcionCustodia([FromBody] IEnumerable<ExpedienteGenerico> entrada, [FromRoute] string codigoSeguimiento)
         {
@@ -1091,7 +1359,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("envio-a-notaria-rm")]
         public async Task<IActionResult> EnvioNotariaRM([FromBody] ColeccionExpedientesGenerica entrada)
         {
-            
+
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
@@ -1130,7 +1398,7 @@ namespace Galvarino.Web.Controllers.Api
             }
             catch (Exception)
             {
-                
+
                 return BadRequest();
             }
         }
@@ -1206,7 +1474,7 @@ namespace Galvarino.Web.Controllers.Api
                 _context.ExpedientesCreditos.UpdateRange(expedientesModificados);
                 await _context.SaveChangesAsync();
                 await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DEVOLUCION_REPARO_NOTARIA_RM, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-                
+
                 return Ok(packNotaria);
             }
             catch (Exception)
@@ -1216,8 +1484,27 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpGet("listar-comerciales/{codigoCaja?}")]
-        public async Task<IActionResult> ListarComerciales([FromRoute] string codigoCaja="")
+        public async Task<IActionResult> ListarComerciales([FromRoute] string codigoCaja = "")
         {
+            ////TODO: Dapper
+            ////int cantidadExpedientesPorCaja = 80;
+            //var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            ////var laOficina = _context.Oficinas.Include(of => of.Comuna).FirstOrDefault(d => d.Codificacion == codificacionOficinaLogedIn);
+            //var comerciales = await _context.ExpedientesCreditos
+            //                    .Include(exp => exp.AlmacenajeComercial)
+            //                    .Include(exp => exp.Credito)
+            //                    //.Where(exp => (codigoCaja == String.Empty) ? exp.AlmacenajeComercial == null : exp.AlmacenajeComercial.CodigoSeguimiento == codigoCaja)
+            //                    .Join(_context.CargasIniciales,
+            //                            expediente => expediente.Credito.FolioCredito,
+            //                            cargainicial => cargainicial.FolioCredito,
+            //                            (expediente, cargainicial) => new
+            //                            {
+            //                                expediente,
+            //                                cargainicial
+            //                            }
+            //                    ).Where(x => x.cargainicial.CodigoOficinaIngreso == codificacionOficinaLogedIn)
+            //                    .OrderBy(ord => ord.expediente.Credito.FechaDesembolso).ThenBy(ord => ord.expediente.Credito.FolioCredito)
+            //                    .ToListAsync();
             //TODO: Dapper
             //int cantidadExpedientesPorCaja = 80;
             var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
@@ -1226,20 +1513,20 @@ namespace Galvarino.Web.Controllers.Api
                                 .Include(exp => exp.AlmacenajeComercial)
                                 .Include(exp => exp.Credito)
                                 .Where(exp => (codigoCaja == String.Empty) ? exp.AlmacenajeComercial == null : exp.AlmacenajeComercial.CodigoSeguimiento == codigoCaja)
-                                .Join(  _context.CargasIniciales, 
-                                        expediente => expediente.Credito.FolioCredito, 
+                                .Join(_context.CargasIniciales,
+                                        expediente => expediente.Credito.FolioCredito,
                                         cargainicial => cargainicial.FolioCredito,
                                         (expediente, cargainicial) => new {
-                                            expediente, cargainicial
+                                            expediente,
+                                            cargainicial
                                         }
                                 ).Where(x => x.cargainicial.CodigoOficinaIngreso == codificacionOficinaLogedIn)
                                 .OrderBy(ord => ord.expediente.Credito.FechaDesembolso).ThenBy(ord => ord.expediente.Credito.FolioCredito)
                                 .ToListAsync();
 
 
-            
             return Ok(comerciales);
-        
+
         }
 
         [HttpGet("historial-cajas-comerciales")]
@@ -1253,18 +1540,19 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("almacenaje-set-comercial")]
         public async Task<IActionResult> GuardarAlamacenajeComercial([FromBody] IEnumerable<ExpedienteGenerico> entrada)
         {
-            
+
             try
             {
                 var codificacionOficinaLogedIn = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
-                AlmacenajeComercial almacen = new AlmacenajeComercial{
+                AlmacenajeComercial almacen = new AlmacenajeComercial
+                {
                     Id = Guid.NewGuid(),
                     CodigoSeguimiento = DateTime.Now.Ticks.ToString() + codificacionOficinaLogedIn,
                     Fecha = DateTime.Now,
                     CodigoOficina = codificacionOficinaLogedIn,
                     RutEjecutivo = User.Identity.Name
                 };
-                foreach(var item in entrada)
+                foreach (var item in entrada)
                 {
                     var folio = item.FolioCredito;
                     var expediente = _context.ExpedientesCreditos.Include(exp => exp.Credito).FirstOrDefault(exp => exp.Credito.FolioCredito == folio);
@@ -1273,25 +1561,65 @@ namespace Galvarino.Web.Controllers.Api
                 }
                 _context.AlmacenajesComerciales.Add(almacen);
                 await _context.SaveChangesAsync();
-                
+
                 return Ok(almacen);
             }
             catch (Exception)
-            {                
+            {
                 return BadRequest();
             }
         }
 
+        [HttpGet("obtener-expediente-nomina-especial/{folioCredito}/{etapaSolicitud?}")]
+        public IActionResult ObtenerXpedienteNominaEspecial([FromRoute] string folioCredito, [FromRoute] string etapaSolicitud = "")
+        {
+            try
+            {
+                /* TODO Validar que sea de la oficina y que este en la etapa correcta de solicitud*/
+                var expediente = _context.ExpedientesCreditos.Include(x => x.Credito).Include(x => x.Documentos).FirstOrDefault(x => x.Credito.FolioCredito == folioCredito && x.TipoExpediente == TipoExpediente.Legal);
+                var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+                var ofipago = _wfService.ObtenerVariable("OFICINA_PAGO", expediente.Credito.NumeroTicket);
+                var laOficinaPago = _context.Oficinas.Include(k => k.OficinaProceso).FirstOrDefault(ofi => ofi.Codificacion == ofipago);
+
+                if (expediente.Documentos.Count() > 0 && ((oficinaUsuario == "A000") || (ofipago == oficinaUsuario || laOficinaPago.OficinaProceso.Codificacion == oficinaUsuario)))
+                {
+                    //if (!string.IsNullOrEmpty(etapaSolicitud))
+                    //{
+                    //    var etapaActual = _wfService.OntenerTareaActual("PROCESS", expediente.Credito.NumeroTicket);
+                    //    if (etapaActual.Etapa.NombreInterno == etapaSolicitud)
+                    //    {
+                    return Ok(expediente);
+                    //    }
+                    //    else
+                    //    {
+                    //        return NotFound("Este Expediente esta en la siguiente tarea: <strong>" + etapaActual.Etapa.Nombre + "</strong>");
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    return Ok(expediente);
+                    //}
+                }
+                else
+                {
+                    return NotFound("Carga del Expediente en la siguiente Oficina: " + laOficinaPago.Nombre);
+                }
+            }
+            catch (Exception)
+            {
+                return NotFound("El Expediente aun no esta Cargado en Galvarino.");
+            }
+        }
 
         [HttpPost("ingreso-expedientes-legalizados")]
         public async Task<IActionResult> IngresoExpedienteLelalizado([FromBody] IEnumerable<ExpedienteGenerico> entrada)
         {
-            
+
             try
             {
                 List<ExpedienteCredito> expedientesModificados = new List<ExpedienteCredito>();
                 List<string> ticketsAvanzar = new List<string>();
-                
+
                 foreach (var item in entrada)
                 {
                     var credito = await _context.Creditos.FirstOrDefaultAsync(xcred => xcred.FolioCredito == item.FolioCredito);
@@ -1300,16 +1628,16 @@ namespace Galvarino.Web.Controllers.Api
                 }
 
                 // metodo antiguio
-             // await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
-               
+                // await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ENVIO_NOTARIA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+
 
                 //Metodo nuevo que permite avanzar a etapas a la fuerza
-                 _wfService.ForzarAvance(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                _wfService.ForzarAvance(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
                 return Ok();
             }
             catch (Exception ex)
             {
-                
+
                 return BadRequest(ex.Message);
             }
         }
@@ -1318,7 +1646,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("reasignaciones/oficinaevaluadora")]
         public IActionResult GuardarExpedienteReasignacionoficinaevaluadora([FromBody] dynamic entrada)
         {
-           using (var tran = _context.Database.BeginTransaction())
+            using (var tran = _context.Database.BeginTransaction())
             {
                 try
                 {
@@ -1340,7 +1668,7 @@ namespace Galvarino.Web.Controllers.Api
                     return BadRequest(ex.Message);
                 }
             }
-           
+
         }
 
 
@@ -1349,19 +1677,17 @@ namespace Galvarino.Web.Controllers.Api
         public IActionResult GuardarExpedienteReasignacion([FromBody] dynamic entrada)
         {
 
-
-            
-            using(var tran = _context.Database.BeginTransaction())
+            using (var tran = _context.Database.BeginTransaction())
             {
-                
-                try{
+                try
+                {
                     string folio = entrada.folioCredito.ToString();
                     int codOficinaReasignacion = Convert.ToInt32(entrada.nuevaOficina);
                     var cargaInicial = _context.CargasIniciales.FirstOrDefault(carga => carga.FolioCredito == folio);
                     var oficinaReasigna = _context.Oficinas.Include(f => f.OficinaProceso).FirstOrDefault(d => d.Id == codOficinaReasignacion);
                     var credito = _context.Creditos.FirstOrDefault(cred => cred.FolioCredito == folio);
                     string opOriginal = cargaInicial.CodigoOficinaPago;
-                    var lasolicitud = _context.Solicitudes.Include(sol=>sol.Tareas).FirstOrDefault(sl => sl.NumeroTicket == credito.NumeroTicket);
+                    var lasolicitud = _context.Solicitudes.Include(sol => sol.Tareas).FirstOrDefault(sl => sl.NumeroTicket == credito.NumeroTicket);
                     var latarea = lasolicitud.Tareas.FirstOrDefault(tar => tar.Estado == EstadoTarea.Activada);
                     var laoforig = _context.Oficinas.Include(f => f.OficinaProceso).FirstOrDefault(of => of.Codificacion == opOriginal);
 
@@ -1373,18 +1699,22 @@ namespace Galvarino.Web.Controllers.Api
 
                     if (latarea.UnidadNegocioAsignada != null)
                     {
-                        if (oficinaReasigna.EsRM==true)
+                        if (oficinaReasigna.EsRM == true)
                         {
                             _wfService.AsignarVariable("ES_RM", "1", credito.NumeroTicket);
+                            latarea.Etapa = _context.Etapas.FirstOrDefault(eta => eta.NombreInterno == ProcesoDocumentos.ETAPA_PREPARAR_NOMINA);
+
+
                         }
-                          else
+                        else
                         {
                             _wfService.AsignarVariable("ES_RM", "0", credito.NumeroTicket);
+                            latarea.Etapa = _context.Etapas.FirstOrDefault(eta => eta.NombreInterno == ProcesoDocumentos.ETAPA_ENVIO_NOTARIA);
+
                         }
-                            
-                        latarea.Etapa = _context.Etapas.FirstOrDefault(eta => eta.NombreInterno == ProcesoDocumentos.ETAPA_PREPARAR_NOMINA);
+
                         latarea.UnidadNegocioAsignada = oficinaReasigna.Codificacion;
-                        
+
                         _context.Tareas.Update(latarea);
 
                         _context.CargasIniciales.Update(cargaInicial);
@@ -1428,8 +1758,8 @@ namespace Galvarino.Web.Controllers.Api
 
                     //    _context.Tareas.Update(latarea);
                     //}     
-                   
-                    
+
+
                     /*else if (oficinaReasigna.OficinaProceso.Id != oficinaReasigna.Id){
 
                     }*/
@@ -1452,13 +1782,13 @@ namespace Galvarino.Web.Controllers.Api
                     //tran.Commit();
                     //return Ok();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     tran.Rollback();
                     return BadRequest(ex.Message);
                 }
             }
-            
+
         }
 
     }

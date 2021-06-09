@@ -13,6 +13,9 @@ namespace Galvarino.Web.Services.Workflow
 
         Solicitud GenerarSolicitud(string nombreInternoProceso, string identificacionUsuario, string resumen);
 
+        Solicitud GenerarSolicitudHistorico(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string, string> variables);
+
+
         Solicitud GenerarSolicitud(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string,string> variables);
 
         void ActivarTarea(Proceso proceso, Etapa etapa, Usuario usuario);
@@ -27,6 +30,9 @@ namespace Galvarino.Web.Services.Workflow
         void CompletarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
 
         void CompletarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
+
+        void CompletarTareaMultiHistorico(string nombreInternoProceso, string nombreInternoEtapa, string item, string identificacionUsuario);
+
 
         void CommitAvance();
 

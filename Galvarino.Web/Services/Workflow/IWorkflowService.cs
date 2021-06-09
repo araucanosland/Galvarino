@@ -13,6 +13,9 @@ namespace Galvarino.Web.Services.Workflow
 
         Solicitud Instanciar(string nombreProceso, string identificacionUsuario, string resumenInstancia, Dictionary<string, string> variables);
 
+        Solicitud InstanciarHistorico(string nombreProceso, string identificacionUsuario, string resumenInstancia, Dictionary<string, string> variables);
+
+
         void Avanzar(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
 
         IEnumerable<Tarea> TareasUsuario(string nombreProceso, string identificacionUsuario);
@@ -30,5 +33,7 @@ namespace Galvarino.Web.Services.Workflow
         Tarea OntenerTareaActual(string nombreInternoProceso, string numeroTicket);
 
         void ForzarAvance(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<string> numeroTicket, string identificacionUsuario);
+
+
     }
 }

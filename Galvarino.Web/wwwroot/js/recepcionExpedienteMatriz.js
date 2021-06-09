@@ -43,7 +43,8 @@ const metodos = {
                 let calssE = exp.pistoleado.indexOf(doc.codificacion) > -1 ? "glyphicon-ok" : "glyphicon-remove";
                 internos += `<li><a href="#">${enumTipoDocumentos[doc.tipoDocumento]} <i class="glyphicon ${calssE}" /></a></li>`
             });
-
+            let completado = exp.pistoleado.length > 0 ? exp.pistoleado.length === exp.obtenido.documentos.length ? true : false : false;
+            exp.completado = completado;
             let clasePrincipal = exp.pistoleado.length > 0 ? exp.pistoleado.length === exp.obtenido.documentos.length ? 'btn-success' : 'btn-warning' : 'btn-danger';
             let html = `<div class="btn-group dropdown mar-rgt mar-top">
             <button class="btn ${clasePrincipal} dropdown-toggle dropdown-toggle-icon" data-toggle="dropdown" type="button" aria-expanded="false">
@@ -60,7 +61,8 @@ const metodos = {
 
     },
     avanzarWf: function () {
-
+        debugger;
+        let _todosCompletados = true;
         let foliosEnvio = _ingresados.map(function (expediente) {
             return {
                 FolioCredito: expediente.folioCredito,
@@ -68,6 +70,30 @@ const metodos = {
                 Faltante: expediente.obtenido.documentos.length != expediente.pistoleado.length
             }
         });
+
+        $.each(_ingresados, function (i, exp) {
+
+            if (exp.completado == false) {
+                _todosCompletados = false;
+            }
+
+
+        });
+
+        if (_todosCompletados == false) {
+            $.niftyNoty({
+                type: "danger",
+                container: "floating",
+                title: "Error Recepcion Expedientes",
+                message: "Debe Pistolear Todos los Documentos",
+                closeBtn: true,
+                timer: 5000
+            });
+            return false;
+
+        }
+
+
 
         let folioValija = $('#folioCaja').val();
 

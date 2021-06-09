@@ -19,7 +19,7 @@
         }
 
         function ValidaInput() {
-            debugger;
+           
             var inputBusqueda = $('#inputBusqueda').val();
             if (inputBusqueda == "") {
                 $('#btn_guardar').attr('disabled', true);
@@ -37,7 +37,7 @@
         debugger;
         select.addEventListener('change',
             function () {
-                debugger;
+               
                 var selectedOption = this.options[select.selectedIndex];
                 if (selectedOption.text == "Selecciona") {
                     $('#btn_guardar').attr('disabled', true);
@@ -52,7 +52,7 @@
         var tipoOficina = document.getElementById('tipoOficina');
         tipoOficina.addEventListener('change',
             function () {
-                debugger;
+              
                 var selectedOption = this.options[tipoOficina.selectedIndex];
                 if (selectedOption.text == "Selecciona") {
                     $('#nuevaOficina').attr('disabled', true);
@@ -66,7 +66,7 @@
 
         $(function () {
             $("#form-busqueda").on("submit", function (event) {
-                debugger;
+               
                 var inputBusqueda = $('#inputBusqueda').val();
                 $.ajax({
                     type: "GET",
@@ -76,7 +76,7 @@
                     }
                 }).done(function (data) {
                     if (typeof data != 'undefined') {
-                        debugger;
+                       
                         $('#folio-credito').val(data.cargaInicial.folioCredito)
                         $('#datos-credito').html("")
                             .append(`<small>Datos Credito</small>`)
@@ -130,80 +130,7 @@
             });
 
 
-            // 04/09/2019 cambio de logica en llamado en evento de boton guardar , para habilitar boton nueva consulta
-
-            // #region comentarios
-
-            //$("#form-generico").on("submit", function (event) {
-            //    debugger;
-            //    event.preventDefault();
-            //    var model = {
-            //        folioCredito: $('#folio-credito').val(),
-            //        nuevaOficina: $("#nuevaOficina").val(),
-            //        tipo: 'Legal'
-            //    }
-
-            //    console.log({
-            //        model
-            //    })
-            //    // Carga información de  oficinas
-            //     $.ajax({
-            //        type: "POST",
-            //        url: `/api/wf/v1/reasignaciones/oficinas`,
-            //        data: JSON.stringify(model),
-            //        contentType: "application/json; charset=utf-8"
-            //    }).done(function (data) {
-            //        $.niftyNoty({
-            //            type: "success",
-            //            container: "floating",
-            //            title: "Despacho a Notaría",
-            //            message: "Cambios Guardados...<br/><small>Correctamente!!!</small>",
-            //            closeBtn: true,
-            //            timer: 5000,
-            //            onHidden: function () {
-
-            //            },
-
-
-            //        })
-            //        // Recarga formulario para mostrar nuevas asignación de oficina
-            //        var inputBusqueda = $('#inputBusqueda').val();
-            //        $.ajax({
-            //            type: "GET",
-            //            url: `/api/wf/v1/reasignaciones/oficinas`,
-            //            data: {
-            //                q: inputBusqueda
-            //            }
-            //        }).done(function (data) {
-            //            if (typeof data != 'undefined') {
-            //                debugger;
-            //                   $('#oficina-colocacion').html("")
-            //                    .append(`<small>Oficina de Pago</small>`)
-            //                    .append(`<h5>${data.oficinaLegal.nombre}</h5>`)
-            //                    .append(`<p> Codigo: ${data.oficinaLegal.codificacion}</p>`);
-            //            }
-            //            })
-
-
-
-
-            //    }).fail(function (errMsg) {
-            //        $.niftyNoty({
-            //            type: "warning",
-            //            container: "floating",
-            //            title: "Avance Tareas",
-            //            message: errMsg.responseText,
-            //            closeBtn: true,
-            //            timer: 5000
-
-            //        });
-            //    })
-            //});
-
-            // #endregion
-
-
-
+      
 
         });
 
@@ -240,7 +167,7 @@
                     url = `/api/wf/v1/reasignaciones/oficinas`;
                 }
 
-                debugger;
+              
 
                 // Carga información de  oficinas
                 $.ajax({
@@ -272,7 +199,7 @@
                         }
                     }).done(function (data) {
                         if (typeof data != 'undefined') {
-                            debugger;
+                          
                             $('#folio-credito').val(data.cargaInicial.folioCredito)
                             $('#datos-credito').html("")
                                 .append(`<small>Datos Credito</small>`)

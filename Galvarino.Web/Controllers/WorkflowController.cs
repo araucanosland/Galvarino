@@ -173,6 +173,16 @@ namespace Galvarino.Web.Controllers
             return View();
         }
 
+
+
+        [Route("despacho-a-custodia-nomina-especial")]
+        public IActionResult DespachoCustodiaNominaEspecial()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
+
         [Route("despacho-a-custodia")]
         public IActionResult DespachoCustodia()
         {
@@ -223,6 +233,15 @@ namespace Galvarino.Web.Controllers
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             return View();
         }
+
+
+        [Route("analisis-mesa-control-nomina-especial")]
+        public IActionResult AnalisisMesaControlNominaEspecial()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+            return View();
+        }
+
 
         [Route("devolucion-reparo-notaria-rm")]
         public IActionResult DevolucionReparoNotariaRM()

@@ -1,4 +1,4 @@
-const enumTipoDocumentos = new Array('Pagare', 'Fotocopia Cedula Identidad', 'Solicitud Credito', 'Liquidacion', 'Hoja de Prolongacion', 'Acuerdo de Pago')
+const enumTipoDocumentos = new Array('Pagare', 'Fotocopia Cedula Identidad', 'Seguro Desgravamen', 'Seguro de Cesantía', 'Hoja de Prolongacion', 'Acuerdo de Pago')
 const enumTipoCreditos = new Array('Normal', 'Reprogramación', 'Acuerdo Pago')
 const formatoFolios = {
     codigo: {

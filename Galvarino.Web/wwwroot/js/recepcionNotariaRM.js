@@ -24,10 +24,10 @@ const metodos = {
         if (index > -1 && typeof _ingresados[index] != 'undefined' && _ingresados[index].documentos.indexOf(codigoTipoDocumento) > -1) {
 
             $.niftyNoty({
-                type: "danger",
+                type: "warning",
                 container: "floating",
-                title: "Suceso Erroneo",
-                message: "Error al Pistolear",
+                title: "Operacion Expediente",
+                message: "Documento ya pistoleado",
                 closeBtn: true,
                 timer: 5000
             });
@@ -46,7 +46,8 @@ const metodos = {
                 let calssE = exp.documentos.indexOf(doc.codificacion) > -1 ? "glyphicon-ok" : "glyphicon-remove";
                 internos += `<li><a href="#">${enumTipoDocumentos[doc.tipoDocumento]} <i class="glyphicon ${calssE}" /></a></li>`
             });
-
+            let completado = exp.obtenido.documentos.length === exp.documentos.length ? true : false;
+            exp.completado = completado;
             let clasePrincipal = exp.obtenido.documentos.length === exp.documentos.length ? 'btn-success' : 'btn-warning';
             let html = `<div class="btn-group dropdown mar-rgt">
                 <button class="btn ${clasePrincipal} dropdown-toggle dropdown-toggle-icon" data-toggle="dropdown" type="button" aria-expanded="false">
@@ -64,13 +65,36 @@ const metodos = {
     },
     avanzarWf: function () {
         let foliosEnvio = [];
+        let _todosCompletados = true;
         $.each(_ingresados, function (i, exp) {
+
+            if (exp.completado == false) {
+                _todosCompletados = false;
+            }
+
+
+
             if (exp.obtenido.documentos.length === exp.documentos.length) {
                 foliosEnvio.push({
                     FolioCredito: exp.folioCredito
                 });
             }
         });
+
+
+        if (_todosCompletados == false) {
+            $.niftyNoty({
+                type: "danger",
+                container: "floating",
+                title: "Error Recepción Notaría",
+                message: "Debe Pistolear Todos los Documentos",
+                closeBtn: true,
+                timer: 5000
+            });
+            return false;
+
+        }
+
 
         $.ajax({
             type: "POST",
@@ -82,7 +106,7 @@ const metodos = {
                 type: "success",
                 container: "floating",
                 title: "Recepción Notaría",
-                message: "Tarea Finalizada con Éxito.<br/><small>Esta Tarea se ceirra en 5 Seg. y te redirige a tus solicitudes</small>",
+                message: "Tarea Finalizada con Éxito.<br/><small>Esta Tarea se cierra en 5 Seg. y te redirige a tus solicitudes</small>",
                 closeBtn: true,
                 timer: 5000,
                 onHidden: function () {

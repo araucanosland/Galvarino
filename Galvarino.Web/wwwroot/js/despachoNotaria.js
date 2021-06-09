@@ -5,7 +5,7 @@ const eventos = {
     pistolaDisparada: "snapshot.events.galvarino"
 }
 const metodos = {
-    disparo: function(){
+    disparo: function () {
         var codigoTipoDocumento = $("#folio-shot").val().substring(formatoFolios.codigo.inicio, formatoFolios.codigo.fin);
         const expedientex = {
             codigoTipoDocumento,
@@ -25,10 +25,10 @@ const metodos = {
         if (index > -1 && typeof _ingresados[index] != 'undefined' && _ingresados[index].documentos.indexOf(codigoTipoDocumento) > -1) {
 
             $.niftyNoty({
-                type: "danger",
+                type: "warning",
                 container: "floating",
-                title: "Suceso Erroneo",
-                message: "Error al Pistolear",
+                title: "Operacion Expediente",
+                message: "Documento ya pistoleado",
                 closeBtn: true,
                 timer: 5000
             });
@@ -36,19 +36,21 @@ const metodos = {
             $(document).trigger(eventos.pistolaDisparada, expedientex);
         }
     },
-    render: function(){
+    render: function () {
 
         $('.contenedor-folios').html("");
-        $.each(_ingresados, function(i, exp){
-            
+        $.each(_ingresados, function (i, exp) {
+
+
             let internos = ``;
 
-            $.each(exp.obtenido.documentos, function(i, doc){
+            $.each(exp.obtenido.documentos, function (i, doc) {
                 let calssE = exp.documentos.indexOf(doc.codificacion) > -1 ? "glyphicon-ok" : "glyphicon-remove";
                 internos += `<li><a href="#">${enumTipoDocumentos[doc.tipoDocumento]} <i class="glyphicon ${calssE}" /></a></li>`
             });
-            
-            let clasePrincipal = exp.obtenido.documentos.length === exp.documentos.length  ? 'btn-success' : 'btn-warning';
+            let completado = exp.obtenido.documentos.length === exp.documentos.length ? true : false;
+            exp.completado = completado;
+            let clasePrincipal = exp.obtenido.documentos.length === exp.documentos.length ? 'btn-success' : 'btn-warning';
             let html = `<div class="btn-group dropdown mar-rgt">
                 <button class="btn ${clasePrincipal} dropdown-toggle dropdown-toggle-icon" data-toggle="dropdown" type="button" aria-expanded="false">
                     ${exp.folioCredito} <i class="dropdown-caret"></i>
@@ -60,21 +62,43 @@ const metodos = {
 
             $('.contenedor-folios').append(html)
         })
-            
+
 
     },
-    avanzarWf: function(){
+    avanzarWf: function () {
+        let _todosCompletados = true;
         let foliosEnvio = [];
         $.each(_ingresados, function (i, exp) {
-            if(exp.obtenido.documentos.length === exp.documentos.length)
-            {
+
+            debugger;
+            if (exp.completado == false) {
+                _todosCompletados = false;
+            }
+
+
+            if (exp.obtenido.documentos.length === exp.documentos.length) {
                 foliosEnvio.push({
                     FolioCredito: exp.folioCredito
                 });
             }
         });
-        if (foliosEnvio.length == 0)
-        {
+
+
+        if (_todosCompletados == false) {
+            $.niftyNoty({
+                type: "danger",
+                container: "floating",
+                title: "Error Despacho a Notaría",
+                message: "Debe Pistolear Todos los Documentos",
+                closeBtn: true,
+                timer: 5000
+            });
+            return false;
+
+        }
+
+
+        if (foliosEnvio.length == 0) {
             $.niftyNoty({
                 type: "danger",
                 container: "floating",
@@ -101,14 +125,14 @@ const metodos = {
                 type: "success",
                 container: "floating",
                 title: "Despacho a Notaría",
-                message: "Estamos Generando la Nómina...<br/><small>Esta Tarea se ceirra en 5 Seg. y te redirige al Pdf de La Nómina de envío</small>",
+                message: "Estamos Generando la Nómina...<br/><small>Esta Tarea se cierra en 5 Seg. y te redirige al Pdf de La Nómina de envío</small>",
                 closeBtn: true,
                 timer: 5000,
-                onHidden: function(){
+                onHidden: function () {
                     window.open(`/salidas/pdf/detalle-pack-notaria/${data.codigoSeguimiento}`, "_blank");
                 }
             });
-            
+
         }).fail(function (errMsg) {
             $.niftyNoty({
                 type: "warning",
@@ -129,10 +153,10 @@ const metodos = {
 
 
 
-$(function(){
+$(function () {
 
     $(document).on(eventos.pistolaDisparada, function (event, params) {
-        
+
         let expediente = params;
         let etapa = $("#etapa-actual").val();
 
@@ -186,13 +210,13 @@ $(function(){
         metodos.render();
     });
 
-    $("#frm-pistoleo").on("submit", function(event){
+    $("#frm-pistoleo").on("submit", function (event) {
         event.preventDefault()
         metodos.disparo();
     });
 
-    $("#btn-generar-generico").on("click", function(){
+    $("#btn-generar-generico").on("click", function () {
         metodos.avanzarWf();
     });
-        
+
 });

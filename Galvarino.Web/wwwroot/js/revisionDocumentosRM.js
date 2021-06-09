@@ -30,7 +30,7 @@ const metodos = {
                 type: "success",
                 container: "floating",
                 title: "Revisión Documentos",
-                message: "Tarea Finalizada con Éxito.<br/><small>Esta Tarea se ceirra en 5 Seg. y te redirige al tus solicitudes</small>",
+                message: "Tarea Finalizada con Éxito.<br/><small>Esta Tarea se cierra en 5 Seg. y te redirige al tus solicitudes</small>",
                 closeBtn: true,
                 timer: 5000,
                 onHidden: function () {
