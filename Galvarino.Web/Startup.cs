@@ -1,33 +1,20 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Galvarino.Web.Data;
+﻿using Galvarino.Web.Data;
+using Galvarino.Web.Data.Repository;
 using Galvarino.Web.Models.Security;
 using Galvarino.Web.Services;
 using Galvarino.Web.Services.Notification;
-using Galvarino.Web.Services.Application;
 using Galvarino.Web.Services.Workflow;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Rotativa.AspNetCore;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.FileProviders;
-using System.IO;
-using Microsoft.AspNetCore.Server.IISIntegration;
 using Galvarino.Web.Workers;
-using Galvarino.Web.Hubs;
-using Galvarino.Web.Data.Repository;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Rotativa.AspNetCore;
+using System;
 
 namespace Galvarino.Web
 {
@@ -44,7 +31,8 @@ namespace Galvarino.Web
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<ApplicationDbContext>(options => {
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
                 options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
                 options.EnableSensitiveDataLogging();
             });
@@ -94,11 +82,11 @@ namespace Galvarino.Web
 
             /*Workers & background tasks*/
             //services.AddHostedService<CargaDatosCreditoService>();
-            // services.AddHostedService<CierrePagaresDeIronMountainWorker>();
-          services.AddHostedService<CargaInicialWorker>();
-          // services.AddHostedService<GeneraArchivoIronMountain>();
-          // services.AddHostedService<CargaGalvarinoHistorico>();
-           //services.AddHostedService<CargaGalvarinoVenta>();
+           // services.AddHostedService<CierrePagaresDeIronMountainWorker>();
+           // services.AddHostedService<CargaInicialWorker>();
+           // services.AddHostedService<GeneraArchivoIronMountain>();
+            // services.AddHostedService<CargaGalvarinoHistorico>();
+            // services.AddHostedService<CargaGalvarinoVenta>();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);

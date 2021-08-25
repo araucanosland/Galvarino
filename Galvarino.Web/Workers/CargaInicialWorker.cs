@@ -104,10 +104,10 @@ namespace Galvarino.Web.Workers
 
 
 
-                    rutaDescargar = @"c:\cargainicial\Carga08062021.txt";
-                    nombreArchivo = "Carga08062021";
-                    //nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
-                    //ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
+                    //rutaDescargar = @"c:\cargainicial\Carga29062021.txt";
+                    //nombreArchivo = "Carga29062021";
+                    nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
+                    ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
 
                     //Valida si archivo de carga y dia de hoy estan cargados en BASE
                     int existeCarga;

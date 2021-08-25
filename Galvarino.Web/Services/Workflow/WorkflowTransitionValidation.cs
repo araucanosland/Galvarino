@@ -12,11 +12,12 @@ namespace Galvarino.Web.Services.Workflow
 
         
         protected readonly ApplicationDbContext _context;
-
+        private string aaa;
         public WorkflowTransitionValidation(ApplicationDbContext context, string numeroTicket)
         {
             _context = context;
             Variables = _context.Variables.Where(v => v.NumeroTicket.Equals(numeroTicket));
+            aaa = numeroTicket;
             NumeroTicket = numeroTicket;
         }
 

@@ -208,7 +208,7 @@ namespace Galvarino.Web.Controllers.Api
             var ofinales = new List<Oficina>();
             ofinales.Add(ObjetoOficinaUsuario);
             ofinales.AddRange(OficinasUsuario.ToList());
-
+            
 
             /*Optimizando */
             var laSalida = from tarea in _context.Tareas
@@ -219,7 +219,7 @@ namespace Galvarino.Web.Controllers.Api
 
 
                            where (
-                                           ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(tarea.AsignadoA))
+                                           ((tarea.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol )
                                               // && ((tarea.UnidadNegocioAsignada != null && ofinales.Select(ofs => ofs.Codificacion).Contains(tarea.UnidadNegocioAsignada)) || tarea.UnidadNegocioAsignada == null)
                                                )
 
@@ -330,12 +330,14 @@ namespace Galvarino.Web.Controllers.Api
             var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
             var ObjetoOficinaUsuario = await _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefaultAsync(ofc => ofc.OficinaProceso.Codificacion == oficinaUsuario);
             var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id);
-
+            DateTime TodayDate = new DateTime();
+            TodayDate = DateTime.Now;
+            
             switch (tipoDocumento)
             {
                 case "nomina-notaria":
-                    var packNotaria = await _context.PacksNotarias.Include(p => p.Expedientes).Include(p => p.Oficina).Where(p => p.Oficina.Codificacion == oficinaUsuario).ToListAsync();
-                    return Ok(ObjetoOficinaUsuario.PacksNotaria);
+                    var packNotaria = await _context.PacksNotarias.Include(p => p.Expedientes).Include(p => p.Oficina).Where(p => p.Oficina.Codificacion == oficinaUsuario && p.FechaEnvio>= TodayDate.AddDays(-365)).ToListAsync();
+                    return Ok(packNotaria);
 
                 case "valija-oficina":
                     var valijaOficina = await _context.ValijasOficinas.Include(d => d.OficinaEnvio).Include(d => d.Expedientes).Where(x => x.OficinaEnvio.Codificacion == oficinaUsuario).ToListAsync();

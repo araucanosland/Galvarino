@@ -115,9 +115,9 @@ namespace Galvarino.Web.Workers
                     int existeCarga;
                     sql = @"
                                                 SELECT  c.*
-                          FROM [GALVARINO].[dbo].[mesa] t
+                          FROM [GALVARINO].[dbo].[IronMountain] t
                           ,Creditos c
-                          where c.FolioCredito=t.folio";
+                          where c.FolioCredito=t.foliocorrecto";
                     salida = connection.Query<dynamic>(sql).AsList();
 
                     foreach (var sa in salida)
@@ -139,29 +139,29 @@ namespace Galvarino.Web.Workers
                      " join Solicitudes b on a.SolicitudId = b.Id and a.estado='Activada'" +
                      " where b.NumeroTicket = '" + sa.NumeroTicket + "'" +
                      " insert into Tareas(SolicitudId, EtapaId, AsignadoA, ReasignadoA, EjecutadoPor, Estado, FechaInicio, FechaTerminoEstimada, FechaTerminoFinal, UnidadNegocioAsignada)  " +
-                     " values           (@p_id_solicitud, 12,    'Mesa Control', null, null, 'Activada', GETDATE(), null, null, null) ";
+                     " values  (@p_id_solicitud, 18,    'wfboot', null, 'wfboot', 'Finalizada', GETDATE(), GETDATE(), GETDATE(), @p_unidadNegocio) ";
                     
 
                         connection.Execute(actualizar.ToString(), null, null, 240);
                     }
 
                 }
-                
-              
+
+
             }
 
         }
 
 
 
-  
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        _logger.LogInformation("Timed Background Service is starting.");
-        object state = null;
-        _timer = new Timer(DoWork, state, TimeSpan.Zero, TimeSpan.FromMinutes(10));
-        return Task.CompletedTask;
-    }
 
-}
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation("Timed Background Service is starting.");
+            object state = null;
+            _timer = new Timer(DoWork, state, TimeSpan.Zero, TimeSpan.FromMinutes(10));
+            return Task.CompletedTask;
+        }
+
+    }
 }
