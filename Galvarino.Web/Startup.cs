@@ -83,8 +83,8 @@ namespace Galvarino.Web
             /*Workers & background tasks*/
             //services.AddHostedService<CargaDatosCreditoService>();
            // services.AddHostedService<CierrePagaresDeIronMountainWorker>();
-           // services.AddHostedService<CargaInicialWorker>();
-           // services.AddHostedService<GeneraArchivoIronMountain>();
+            services.AddHostedService<CargaInicialWorker>();
+            //services.AddHostedService<GeneraArchivoIronMountain>();
             // services.AddHostedService<CargaGalvarinoHistorico>();
             // services.AddHostedService<CargaGalvarinoVenta>();
 

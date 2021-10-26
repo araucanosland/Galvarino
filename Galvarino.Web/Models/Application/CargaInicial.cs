@@ -27,7 +27,7 @@ namespace Galvarino.Web.Models.Application
         public string Aval { get; set; }
         public string SeguroDesgravamen { get; set; }
         //public string NroOferta { get; set; }
-        //public string TipoVenta { get; set; }
+         public string TipoVenta { get; set; }
         //public string FormaPago { get; set; }
         //public string CompraCartera { get; set; }
         //public string DigitalizarSegDesgr { get; set; }
