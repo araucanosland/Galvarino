@@ -197,6 +197,34 @@ namespace Galvarino.Web.Controllers.Api
         }
 
 
+        [HttpGet("mis-solicitudes-mc/{etapaIn?}")]
+        public IActionResult ListarMisSolicitudesMC([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20)
+        {
+
+            var rolesUsuario = User.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToArray();
+            var oficinaUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.OficinaCodigo).Value;
+            var ObjetoOficinaUsuario = _context.Oficinas.Include(of => of.OficinaProceso).FirstOrDefault(ofc => ofc.Codificacion == oficinaUsuario);
+            var OficinasUsuario = _context.Oficinas.Where(ofc => ofc.OficinaProceso.Id == ObjetoOficinaUsuario.Id && ofc.EsMovil == true);
+            var ofinales = new List<Oficina>();
+            ofinales.Add(ObjetoOficinaUsuario);
+            ofinales.AddRange(OficinasUsuario.ToList());
+
+            var salida = _solicitudRepository.ListarAnalisisMC(rolesUsuario, etapaIn);
+
+            var lida = new
+            {
+                total = salida.Count(),
+                rows = salida.Count() < offset ? salida : salida.Skip(offset).Take(limit).ToList()
+            };
+
+            return Ok(lida);
+
+
+
+            
+        }
+
+
         [HttpGet("mis-solicitudes-mesa-control/{etapaIn?}")]
         public async Task<IActionResult> ListarMisSolicitudesMSC([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {

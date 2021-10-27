@@ -51,6 +51,7 @@ const metodos = {
 
 
 function formatoReparo(val, row, inc) {
+    debugger;
     row.reparo = 0;
     let salida = `<select class="form-control reparo" id="${inc}">`;
     salida = salida + opcionesReparosNotaria.map(function (val, index) {

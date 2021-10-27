@@ -104,8 +104,8 @@ namespace Galvarino.Web.Workers
 
 
 
-                    rutaDescargar = @"c:\cargainicial\Carga07102021.txt";
-                    nombreArchivo = "Carga07102021.txt";
+                    rutaDescargar = @"c:\cargainicial\Carga01102021.txt";
+                    nombreArchivo = "Carga01102021.txt";
                     //nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
                     //ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
 

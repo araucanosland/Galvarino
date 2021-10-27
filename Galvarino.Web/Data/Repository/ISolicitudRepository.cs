@@ -14,5 +14,7 @@ namespace Galvarino.Web.Data.Repository
         IEnumerable<SolicitudResult> listarSolicitudesNominaEspecial(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "");
 
         IEnumerable<dynamic> listarOficinas(string EsRM);
+
+        IEnumerable<SolicitudAnalisisMC> ListarAnalisisMC(string[] roles, string nombreInterno);
     }
 }

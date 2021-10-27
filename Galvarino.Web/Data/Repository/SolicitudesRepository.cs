@@ -22,6 +22,44 @@ namespace Galvarino.Web.Data.Repository
             _logger = logger;
         }
 
+
+        public IEnumerable<SolicitudAnalisisMC> ListarAnalisisMC(string[] roles, string nombreInterno)
+        {
+
+            var theRoles = "'" + String.Join("','", roles) + "'";
+
+            var respuesta = new List<SolicitudAnalisisMC>();
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                        string sql = @"select  c.FolioCredito,
+                        c.RutCliente,
+                        c.TipoCredito,                              
+                        c.FechaDesembolso 
+                        from Creditos c
+                        ,Solicitudes s
+                        ,Tareas t
+                        ,Etapas e
+                        where c.numeroticket=s.NumeroTicket
+                        and s.Id=t.SolicitudId
+                        and t.EtapaId=e.Id
+                        and e.NombreInterno='ANALISIS_MESA_CONTROL'
+                        and t.Estado='Activada'
+                        ";
+                respuesta = con.Query<SolicitudAnalisisMC>(sql).AsList();
+            }
+            respuesta.ForEach(s =>
+            {
+                s.Documentos = _context.Documentos
+                               .Include(d => d.ExpedienteCredito)
+                               .ThenInclude(f => f.Credito)
+                               .Where(d => d.ExpedienteCredito.Credito.FolioCredito == s.FolioCredito && d.ExpedienteCredito.TipoExpediente == 0);
+            });
+
+            return respuesta;
+           
+        }
+
+
         public IEnumerable<dynamic> listarResumenInicial(string[] roles, string rut, string[] oficinas)
         {
             var theRoles = "'" + String.Join("','", roles) + "'";
@@ -246,6 +284,16 @@ namespace Galvarino.Web.Data.Repository
         public string reparoNotaria { get; set; }
         public string documentosFaltantes { get; set; }
 
+    }
+
+    public class SolicitudAnalisisMC
+    {
+        public string FolioCredito { get; set; }
+        public string RutCliente { get; set; }
+        public int TipoCredito { get; set; }
+        public IEnumerable<Documento> Documentos { get; set; }
+        public DateTime FechaDesembolso { get; set; }
+       
     }
 
 }
