@@ -1009,7 +1009,7 @@ namespace Galvarino.Web.Controllers.Api
                     ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
                 }
 
-                await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                await _wfService.AvanzarRangoAnalisisMC(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
 
                 return Ok();
             }

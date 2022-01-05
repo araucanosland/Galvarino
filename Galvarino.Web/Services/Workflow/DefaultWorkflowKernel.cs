@@ -79,7 +79,7 @@ namespace Galvarino.Web.Services.Workflow
         public void ActivarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
             //Primero obtengo el proceso
-            Proceso proceso = _context.Procesos.FirstOrDefault(x => x.NombreInterno == nombreInternoProceso && x.Id==1);
+            Proceso proceso = _context.Procesos.FirstOrDefault(x => x.NombreInterno == nombreInternoProceso && x.Id == 1);
 
             //Segundo Obtengo la etapa
             Etapa etapa = _context.Etapas.Include(e => e.Proceso).FirstOrDefault(x => x.NombreInterno == nombreInternoEtapa && x.Proceso == proceso);
@@ -185,7 +185,7 @@ namespace Galvarino.Web.Services.Workflow
 
             //Tercero obtengo la solicitud
             Solicitud solicitud = _context.Solicitudes.FirstOrDefault(d => d.NumeroTicket == numeroTicket);
-            
+
 
             string usuarioAsignado = etapa.ValorUsuarioAsignado;
             if (etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Auto)
@@ -257,7 +257,7 @@ namespace Galvarino.Web.Services.Workflow
 
         public void CompletarTarea(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
-            Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso && p.Id==1);
+            Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso && p.Id == 1);
             Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
             Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
 
@@ -374,14 +374,14 @@ namespace Galvarino.Web.Services.Workflow
 
         }
 
-  public void CompletarTareaMultiAnalisisMC(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
+        public void CompletarTareaMultiAnalisisMC(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
         {
             try
             {
                 Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
                 Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
                 Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
-                
+
 
 
                 if (tareaActual == null)
@@ -412,20 +412,26 @@ namespace Galvarino.Web.Services.Workflow
                     {
                         var creditos = _context.Creditos.Where(a => a.NumeroTicket == numeroTicket).FirstOrDefault();
                         var ci = _context.CargasIniciales.Where(a => a.FolioCredito == creditos.FolioCredito).FirstOrDefault();
-                        if (ci.TipoVenta == "01" || ci.TipoVenta == "04" || ci.TipoVenta== "05")
+                        var oficina = _context.Oficinas.Where(a => a.Codificacion == ci.CodigoOficinaPago).FirstOrDefault();
+                        if (ci.TipoVenta == "01" || ci.TipoVenta == "04" || ci.TipoVenta == "05")
+                        {
+                            this.ActivarTareaMulti(nombreInternoProceso, "ENVIO_A_NOTARIA_RM", numeroTicket, identificacionUsuario);
+                        }
+                        else if(oficina.EsRM==true)
                         {
                             this.ActivarTareaMulti(nombreInternoProceso, "ENVIO_A_NOTARIA_RM", numeroTicket, identificacionUsuario);
                         }
                         else
                         {
-                            this.ActivarTareaMulti(nombreInternoProceso, transicion.EtapaDestino.NombreInterno, numeroTicket, identificacionUsuario);
+                            this.ActivarTareaMulti(nombreInternoProceso, "DESPACHO_A_CUSTODIA", numeroTicket, identificacionUsuario);
+
                         }
 
                     }
-                   
+
 
                 }
-         
+
             }
             catch (Exception ex)
             {
@@ -434,7 +440,7 @@ namespace Galvarino.Web.Services.Workflow
             }
 
 
-}
+        }
 
 
         public void CompletarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
@@ -445,7 +451,7 @@ namespace Galvarino.Web.Services.Workflow
                 Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
                 Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
 
-                
+
 
                 if (tareaActual == null)
                 {
@@ -478,12 +484,12 @@ namespace Galvarino.Web.Services.Workflow
                 }
 
             }
-            catch (Exception ex )
+            catch (Exception ex)
             {
 
                 throw ex;
             }
-           
+
 
         }
 
@@ -520,7 +526,7 @@ namespace Galvarino.Web.Services.Workflow
 
         public Solicitud GenerarSolicitud(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string, string> variables)
         {
-            Proceso proceso = _context.Procesos.Include(e => e.Etapas).FirstOrDefault(p => p.NombreInterno == nombreInternoProceso && p.Id==1);
+            Proceso proceso = _context.Procesos.Include(e => e.Etapas).FirstOrDefault(p => p.NombreInterno == nombreInternoProceso && p.Id == 1);
             string ticket = GeneraTicket(proceso.Id.ToString());
             Solicitud solicitud = new Solicitud
             {

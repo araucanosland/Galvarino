@@ -22,6 +22,8 @@ namespace Galvarino.Web.Services.Workflow
 
         Task AvanzarRango(string nombreInternoProceso, string nombreInternoEtapa, IEnumerable<string> numeroTicket, string identificacionUsuario);
 
+        Task AvanzarRangoAnalisisMC (string nombreInternoProceso, string nombreInternoEtapa, IEnumerable<string> numeroTicket, string identificacionUsuario);
+
         void Abortar();
 
         void AsignarVariable(string clave, string valor, string numeroTicket);

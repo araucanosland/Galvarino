@@ -71,6 +71,17 @@ namespace Galvarino.Web.Services
             await Task.CompletedTask;
         }
 
+        public async Task AvanzarRangoAnalisisMC(string nombreInternoProceso, string nombreInternoEtapa, IEnumerable<string> numeroTicket, string identificacionUsuario)
+        {
+            foreach (var item in numeroTicket)
+            {
+                _kernel.CompletarTareaMultiAnalisisMC(nombreInternoProceso, nombreInternoEtapa, item, identificacionUsuario);
+            }
+            _kernel.CommitAvance();
+
+            await Task.CompletedTask;
+        }
+
         public async Task AvanzarRangoHistorico(string nombreInternoProceso, string nombreInternoEtapa, IEnumerable<string> numeroTicket, string identificacionUsuario)
         {
             foreach (var item in numeroTicket)
