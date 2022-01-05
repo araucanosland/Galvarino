@@ -374,6 +374,67 @@ namespace Galvarino.Web.Services.Workflow
 
         }
 
+  public void CompletarTareaMultiAnalisisMC(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
+        {
+            try
+            {
+                Proceso proceso = _context.Procesos.FirstOrDefault(p => p.NombreInterno == nombreInternoProceso);
+                Solicitud solicitud = _context.Solicitudes.Include(x => x.Tareas).ThenInclude(t => t.Etapa).FirstOrDefault(c => c.NumeroTicket.Equals(numeroTicket));
+                Tarea tareaActual = solicitud.Tareas.FirstOrDefault(d => d.Etapa.NombreInterno.Equals(nombreInternoEtapa) && d.FechaTerminoFinal == null && d.Estado == EstadoTarea.Activada);
+                
+
+
+                if (tareaActual == null)
+                {
+                    throw new TareaNoEnEtapaException($"Tarea no en etapa, proceso/etapa/ticket:[{nombreInternoProceso}][{nombreInternoEtapa}][{numeroTicket}]");
+                }
+
+
+                tareaActual.EjecutadoPor = identificacionUsuario;
+                tareaActual.FechaTerminoFinal = DateTime.Now;
+                tareaActual.Estado = EstadoTarea.Finalizada;
+
+                _context.Entry(tareaActual).State = EntityState.Modified;
+
+                /*Cuando se instancia la etapa final esta cierra la solicitud */
+                if (tareaActual.Etapa.TipoEtapa == TipoEtapa.Fin)
+                {
+                    solicitud.Estado = EstadoSolicitud.Finalizada;
+                    solicitud.FechaTermino = DateTime.Now;
+                    _context.Solicitudes.Update(solicitud);
+                }
+
+                ICollection<Transito> transiciones = _context.Transiciones.Include(d => d.EtapaActaual).Include(d => d.EtapaDestino).Where(d => d.EtapaActaual.NombreInterno == nombreInternoEtapa).ToList();
+                foreach (Transito transicion in transiciones)
+                {
+                    bool estadoAvance = EjecutvaValidacion(transicion.NamespaceValidacion, transicion.ClaseValidacion, numeroTicket);
+                    if (estadoAvance)
+                    {
+                        var creditos = _context.Creditos.Where(a => a.NumeroTicket == numeroTicket).FirstOrDefault();
+                        var ci = _context.CargasIniciales.Where(a => a.FolioCredito == creditos.FolioCredito).FirstOrDefault();
+                        if (ci.TipoVenta == "01" || ci.TipoVenta == "04" || ci.TipoVenta== "05")
+                        {
+                            this.ActivarTareaMulti(nombreInternoProceso, "ENVIO_A_NOTARIA_RM", numeroTicket, identificacionUsuario);
+                        }
+                        else
+                        {
+                            this.ActivarTareaMulti(nombreInternoProceso, transicion.EtapaDestino.NombreInterno, numeroTicket, identificacionUsuario);
+                        }
+
+                    }
+                   
+
+                }
+         
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+
+}
 
 
         public void CompletarTareaMulti(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario)
