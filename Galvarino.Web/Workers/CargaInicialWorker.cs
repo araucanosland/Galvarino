@@ -104,10 +104,10 @@ namespace Galvarino.Web.Workers
 
 
 
-                    rutaDescargar = @"c:\cargainicial\Carga01102021.txt";
-                    nombreArchivo = "Carga01102021.txt";
-                    //nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
-                    //ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
+                    //rutaDescargar = @"c:\cargainicial\Carga16112021.txt";
+                    //nombreArchivo = "Carga16112021";
+                    nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
+                    ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
 
                     //Valida si archivo de carga y dia de hoy estan cargados en BASE
                     int existeCarga;
@@ -145,9 +145,13 @@ namespace Galvarino.Web.Workers
                                     .AsSequential()
                                     .ToList();
                                 StringBuilder inserts = new StringBuilder();
-                                //  result.ForEach(x => inserts.AppendLine($"insert into {Schema}.Cargasiniciales values ('{DateTime.Now}','{DateTime.ParseExact(x.FechaCorresponde.ToString(), "ddMMyyyy", CultureInfo.InvariantCulture)}','{x.FolioCredito}','{x.RutAfiliado}','{x.CodigoOficinaIngreso}','{x.CodigoOficinaPago}','{x.LineaCredito}','{x.RutResponsable}','{x.CanalVenta}','{x.Estado}','{x.FechaCorresponde}','{nombreArchivo}','{x.TipoSegmento}','{x.NroOferta}','{x.SeguroCesantia}','{x.Afecto}','{x.Aval}','{x.SeguroDesgravamen}','{x.TipoVenta}','{x.FormaPago}','{x.CompraCartera}','{x.DigitalizarSegDesgr}','{x.DigitalizarSegCesantia}');"));
+
+                                //result.ForEach(x => inserts.AppendLine($"insert into {Schema}.Cargasiniciales values ('{DateTime.Now}','{DateTime.ParseExact(x.FechaCorresponde.ToString(), "ddMMyyyy", CultureInfo.InvariantCulture)}','{x.FolioCredito}','{x.RutAfiliado}','{x.CodigoOficinaIngreso}','{x.CodigoOficinaPago}','{x.LineaCredito}','{x.RutResponsable}','{x.CanalVenta}','{x.Estado}','{x.FechaCorresponde}','{nombreArchivo}','{x.TipoSegmento}','{x.NroOferta}','{x.SeguroCesantia}','{x.Afecto}','{x.Aval}','{x.SeguroDesgravamen}','{x.TipoVenta}','{x.FormaPago}','{x.CompraCartera}','{x.DigitalizarSegDesgr}','{x.DigitalizarSegCesantia}');"));
 
                                 result.ForEach(x => inserts.AppendLine($"insert into {Schema}.Cargasiniciales values ('{DateTime.Now}','{DateTime.ParseExact(x.FechaCorresponde.ToString(), "ddMMyyyy", CultureInfo.InvariantCulture)}','{x.FolioCredito}','{x.RutAfiliado}','{x.CodigoOficinaIngreso}','{x.CodigoOficinaPago}','{x.LineaCredito}','{x.RutResponsable}','{x.CanalVenta}','{x.Estado}','{x.FechaCorresponde}','{nombreArchivo}','{x.SeguroCesantia}','{x.Afecto}','{x.Aval}','{x.SeguroDesgravamen}','','{x.TipoVenta}');"));
+
+
+                                //result.ForEach(x => inserts.AppendLine($"insert into {Schema}.Cargasiniciales values ('{DateTime.Now}','{DateTime.ParseExact(x.FechaCorresponde.ToString(), "ddMMyyyy", CultureInfo.InvariantCulture)}','{x.FolioCredito}','{x.RutAfiliado}','{x.CodigoOficinaIngreso}','{x.CodigoOficinaPago}','{x.LineaCredito}','{x.RutResponsable}','{x.CanalVenta}','{x.Estado}','{x.FechaCorresponde}','{nombreArchivo}','{x.SeguroCesantia}','{x.Afecto}','{x.Aval}','{x.SeguroDesgravamen}','');"));
 
                                 connection.Execute(inserts.ToString(), null, null, 240);
 
@@ -325,41 +329,43 @@ namespace Galvarino.Web.Workers
 
                                 }
                             }
-                            //  _context.SaveChangesAsync();
-
+                           
 
                         }
                         _context.SaveChanges();
-                        string[] ids = new string[] { "01","04" };
-                        var ventaRemota = _context.CargasIniciales.Where(a => ids.Contains(a.TipoVenta) && a.NombreArchivoCarga== nombreArchivo);
+
+
+                        //----Ventas Remotas
+                        string[] ids = new string[] { "01", "04", "05" };
+                        var ventaRemota = _context.CargasIniciales.Where(a => ids.Contains(a.TipoVenta) && a.NombreArchivoCarga == nombreArchivo);
                         foreach (var vr in ventaRemota)
                         {
-                            
-
-                                string actualizar = " declare @p_id_solicitud int" +
-                                  " declare @p_unidadNegocio varchar(5)" +
-                                  " declare @p_id_etapa int" +
-                                  " declare @p_existe int" +
-                                  " declare @p_numeroTicket varchar(40)" +
-                                  "set @p_numeroTicket =(select numeroticket from dbo.creditos where foliocredito='" + vr.FolioCredito + "')" +
-                                  " set @p_unidadNegocio=(select top 1 UnidadNegocioAsignada " +
-                                  " from Tareas a inner" +
-                                  " join Solicitudes b on a.SolicitudId = b.Id" +
-                                  " where b.numeroticket = @p_numeroTicket" +
-                                  " and UnidadNegocioAsignada is not null" + " order by 1 asc) " +
-                                  " set @p_id_solicitud = (select id from Solicitudes where NumeroTicket = @p_numeroTicket)" +
-                                  " set @p_existe =(select COUNT(*) from Tareas where SolicitudId=@p_id_solicitud and EtapaId=18) " +
-                                   " update a" +
-                                  " set a.EjecutadoPor = 'wfboot', a.Estado = 'Finalizada', a.FechaTerminoFinal = GETDATE()" +
-                                  " from Tareas a inner" +
-                                  " join Solicitudes b on a.SolicitudId = b.Id and a.estado='Activada'" +
-                                  " where b.NumeroTicket = @p_numeroTicket" +
-                                  " insert into Tareas(SolicitudId, EtapaId, AsignadoA, ReasignadoA, EjecutadoPor, Estado, FechaInicio, FechaTerminoEstimada, FechaTerminoFinal, UnidadNegocioAsignada)  " +
-                                  " values  (@p_id_solicitud, 12, 'Mesa Control', null, null, 'Activada', GETDATE(), null, null, @p_unidadNegocio) ";
 
 
-                                connection.Execute(actualizar.ToString(), null, null, 240);
-                           
+                            string actualizar = " declare @p_id_solicitud int" +
+                              " declare @p_unidadNegocio varchar(5)" +
+                              " declare @p_id_etapa int" +
+                              " declare @p_existe int" +
+                              " declare @p_numeroTicket varchar(40)" +
+                              "set @p_numeroTicket =(select numeroticket from dbo.creditos where foliocredito='" + vr.FolioCredito + "')" +
+                              " set @p_unidadNegocio=(select top 1 UnidadNegocioAsignada " +
+                              " from Tareas a inner" +
+                              " join Solicitudes b on a.SolicitudId = b.Id" +
+                              " where b.numeroticket = @p_numeroTicket" +
+                              " and UnidadNegocioAsignada is not null" + " order by 1 asc) " +
+                              " set @p_id_solicitud = (select id from Solicitudes where NumeroTicket = @p_numeroTicket)" +
+                              " set @p_existe =(select COUNT(*) from Tareas where SolicitudId=@p_id_solicitud and EtapaId=18) " +
+                               " update a" +
+                              " set a.EjecutadoPor = 'wfboot', a.Estado = 'Finalizada', a.FechaTerminoFinal = GETDATE()" +
+                              " from Tareas a inner" +
+                              " join Solicitudes b on a.SolicitudId = b.Id and a.estado='Activada'" +
+                              " where b.NumeroTicket = @p_numeroTicket" +
+                              " insert into Tareas(SolicitudId, EtapaId, AsignadoA, ReasignadoA, EjecutadoPor, Estado, FechaInicio, FechaTerminoEstimada, FechaTerminoFinal, UnidadNegocioAsignada)  " +
+                              " values  (@p_id_solicitud, 12, 'Mesa Control', null, null, 'Activada', GETDATE(), null, null, @p_unidadNegocio) ";
+
+
+                            connection.Execute(actualizar.ToString(), null, null, 240);
+
 
                         }
 
@@ -370,15 +376,7 @@ namespace Galvarino.Web.Workers
                         connection.Execute(UpdateCargasInincialesEstado.ToString(), null, null, 240);
                         estaOcupado = false;
                     }
-                    //if (existeCarga == 0)
-                    //{
-                    //    string UpdateCargasInincialesEstado = @"
-                    //                              Update  CargasInicialesEstado
-                    //                               set Estado='CargadoTotal'  
-                    //                               where NombreArchivoCarga='" + nombreArchivo + "'";
-                    //    connection.Execute(UpdateCargasInincialesEstado.ToString(), null, null, 240);
-                    //}
-                    //estaOcupado = false;
+
                 }
 
             }
