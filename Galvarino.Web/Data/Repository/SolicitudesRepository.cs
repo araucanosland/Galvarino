@@ -277,7 +277,7 @@ namespace Galvarino.Web.Data.Repository
                      " set EjecutadoPor = '" + rut + "', Estado = 'Finalizada', FechaTerminoFinal = GETDATE()" +
                      " where SolicitudId = '" + solicitudid + "'" + " and estado = 'Activada'" +
                      " insert into Tareas(SolicitudId, EtapaId, AsignadoA, ReasignadoA, EjecutadoPor, Estado, FechaInicio, FechaTerminoEstimada, FechaTerminoFinal, UnidadNegocioAsignada)  " +
-                     " values           ('" + solicitudid + "', '" + idetapa + "', 'Mesa Control', null,  '" + rut + "' , 'Activada', GETDATE(), null, null, null) ";
+                     " values           ('" + solicitudid + "', '" + idetapa + "', 'Mesa Control', null,  null , 'Activada', GETDATE(), null, null, null) ";
                 if (tienevalija)
                 {
                     actualizar = actualizar +
