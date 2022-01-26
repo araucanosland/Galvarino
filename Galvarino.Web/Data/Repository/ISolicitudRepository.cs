@@ -16,5 +16,8 @@ namespace Galvarino.Web.Data.Repository
         IEnumerable<dynamic> listarOficinas(string EsRM);
 
         IEnumerable<SolicitudAnalisisMC> ListarAnalisisMC(string[] roles, string nombreInterno);
+
+        IEnumerable<dynamic> ActualizarEtapa(string rut, int solicitudid, int idtarea, string folio, bool tienevalija);
+
     }
 }

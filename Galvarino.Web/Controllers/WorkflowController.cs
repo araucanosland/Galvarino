@@ -289,6 +289,15 @@ namespace Galvarino.Web.Controllers
            
             return View();
         }
+		[Route("reasignaciones/etapas")]
+        public IActionResult ReasignaEtapa()
+        {
+            ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
+
+            ViewBag.Etapa = _context.Etapas.ToList();
+
+            return View();
+        }		
         #endregion
     }
 }

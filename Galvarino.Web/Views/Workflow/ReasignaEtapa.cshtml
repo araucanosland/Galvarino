@@ -1,0 +1,76 @@
+﻿@{
+    ViewData["Title"] = "Reasignación Etapa de Expediente";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/ReasignaEtapa.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/ReasignaEtapa.min.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
+}
+    <input type="hidden" id="hdasignado" />
+<div class="row">
+    <form id="form-busqueda" class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <input type="text" id="inputBusqueda" class="form-control" placeholder="Ingresa el Folio del Credito" autocomplete="off" />
+                </div>
+            </div>
+        </div>
+    </form>
+    <form id="form-generico" class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-3 text-left" id="datos-credito">
+            </div>
+            <div class="col-sm-3 text-left hidden" id="datos-workflow">
+            </div>
+            <div class="col-sm-3 text-left" id="etapa-oferta">
+            </div>
+            <div class="col-sm-3 text-left" id="etapa-colocacion">
+            </div>
+        </div>
+
+        <div class="row mar-top">
+            <div class="col-sm-6 text-left">
+                <small>Etapa Actual de Credito</small>                
+                <input type="text" id="etapaactual" class="form-control"  readonly/>
+                @*<select class="form-control" id="tipoEtapa">
+
+                <option value="" selected>Selecciona</option>
+                    <option value="01">Oficina Evaluadora</option>
+        <option value="02">Oficina de Pago</option>
+                </select>*@
+            </div>
+        </div>
+        <div class="row mar-top">
+            <div class="col-sm-6 text-left">
+                <small>Seleccione Etapa para Reasignar</small>
+                <select class="form-control" id="nuevaEtapa" disabled>
+                    <option value="0">Selecciona</option>
+                    <option value="12">Analisis Mesa Control</option>
+                    
+                </select>
+                <div class="btn-group mar-top">
+                    <input type="hidden" id="folio-credito" value="" />
+                    <button id="btn_guardar" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                <div class="btn-group mar-top">
+                    <button id="btn_nuevo" onclick="Limpiar()" style="margin-right: 150px;" class="btn btn-info">Nueva Consulta</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+
+</div>

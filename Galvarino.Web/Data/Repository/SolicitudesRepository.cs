@@ -266,6 +266,37 @@ namespace Galvarino.Web.Data.Repository
             }
             return respuesta;
         }
+
+        public IEnumerable<dynamic> ActualizarEtapa(string rut, int solicitudid, int idetapa, string folio, bool tienevalija)
+        {
+            var respuesta = new List<dynamic>();
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                string actualizar = "declare @idvalijaold integer, @creditoid integer, @cantvalijas integer" +
+                     " update Tareas" +
+                     " set EjecutadoPor = '" + rut + "', Estado = 'Finalizada', FechaTerminoFinal = GETDATE()" +
+                     " where SolicitudId = '" + solicitudid + "'" + " and estado = 'Activada'" +
+                     " insert into Tareas(SolicitudId, EtapaId, AsignadoA, ReasignadoA, EjecutadoPor, Estado, FechaInicio, FechaTerminoEstimada, FechaTerminoFinal, UnidadNegocioAsignada)  " +
+                     " values           ('" + solicitudid + "', '" + idetapa + "', 'Mesa Control', null,  '" + rut + "' , 'Activada', GETDATE(), null, null, null) ";
+                if (tienevalija)
+                {
+                    actualizar = actualizar +
+                    " set @creditoid = (select Id from Creditos where FolioCredito =  '" + folio + "') " +
+                    " set @idvalijaold = (select ValijaValoradaId from ExpedientesCreditos where CreditoId = @creditoid) " +
+                    " insert into Credito_ValijaValorada values(@creditoid, @idvalijaold) " +
+                    " update ExpedientesCreditos set ValijaValoradaId = NULL where CreditoId = @creditoid " +
+                    " set @cantvalijas = (select count(*) from ExpedientesCreditos where ValijaValoradaId = @idvalijaold) " +
+                    " if @cantvalijas <= 0 " +
+                    "      update ValijasValoradas set MarcaAvance = 'FN' where Id = @idvalijaold ";
+                }
+                actualizar = actualizar +
+                " select 'Actualización ejecutada' as salida ";
+
+                _logger.LogDebug(actualizar);
+                respuesta = con.Query<dynamic>(actualizar).AsList();
+            }
+            return respuesta;
+        }
     }
 
 

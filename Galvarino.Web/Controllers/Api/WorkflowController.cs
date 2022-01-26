@@ -1821,5 +1821,83 @@ namespace Galvarino.Web.Controllers.Api
 
         }
 
+        [HttpGet("reasignaciones/etapas")]
+        public IActionResult ConsultaExpedienteEtapas([FromQuery] string q)
+        {
+            try
+            {
+                var fdata = (from Creditos in _context.Creditos
+                             join Solicitudes in _context.Solicitudes on Creditos.NumeroTicket equals Solicitudes.NumeroTicket
+                             join Tareass in _context.Tareas on Solicitudes.Id equals Tareass.Solicitud.Id
+                             join Etapas in _context.Etapas on Tareass.Etapa.Id equals Etapas.Id
+
+                             where Creditos.FolioCredito == q && Tareass.Estado.ToString() == "Activada"
+                             select new
+                             {
+                                 Credito = Creditos,
+                                 solicitud = Solicitudes,
+                                 Tareas = Tareass,
+                                 Etapa = Etapas
+
+                             }).ToList();
+
+
+                return Ok(fdata.FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [HttpPost("reasignaciones/actualizaretapas")]
+        public IActionResult ActualizarEtapas([FromBody] dynamic entrada)
+        {
+            try
+            {
+                Boolean tienevalija = false;
+                string folio = entrada.folio;
+                int idetapa = entrada.idetapa;
+                ResultadoBase resultado = new ResultadoBase();
+                var rut = User.Claims.Where(x => x.Type == ClaimTypes.Name).Select(x => x.Value).ToArray();
+                var credito = _context.Creditos.Where(x => x.FolioCredito == folio).FirstOrDefault();
+                var solicitud = _context.Solicitudes.Where(x => x.NumeroTicket == credito.NumeroTicket).FirstOrDefault();
+                var tarea = _context.Tareas.Include(exp => exp.Etapa).Where(x => x.Solicitud.Id == solicitud.Id && x.Estado == EstadoTarea.Activada).FirstOrDefault();
+                var expedientecredito = _context.ExpedientesCreditos.Where(x => x.CreditoId == credito.Id).FirstOrDefault();
+                if (expedientecredito.ValijaValorada != null)
+                    tienevalija = true;
+                if (tarea.Etapa.Id != idetapa)
+                {
+                    var salida = _solicitudRepository.ActualizarEtapa(rut[0].ToString(), solicitud.Id, idetapa, folio, tienevalija);
+
+                    resultado.Estado = "OK";
+                    resultado.Mensaje = "Cambios Guardados...<br/><small>Correctamente!!!</small>";
+                    resultado.Objeto = salida;
+
+                    return Ok(resultado);
+                }
+                else
+                {
+                    resultado.Estado = "Bad";
+                    resultado.Mensaje = "Documento ya se encuentra en Analisis Mesa Control";
+                    resultado.Objeto = "";
+
+                    return Ok(resultado);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                ResultadoBase resultado = new ResultadoBase();
+                resultado.Estado = "Error";
+                resultado.Mensaje = ex.Message;
+                resultado.Objeto = "";
+
+                return Ok(resultado);
+            }
+        }
+
     }
 }
