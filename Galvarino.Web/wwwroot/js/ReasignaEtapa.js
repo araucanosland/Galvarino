@@ -35,7 +35,7 @@ $(function () {
         }).done(function (data) {
             if (typeof data !== 'undefined') {
                 //$('#folio-credito').val(data.Credito.folioCredito)
-                debugger;
+                
                 $('#etapaactual').val(data.etapa.nombre);
                 $('#nuevaEtapa').attr('disabled', false);
                 $('#hdasignado').val(data.tareas.asignadoA);
@@ -64,7 +64,7 @@ $(function () {
     $("#btn_guardar").on("click", function () {
  
         event.preventDefault();
-        debugger;
+    
 
         if ($('#inputBusqueda').val().length === 0) {
             $.niftyNoty({
@@ -89,7 +89,7 @@ $(function () {
             });
             return false;
         }
-        if ($('#hdasignado').val() === "Mesa Control") {
+       /* if ($('#hdasignado').val() === "Mesa Control") {
             $.niftyNoty({
                 type: "warning",
                 container: "floating",
@@ -99,7 +99,7 @@ $(function () {
                 timer: 5000
             });
             return false;
-        }
+        }*/
         let datos = {
             folio: $('#inputBusqueda').val(),
             idetapa: $('#nuevaEtapa').val()
@@ -111,7 +111,7 @@ $(function () {
             data: JSON.stringify(datos),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
-            debugger;
+           
             if (data.estado === "OK") {
                 $.niftyNoty({
                     type: "success",

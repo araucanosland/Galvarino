@@ -14,10 +14,18 @@ const formatoFolios = {
         fin: 23
     }
 }
-const opcionesReparosNotaria = [
+const opcionesReparosAnalisis = [
     'Sin Reparos',
-    'Sin Firma de Notario',
-    'Sin Timbre de Notario',
-    'Sin Firma ni Timbre',
+    'Sin Firma ni Huella de Afiliado',
+    'Sin Huella Afiliado',
+    'Sin Firma Afiliado',
     'Ilegible'
+]
+
+const opcionesReparosNotaria = [
+    "Sin Reparos",
+    'Firma no coincide con cedula ',
+    'Sin Timbre de Notario',
+    'Sin Firma Ni Timbre de Notario',
+    'Sin Firma Notario'
 ]

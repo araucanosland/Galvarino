@@ -31,6 +31,40 @@ namespace Galvarino.Web.Controllers
             _wfService = wfservice;
         }
 
+        [Route("detalle-nomina-reparo/{codigoSeguimiento}")]
+        public async Task<IActionResult> DetalleNominaRepoaroOficina(string codigoSeguimiento)
+        {
+            var variable = new List<Variable>();
+            var valorada = await _context.ValijasValoradas
+                                .Include(pm => pm.Expedientes)
+                                    .ThenInclude(e => e.Credito)
+                                .Include(pm => pm.Expedientes)
+                                    .ThenInclude(e => e.Documentos)
+                                .Include(pm => pm.Oficina)
+                                .FirstOrDefaultAsync(pn => pn.CodigoSeguimiento == codigoSeguimiento);
+            foreach (var credir in valorada.Expedientes)
+            {
+                var varibale = new Variable();
+                varibale = _context.Variables.Where(p => p.NumeroTicket == credir.Credito.NumeroTicket && p.Clave == "DESCRIPCION_REPARO" && p.Tipo == "string").FirstOrDefault();
+                if (varibale != null)
+                {
+                    variable.Add(varibale);
+                }
+            }
+
+
+            return new ViewAsPdf(new PdfModelHelper()
+            {
+                FechaImpresion = valorada.FechaEnvio.ToShortDateString(),
+                CodigoSeguimiento = codigoSeguimiento,
+                ValijaValorada = valorada,
+                Variables = variable
+            })
+            {
+                PageSize = Size.Letter
+            };
+        }
+
         [Route("test")]
         public IActionResult Index()
         {

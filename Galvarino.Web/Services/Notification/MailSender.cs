@@ -75,7 +75,7 @@ namespace Galvarino.Web.Services.Notification
                 client.Credentials = credential;
                 client.Host = _configuration["Email:Host"];
                 client.Port = int.Parse(_configuration["Email:Port"]);
-                client.EnableSsl = true;
+               // client.EnableSsl = true;
 
                 using (var emailMessage = new MailMessage())
                 {

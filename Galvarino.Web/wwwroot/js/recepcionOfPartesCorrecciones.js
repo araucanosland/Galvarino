@@ -1,6 +1,6 @@
 const metodos = {
     avanzarWf: function () {
-
+        debugger;
         let codigoSeguimiento = $('#codigoSeguimiento').val();
 
         $.ajax({
@@ -12,11 +12,12 @@ const metodos = {
                 type: "success",
                 container: "floating",
                 title: "Check Point Valija con Reparos",
-                message: "Estamos Procesando la Valija...<br/><small>Este mensaje se cierra en 5 Seg.</small>",
+                message: "Estamos Procesando...<br/><small>Este mensaje se cierra en 5 Seg.</small>",
                 closeBtn: true,
                 timer: 5000,
-                
+
             });
+          
 
         }).fail(function (errMsg) {
             $.niftyNoty({
@@ -36,12 +37,13 @@ const metodos = {
 }
 
 function nroExpedientes(val, row, inc) {
+
     return row.expedientes.length;
 }
 
 $(function () {
     $('#form-pistoleo').on('submit', function (event) {
-
+        debugger;
 
         let data = $('#tabla-generica').bootstrapTable('getData');
 

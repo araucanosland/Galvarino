@@ -53,8 +53,13 @@ namespace Galvarino.Web.Controllers
             try
             {
 
-                
+               
                 var user = await _signInManager.UserManager.FindByNameAsync(rut);
+
+                if (user.Eliminado==true)
+                {
+                    return View("SinPermiso");
+                }
                 await _signInManager.SignInAsync(user, true);
                 //if(User.Identity.IsAuthenticated)
                 //{

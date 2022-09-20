@@ -16,6 +16,14 @@ namespace Galvarino.Web.Models.Helper
         }
     }
 
+
+    public class ExpedientesReparo
+    {
+        public string folioCredito { get; set; }
+        public string valijaValorada { get; set; }
+    }
+
+
     public class ColeccionEnvioNotariaFormHelper
     {
         public int Notaria { get; set; }

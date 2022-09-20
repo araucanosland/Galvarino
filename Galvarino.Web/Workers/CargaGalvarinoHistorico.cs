@@ -117,222 +117,46 @@ namespace Galvarino.Web.Workers
                     {
                         return;
                     }
-                    rutaDescargar = _configuration.GetValue<string>("RutaCargaCredito") + nombreArchivo + ".txt";
-
-                    rutaDescargar = @"c:\cargainicial\CargaExtra04122019.txt";
-                    nombreArchivo = "CargaHistoricoTotal";
-                    //Valida si archivo de carga y dia de hoy estan cargados en BASE
-                    int existeCarga;
-                    sql = "select count(*) from " + Schema + ".CargasIniciales" +
-                    " where convert(varchar, fechaCarga,112)= convert(varchar, getdate(), 112)" +
-                    " and NombreArchivoCarga = '" + nombreArchivo + "'";
-                    existeCarga = connection.Query<int>(sql).FirstOrDefault();
 
 
-                    if (existeCarga != 0)
+
+                    if (!estaOcupado)
                     {
                         estaOcupado = true;
-                        //CsvParserOptions csvParserOptions = new CsvParserOptions(true, ';');
-                        //CargaInicialMapping csvMapper = new CargaInicialMapping();
-                        //CsvParser<CargaInicialIM> csvParser = new CsvParser<CargaInicialIM>(csvParserOptions, csvMapper);
 
-                        //var result = csvParser
-                        //    .ReadFromFile(rutaDescargar, Encoding.ASCII)
-                        //    .Where(x => x.IsValid)
-                        //    .Select(x => x.Result)
-                        //    .AsSequential()
-                        //    .ToList();
-                        //StringBuilder inserts = new StringBuilder();
-                        //result.ForEach(x => inserts.AppendLine($"insert into {Schema}.Cargasiniciales values ('{DateTime.Now}','{DateTime.ParseExact(x.FechaCorresponde.ToString(), "ddMMyyyy", CultureInfo.InvariantCulture)}','{x.FolioCredito}','{x.RutAfiliado}','{x.CodigoOficinaIngreso}','{x.CodigoOficinaPago}','{x.LineaCredito}','{x.RutResponsable}','{x.CanalVenta}','{x.Estado}','{x.FechaCorresponde}','{nombreArchivo}');"));
-                        //connection.Execute(inserts.ToString(), null, null, 240);
+                        var creditos = new List<dynamic>();
+                        sql = @"select FolioCredito,s.NumeroTicket,t.id tareaId
+                             from Creditos c
+                            ,ExpedientesCreditos ec
+                            , Solicitudes s
+                            ,Tareas t
+                                where c.Id = ec.CreditoId
+                            and ec.CajaValoradaId = 717
+                            and s.NumeroTicket = c.NumeroTicket
+                            and t.SolicitudId=s.Id
+                            and t.Estado='Activada'";
 
+                        creditos = connection.Query<dynamic>(sql).AsList();
 
-                        //----------- Fin carga de Registros en Cargas Iniciales
-
-
-                        //---------- SE cuenta Cantidad de Registros cargados en Cargas Iniciales
-
-                        var cargaInicials = new List<CargaInicial>();
-                        sql = "select  * from " + Schema + ".CargasIniciales" +
-                       " where convert(varchar, fechaCarga,112)= convert(varchar, getdate(), 112)" +
-                       " and NombreArchivoCarga = '" + nombreArchivo + "'";
-
-                        cargaInicials = connection.Query<CargaInicial>(sql).AsList();
-                        //-------------Se genera Registro de Carga 
-                        //StringBuilder mailTemplate = new StringBuilder();
-                        mailTemplate.AppendLine("<p>Los créditos han sido cargados exitosamente</p>");
-                        mailTemplate.AppendLine("<p>REPORTE DE CARGA DIARIA GALVARINO</p> ");
-                        mailTemplate.AppendLine("<p>---------------------------------</p>");
-                        mailTemplate.AppendLine("<p>Fecha de Carga: " + DateTime.Now + "</p>");
-                        mailTemplate.AppendLine("<p> \n</p>");
-                        mailTemplate.AppendLine("<p> \n</p>");
-                        mailTemplate.AppendLine("<p> \n</p>");
-                        mailTemplate.AppendLine("<p>* Nombre Archivo : " + nombreArchivo + ".txt</p>");
-                        //mailTemplate.AppendLine("<p>* Archivo Base Carga " + result.Count + " Registro(s)</p>");
-                        mailTemplate.AppendLine("<p> \n</p>");
-                        mailTemplate.AppendLine("<p>* Carga en Tabla CargasInicales " + cargaInicials.Count + " Registro(s)</p>");
-
-
-                        int i = 1;
-
-                        foreach (var ci in cargaInicials)
+                        foreach (var c in creditos)
                         {
+                           string updateSql = "update Tareas"+
+                                  " set EtapaId = 12"+
+                                  " ,asignadoA = 'Mesa Control'"+
+                                  " where Id ="+c.tareaId;
 
-                            ////Se valida si credito ya esta cargado en BD
-                            sql = "select count(*)" +
-                            " from " + Schema + ".creditos" +
-                            " where FolioCredito='" + ci.FolioCredito + "'";
-                            int existe = connection.Query<int>(sql).FirstOrDefault();
+                            connection.Execute(updateSql.ToString(), null, null, 240);
 
-
-                            //Valida que No está cargado anteriormente el folio
-                            if (existe == 0)
-                            {
-                                //-----------SE inicia creacion de objeto para cargas en Tablas creditos.
-
-                                var oficinaProceso = _context.Oficinas.Include(x => x.OficinaProceso).FirstOrDefault(x => x.Codificacion == ci.CodigoOficinaPago);
-                                string esRM = oficinaProceso.EsRM ? $"1" : $"0";
-
-                                /*  TODO: Caso de La Unión ver con Jenny Bernales  */
-                                Dictionary<string, string> _setVariables = new Dictionary<string, string>();
-                                _setVariables.Add("OFICINA_PAGO", ci.CodigoOficinaPago);
-                                _setVariables.Add("OFICINA_INGRESO", ci.CodigoOficinaIngreso);
-                                _setVariables.Add("FOLIO_CREDITO", ci.FolioCredito);
-                                _setVariables.Add("RUT_AFILIADO", ci.RutAfiliado);
-                                _setVariables.Add("FECHA_VENTA", ci.FechaCorresponde.ToString());
-                                _setVariables.Add("ES_RM", esRM);
-                                _setVariables.Add("DOCUMENTO_LEGALIZADO", $"0");
-                                _setVariables.Add("OFICINA_PROCESA_NOTARIA", oficinaProceso.OficinaProceso.Codificacion);
-
-                                //---------Se Genera Registo en Tareas y Solicitudes
-                                _wfservice = new WorkflowService(new DefaultWorkflowKernel(_context, _configuration));
-                                var wf = _wfservice.InstanciarHistorico(ProcesoDocumentos.NOMBRE_PROCESO, "wfboot", "Ingreso Automatico de Creditos Vendidos", _setVariables);
-
-
-                                Credito cred = new Credito
-                                {
-                                    FechaDesembolso = ci.FechaCorresponde,
-                                    FechaFormaliza = DateTime.Now.AddDays(-1),
-                                    FolioCredito = ci.FolioCredito,
-                                    MontoCredito = 0,
-                                    RutCliente = ci.RutAfiliado,
-                                    NumeroTicket = wf.NumeroTicket
-                                };
-
-                                if (ci.LineaCredito.ToLower().Contains("credito normal") && ci.Estado.Contains("Reprogramado"))
-                                {
-                                    cred.TipoCredito = TipoCredito.Reprogramacion;
-                                }
-                                else if (ci.LineaCredito.ToLower().Contains("credito normal") || ci.LineaCredito.ToLower().Contains("compra cartera") || ci.LineaCredito.ToLower().Contains("credito paralelo"))
-                                {
-                                    cred.TipoCredito = TipoCredito.Normal;
-                                }
-                                else if (ci.LineaCredito.ToLower().Contains("reprogr"))
-                                {
-                                    cred.TipoCredito = TipoCredito.Reprogramacion;
-                                }
-                                else if (ci.LineaCredito.ToLower().Contains("acuerdo de creditos castigados"))
-                                {
-                                    cred.TipoCredito = TipoCredito.AcuerdoPago;
-                                }
-
-                                IEnumerable<ConfiguracionDocumento> configs = _context.ConfiguracionDocumentos.Where(x => x.TipoCredito == cred.TipoCredito && x.TipoExpediente == TipoExpediente.Legal).ToList();
-
-
-                                ExpedienteCredito expcred = new ExpedienteCredito
-                                {
-                                    Credito = cred,
-                                    FechaCreacion = DateTime.Now,
-                                    TipoExpediente = TipoExpediente.Legal,
-                                };
-
-                                int incrementor = 1;
-                                foreach (var confItem in configs)
-                                {
-                                    Documento docmnt = new Documento
-                                    {
-                                        TipoDocumento = confItem.TipoDocumento,
-                                        Codificacion = confItem.Codificacion,
-                                        Resumen = confItem.TipoDocumento.ToString("D")
-                                    };
-                                    expcred.Documentos.Add(docmnt);
-                                    incrementor++;
-                                }
-                                _context.ExpedientesCreditos.Add(expcred);
-                            }
-                            //else
-                            //{
-                            //    // se elimina registro de tabla carga inicial para no se incluida en cargas de Workflow
-
-                            //    sql = "delete   CargasIniciales" +
-                            //  " where FolioCredito = '" + ci.FolioCredito + "'" +
-                            //  " and CONVERT(VARCHAR, fechaCarga, 112) = CONVERT(VARCHAR, GETDATE(), 112)" +
-                            //  " and NombreArchivoCarga = '" + nombreArchivo + "'";
-
-                            //    connection.Execute(sql);
-
-                            //    foliosRepetidos.AppendLine("<p>Folio Repetido: " + ci.FolioCredito + "</p>");
-
-                            //}
-                            i++;
                         }
-                        _context.SaveChangesAsync();
 
-
-                        //--------- Cuenta Cantidad de Registros Cargados en Solicitudes
-                        sql = "select count(*) from " + Schema + ".Solicitudes" +
-                         " where NumeroTicket in" +
-                         " (select NumeroTicket from " + Schema + ".Creditos" +
-                         " where FolioCredito in(select FolioCredito from " + Schema + ".CargasIniciales" +
-                         " where convert(varchar, fechaCarga,112)= convert(varchar, getdate(), 112)" +
-                         " and NombreArchivoCarga = '" + nombreArchivo + "'" +
-                         " ))";
-
-                        registrosCargados = connection.Query<int>(sql).FirstOrDefault();
-
-                        mailTemplate.AppendLine("<p> \n</p>");
-                        mailTemplate.AppendLine("<p>* Carga en Tabla Solicitudes " + registrosCargados.ToString() + " Registro(s)</p>");
-
-
-
-                        //----------Cuenta Cantidad de Registros en Tablas Creditos
-                        sql = "select count(*) from " + Schema + ".Creditos" +
-                              " where FolioCredito in (" +
-                              " select FolioCredito" +
-                              " from " + Schema + ".CargasIniciales" +
-                              " where convert(varchar, fechaCarga, 112) = convert(varchar, getdate(), 112)" +
-                              " and NombreArchivoCarga = '" + nombreArchivo + "'" +
-                              " )";
-
-                        registrosCargados = connection.Query<int>(sql).FirstOrDefault();
-
-                        mailTemplate.AppendLine("<p> \n</p>");
-                        mailTemplate.AppendLine("<p>* Carga en Tabla Creditos " + registrosCargados.ToString() + " Registro(s)</p>");
-
-                        //----------Cuenta Cantidad de Registros en Tablas expediented creditos
-
-                        sql = " select count(*) from " + Schema + ".ExpedientesCreditos" +
-                            " where CreditoId in (" +
-                            " select id from " + Schema + ".Creditos" +
-                            " where FolioCredito in (" +
-                            " select FolioCredito" +
-                            " from " + Schema + ".CargasIniciales" +
-                            " where convert(varchar, fechaCarga, 112) = convert(varchar, getdate(), 112)" +
-                            " and NombreArchivoCarga = '" + nombreArchivo + "'" +
-                            " ))";
-                        registrosCargados = connection.Query<int>(sql).FirstOrDefault();
-
-                        mailTemplate.AppendLine("<p> \n</p>");
-                        mailTemplate.AppendLine("<p>* Carga en Tabla ExpedientesCreditos " + registrosCargados.ToString() + " Registro(s)</p>");
-                        estaOcupado = false;
-                        var destinatarios = _configuration.GetSection("CoordinacionWorkers:CargaInicialCreditosWorker:DestinatariosNotificaciones").Get<string[]>();
-
-
-                        mailTemplate.AppendLine("<p>" + foliosRepetidos + "</p>");
-                        mailTemplate.AppendLine("<p><small>Correo enviado automaticamente por Galvarino favor no contestar!!!!.</small></p>");
-                        _mailService.SendEmail(destinatarios, "Carga de Créditos", mailTemplate.ToString());
 
                     }
+
+                      
+
+
+                       
+                    
                 }
 
             }// fin estado ocupado

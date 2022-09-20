@@ -32,6 +32,7 @@ namespace Galvarino.Web
         {
 
             services.AddDbContext<ApplicationDbContext>(options =>
+            
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
                 options.EnableSensitiveDataLogging();
@@ -81,12 +82,13 @@ namespace Galvarino.Web
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
 
             /*Workers & background tasks*/
-            //services.AddHostedService<CargaDatosCreditoService>();
-           // services.AddHostedService<CierrePagaresDeIronMountainWorker>();
-           //services.AddHostedService<CargaInicialWorker>();
-           //services.AddHostedService<GeneraArchivoIronMountain>();
+
+            // services.AddHostedService<CargaDatosCreditoService>();
+            // services.AddHostedService<CierrePagaresDeIronMountainWorker>();
+             services.AddHostedService<CargaInicialWorker>();
+            // services.AddHostedService<GeneraArchivoIronMountain>();
             // services.AddHostedService<CargaGalvarinoHistorico>();
-            // services.AddHostedService<CargaGalvarinoVenta>();
+           //  services.AddHostedService<CargaGalvarinoVenta>();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);

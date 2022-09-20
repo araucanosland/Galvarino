@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Galvarino.Web.Data;
+using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Exception;
 using Galvarino.Web.Models.Security;
 using Galvarino.Web.Models.Workflow;
@@ -684,9 +685,6 @@ namespace Galvarino.Web.Services.Workflow
             try
             {
 
-
-
-
                 using (var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
                 {
                     foreach (var item in numeroTicket)
@@ -732,7 +730,14 @@ namespace Galvarino.Web.Services.Workflow
         }
 
 
+        public async Task generarValijaReparo(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<DevolucionReparos> folioReparos, string identificacionUsuario)
+        {
+            foreach (var reparo in folioReparos)
+            {
 
+            }
+          
+        }
 
     }
 }

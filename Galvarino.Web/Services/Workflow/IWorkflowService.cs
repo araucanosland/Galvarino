@@ -1,4 +1,5 @@
-﻿using Galvarino.Web.Models.Security;
+﻿using Galvarino.Web.Models.Application;
+using Galvarino.Web.Models.Security;
 using Galvarino.Web.Models.Workflow;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,9 @@ namespace Galvarino.Web.Services.Workflow
         Tarea OntenerTareaActual(string nombreInternoProceso, string numeroTicket);
 
         void ForzarAvance(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<string> numeroTicket, string identificacionUsuario);
+
+        Task generarValijaReparo(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<DevolucionReparos> folioReparos, string identificacionUsuario);
+
 
 
     }

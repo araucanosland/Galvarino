@@ -1,13 +1,14 @@
 const metodos = {
     avanzarWf: function () {
-
+        debugger;
         let data = $('#tabla-generica').bootstrapTable('getSelections');
         let procesar = data.map(function(element){
             return {
-                folioCredito: element.folioCredito
+                folioCredito: element.folioCredito,
+                valijaValorada: element.seguimientoValija
             }
         })
-       
+        debugger;
         $.ajax({
             type: "POST",
             url: `/api/wf/v1/solucion-reparo-sucursal`,

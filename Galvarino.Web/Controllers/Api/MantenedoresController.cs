@@ -63,7 +63,7 @@ namespace Galvarino.Web.Controllers.Api
         [HttpPost("usuarios")]
         public async Task<IActionResult> GuardarCambiosUsuario([FromBody] FormUsuario entrada)
         {
-            Usuario elUsuario = await _userManager.FindByNameAsync(entrada.Identificacion);
+            Usuario elUsuario = await _userManager.FindByEmailAsync(entrada.Correo);
             // String.IsNullOrEmpty(elUsuario.UserName)
             if (elUsuario == null)
             {

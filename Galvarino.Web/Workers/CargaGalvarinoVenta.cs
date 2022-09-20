@@ -109,40 +109,43 @@ namespace Galvarino.Web.Workers
                     }
                     rutaDescargar = _configuration.GetValue<string>("RutaCargaCredito") + nombreArchivo + ".txt";
 
-
-                    var salida = new List<dynamic>();
-                    //Valida si archivo de carga y dia de hoy estan cargados en BASE
-                    int existeCarga;
-                    sql = @"
-                                                SELECT  c.*
-                          FROM [GALVARINO].[dbo].[IronMountain] t
-                          ,Creditos c
-                          where c.FolioCredito=t.foliocorrecto";
-                    salida = connection.Query<dynamic>(sql).AsList();
-
-                    foreach (var sa in salida)
+                    if (!estaOcupado)
                     {
-                        string actualizar = " declare @p_id_solicitud int" +
-                     " declare @p_unidadNegocio varchar(5)" +
-                     " declare @p_id_etapa int" +
-                     " declare @p_existe int" +
-                     " set @p_unidadNegocio=(select top 1 UnidadNegocioAsignada " +
-                     " from Tareas a inner" +
-                     " join Solicitudes b on a.SolicitudId = b.Id" +
-                     " where b.NumeroTicket = '" + sa.NumeroTicket + "'" +
-                     " and UnidadNegocioAsignada is not null" + " order by 1 asc) " +
-                     " set @p_id_solicitud = (select id from Solicitudes where NumeroTicket = '" + sa.NumeroTicket + "')" +
-                     " set @p_existe =(select COUNT(*) from Tareas where SolicitudId=@p_id_solicitud and EtapaId=18) " +
-                      " update a" +
-                     " set a.EjecutadoPor = 'wfboot', a.Estado = 'Finalizada', a.FechaTerminoFinal = GETDATE()" +
-                     " from Tareas a inner" +
-                     " join Solicitudes b on a.SolicitudId = b.Id and a.estado='Activada'" +
-                     " where b.NumeroTicket = '" + sa.NumeroTicket + "'" +
-                     " insert into Tareas(SolicitudId, EtapaId, AsignadoA, ReasignadoA, EjecutadoPor, Estado, FechaInicio, FechaTerminoEstimada, FechaTerminoFinal, UnidadNegocioAsignada)  " +
-                     " values  (@p_id_solicitud, 18,    'wfboot', null, 'wfboot', 'Finalizada', GETDATE(), GETDATE(), GETDATE(), @p_unidadNegocio) ";
-                    
+                        var salida = new List<dynamic>();
+                        //Valida si archivo de carga y dia de hoy estan cargados en BASE
+                        int existeCarga;
+                        sql = @"  select *from [dbo].[Creditos] a
+                      ,[GALVARINO].[dbo].[ironmountain] b
+                      where a.FolioCredito=b.FOLIOCORRECTO";
+                        salida = connection.Query<dynamic>(sql).AsList();
+                        estaOcupado = true;
+                        foreach (var sa in salida)
+                        {
 
-                        connection.Execute(actualizar.ToString(), null, null, 240);
+
+                            string actualizar = " declare @p_id_solicitud int" +
+                         " declare @p_unidadNegocio varchar(5)" +
+                         " declare @p_id_etapa int" +
+                         " declare @p_existe int" +
+                         " set @p_unidadNegocio=(select top 1 UnidadNegocioAsignada " +
+                         " from Tareas a inner" +
+                         " join Solicitudes b on a.SolicitudId = b.Id" +
+                         " where b.NumeroTicket = '" + sa.NumeroTicket + "'" +
+                         " and UnidadNegocioAsignada is not null" + " order by 1 asc) " +
+                         " set @p_id_solicitud = (select id from Solicitudes where NumeroTicket = '" + sa.NumeroTicket + "')" +
+                         " set @p_existe =(select COUNT(*) from Tareas where SolicitudId=@p_id_solicitud and EtapaId=18) " +
+                          " update a" +
+                         " set a.EjecutadoPor = 'wfboot', a.Estado = 'Finalizada', a.FechaTerminoFinal = GETDATE()" +
+                         " from Tareas a inner" +
+                         " join Solicitudes b on a.SolicitudId = b.Id and a.estado='Activada'" +
+                         " where b.NumeroTicket = '" + sa.NumeroTicket + "'" +
+                         " insert into Tareas(SolicitudId, EtapaId, AsignadoA, ReasignadoA, EjecutadoPor, Estado, FechaInicio, FechaTerminoEstimada, FechaTerminoFinal, UnidadNegocioAsignada)  " +
+                         " values  (@p_id_solicitud, 18,    'Custodia', null,  'wfboot', 'Finalizada', GETDATE(), GETDATE(), GETDATE(), @p_unidadNegocio) ";
+
+
+                            connection.Execute(actualizar.ToString(), null, null, 320);
+                        }
+
                     }
 
                 }

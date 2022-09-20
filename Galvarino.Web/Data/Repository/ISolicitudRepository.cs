@@ -8,8 +8,9 @@ namespace Galvarino.Web.Data.Repository
 
         IEnumerable<dynamic> listarResumenInicial(string[] roles, string rut, string[] oficinas);
 
+        IEnumerable<dynamic> listarResumenInicial2(string[] roles, string rut, string[] oficinas);
 
-        IEnumerable<dynamic> listarValijasEnviadas(string marcaAvance);
+        IEnumerable<SolicitudlistarValijasEnviadas> listarValijasEnviadas(string marcaAvance);
 
         IEnumerable<SolicitudResult> listarSolicitudesNominaEspecial(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "");
 
@@ -19,5 +20,8 @@ namespace Galvarino.Web.Data.Repository
 
         IEnumerable<dynamic> ActualizarEtapa(string rut, int solicitudid, int idtarea, string folio, bool tienevalija);
 
+        string MoverEtapa(string FolioCredito, string EtapaaMover, string Encargado,string usuario);
+
+        IEnumerable<SolicitudAnalisisMCReparos> ListarReparos(string FolioCredito,string nombreInterno);
     }
 }

@@ -101,13 +101,13 @@ namespace Galvarino.Web.Workers
                         return;
                     }
                     rutaDescargar = _configuration.GetValue<string>("RutaCargaCredito") + nombreArchivo + ".txt";
+                  
 
 
-
-                    //rutaDescargar = @"c:\cargainicial\Carga16112021.txt";
-                    //nombreArchivo = "Carga16112021";
-                    nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
-                    ruta = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
+                   rutaDescargar = @"c:\cargainicial\Carga15092022_0.txt";
+                   nombreArchivo = "Carga15092022_0";
+                    //nombreArchivo = "Carga" + DateTime.Now.AddDays(-1).ToString("ddMMyyyy");
+                    //rutaDescargar = _configuration["RutaCargaCredito"] + nombreArchivo + ".txt";
 
                     //Valida si archivo de carga y dia de hoy estan cargados en BASE
                     int existeCarga;
@@ -167,7 +167,7 @@ namespace Galvarino.Web.Workers
                             //---------- SE cuenta Cantidad de Registros cargados en Cargas Iniciales
 
                             var cargaInicials = new List<CargaInicial>();
-                            sql = "select * from CargasIniciales where  NombreArchivoCarga = '" + nombreArchivo + "' and CodigoOficinaIngreso not in ('A610')";
+                            sql = "select * from CargasIniciales where  NombreArchivoCarga = '" + nombreArchivo + "' and CodigoOficinaIngreso not in ('A610','ARAU')";
 
                             cargaInicials = connection.Query<CargaInicial>(sql).AsList();
                             //-------------Se genera Registro de Carga 
@@ -193,6 +193,7 @@ namespace Galvarino.Web.Workers
                                 sql = "select count(*)" +
                                 " from " + Schema + ".creditos" +
                                 " where FolioCredito='" + ci.FolioCredito + "'";
+
                                 int existe = connection.Query<int>(sql).FirstOrDefault();
 
 
@@ -246,7 +247,7 @@ namespace Galvarino.Web.Workers
                                     {
                                         cred.TipoCredito = TipoCredito.AcuerdoPago;
                                     }
-                                    else if (ci.LineaCredito.ToLower().Contains("COVID"))
+                                    else if (ci.LineaCredito.ToLower().Contains("COVID") || ci.LineaCredito.ToLower().Contains("Credito Reprog. Cond.Espec."))
                                     {
                                         cred.TipoCredito = TipoCredito.Reprogramacion;
                                     }
@@ -329,7 +330,7 @@ namespace Galvarino.Web.Workers
 
                                 }
                             }
-                           
+
 
                         }
                         _context.SaveChanges();
@@ -337,7 +338,7 @@ namespace Galvarino.Web.Workers
 
                         //----Ventas Remotas
                         string[] ids = new string[] { "01", "04", "05" };
-                        var ventaRemota = _context.CargasIniciales.Where(a => ids.Contains(a.TipoVenta) && a.NombreArchivoCarga == nombreArchivo);
+                        var ventaRemota = _context.CargasIniciales.Where(a => ids.Contains(a.TipoVenta) && a.NombreArchivoCarga == nombreArchivo && a.CodigoOficinaIngreso != "ARAU");
                         foreach (var vr in ventaRemota)
                         {
 

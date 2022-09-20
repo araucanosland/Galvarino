@@ -163,6 +163,7 @@ $(document).ajaxStop(function () {
 
 /* Funciones especiales para Tablas */
 function formatoFecha(valor) {
+
     return valor.toFecha();
 }
 
@@ -172,7 +173,7 @@ function formatoTipoCredito(valor) {
 
 function formatoListaDocumentos(val, row, inc)
 {
-    debugger;
+    
     let strOut = row.documentos.map(function (val, idx) {
         return `<strong>${val.codificacion}</strong> - ${enumTipoDocumentos[val.tipoDocumento]}`
     });

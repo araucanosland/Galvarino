@@ -59,7 +59,7 @@
         <!-- Timeline -->
         <!--===================================================-->
         <div class="timeline">
-            
+
             @foreach (var entry in Model.Solicitud.Tareas.OrderByDescending(d => d.FechaInicio))
             {
                 <div class="timeline-entry">
@@ -70,16 +70,18 @@
                     <div class="timeline-label text-left">
                         <p class="text-bold text-warning">@entry.Etapa.Nombre</p>
                         <p class="mar-no pad-btm"><strong>Asignado a:</strong> @entry.AsignadoA</p>
-                        @if(entry.Estado == EstadoTarea.Finalizada)
+                        @if (entry.Estado == EstadoTarea.Finalizada)
                         {
+
+
                             <p class="mar-no pad-btm"><strong>Ejecutado Por:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Nombres : entry.EjecutadoPor)</p>
-                            <p class="mar-no pad-btm"><strong>Oficina:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Oficina.Nombre : entry.EjecutadoPor)</p>                            
+                            <p class="mar-no pad-btm"><strong>Oficina:</strong> @(entry.EjecutadoPor != "wfboot" ? Model.Usuarios.FirstOrDefault(u => u.NormalizedUserName == entry.EjecutadoPor.ToUpper()).Oficina.Nombre : entry.EjecutadoPor)</p>
                         }
                     </div>
                 </div>
             }
 
-            
+
         </div>
         <!--===================================================-->
         <!-- End Timeline -->

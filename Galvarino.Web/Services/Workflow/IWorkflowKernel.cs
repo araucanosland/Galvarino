@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Galvarino.Web.Models.Workflow;
+﻿using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Security;
+using Galvarino.Web.Models.Workflow;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Galvarino.Web.Services.Workflow
 {
@@ -16,7 +15,7 @@ namespace Galvarino.Web.Services.Workflow
         Solicitud GenerarSolicitudHistorico(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string, string> variables);
 
 
-        Solicitud GenerarSolicitud(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string,string> variables);
+        Solicitud GenerarSolicitud(string nombreInternoProceso, string identificacionUsuario, string resumen, Dictionary<string, string> variables);
 
         void ActivarTarea(Proceso proceso, Etapa etapa, Usuario usuario);
 
@@ -53,8 +52,11 @@ namespace Galvarino.Web.Services.Workflow
         Tarea ObtenerTareaByTicket(string nombreInternoProceso, string numeroTicket);
 
         void ForzarAvance(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<string> numeroTicket, string identificacionUsuario);
-        
-           void CompletarTareaMultiAnalisisMC(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
+
+        void CompletarTareaMultiAnalisisMC(string nombreInternoProceso, string nombreInternoEtapa, string numeroTicket, string identificacionUsuario);
+
+        Task generarValijaReparo(string nombreInternoProceso, string nombreInternoEtapaDestino, IEnumerable<DevolucionReparos> folioReparos, string identificacionUsuario);
+
 
     }
 }

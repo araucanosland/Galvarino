@@ -41,7 +41,7 @@ const metodos = {
 
 
 function formatoReparo(val, row, inc) {
-
+    debugger;
     let documentos = JSON.parse(row.documentosFaltantes.replace(/\"/g, "\""));
 
     let docFaltantes = documentos.map(function(codificacion){

@@ -62,7 +62,7 @@ const metodos = {
     },
     avanzarWf: function () {
         let _todosCompletados = true;
-        debugger;
+        
         let foliosEnvio = _ingresados.map(function (expediente) {
             return {
                 FolioCredito: expediente.folioCredito,
@@ -73,7 +73,7 @@ const metodos = {
 
 
         $.each(_ingresados, function (i, exp) {
-            debugger;
+           
             if (exp.completado == false) {
                 _todosCompletados = false;
             }
@@ -146,6 +146,7 @@ const metodos = {
 }
 
 function nroExpedientes(val, row, inc) {
+ 
     return row.expedientes.length;
 }
 
