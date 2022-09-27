@@ -373,7 +373,7 @@ namespace Galvarino.Web.Data.Repository
                     left join [" + _conf.GetValue<string>("schema") + @"].[Variables] vds  with (nolock) on sl.NumeroTicket = vds.NumeroTicket and vds.Clave = 'DESCRIPCION_REPARO'
                     where ta.Estado = 'Activada'
                     and ((ta.AsignadoA in (" + theRoles + @") or ta.AsignadoA = '" + rut + @"')
-                           -- and ((ta.UnidadNegocioAsignada in (" + theOffices + @" ) or ta.UnidadNegocioAsignada is null))
+                            and ((ta.UnidadNegocioAsignada in (" + theOffices + @" ) or ta.UnidadNegocioAsignada is null))
                             and (et.NombreInterno in (" + theSteps + @"))
                         )
                     and ('" + notaria + @"' = '' or pkn.NotariaEnvioId = '" + notaria + @"')    
@@ -443,7 +443,7 @@ namespace Galvarino.Web.Data.Repository
                     " update ExpedientesCreditos set ValijaValoradaId = NULL where CreditoId = @creditoid " +
                     " set @cantvalijas = (select count(*) from ExpedientesCreditos where ValijaValoradaId = @idvalijaold) " +
                     " if @cantvalijas = 0 " +
-                    "      update ValijasValoradas set MarcaAvance = 'FN' where Id = @idvalijaold ";
+                    "      delete ValijasValoradas  where Id = @idvalijaold ";
                 }
                 actualizar = actualizar +
                 " select 'Actualización ejecutada' as salida ";

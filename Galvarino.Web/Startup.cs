@@ -84,11 +84,11 @@ namespace Galvarino.Web
             /*Workers & background tasks*/
 
             // services.AddHostedService<CargaDatosCreditoService>();
-            // services.AddHostedService<CierrePagaresDeIronMountainWorker>();
+             //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
              services.AddHostedService<CargaInicialWorker>();
-            // services.AddHostedService<GeneraArchivoIronMountain>();
+             services.AddHostedService<GeneraArchivoIronMountain>();
             // services.AddHostedService<CargaGalvarinoHistorico>();
-           //  services.AddHostedService<CargaGalvarinoVenta>();
+            //  services.AddHostedService<CargaGalvarinoVenta>();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);
