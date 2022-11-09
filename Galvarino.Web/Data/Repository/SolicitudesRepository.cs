@@ -380,7 +380,7 @@ namespace Galvarino.Web.Data.Repository
                     " + sqlTrozoFechaConsulta + @"
                     order by " + (order == null ? "cr.FechaDesembolso" : order);
                 _logger.LogDebug(sql);
-            
+                
                 respuesta = con.Query<SolicitudResult>(sql,null,null,true,240).AsList();
             }
 

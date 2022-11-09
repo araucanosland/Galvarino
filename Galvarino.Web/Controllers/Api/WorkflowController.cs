@@ -828,18 +828,25 @@ namespace Galvarino.Web.Controllers.Api
                                <td>Codigo Documento(s) Faltante(s): " + enviocorreo + @"</td>
                            </tr>
                        </table>";
-                       var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
-                       await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Faltantes: " + item.FolioCredito, mensaje);
+                      // var enviarA = _wfService.QuienCerroEtapa(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES, elExpediente.Credito.NumeroTicket);
+                     //  await _mailService.SendEmail(enviarA.NormalizedEmail, "Notificación de Expediente con Faltantes: " + item.FolioCredito, mensaje);
                    }
 
-                   ticketsAvanzar.Add(elExpediente.Credito.NumeroTicket);
+                   ticketsAvanzar.Add(elExpediente.Credito.FolioCredito);
                }
 
                var laValija = _context.ValijasValoradas.FirstOrDefault(v => v.CodigoSeguimiento == codigoSeguimiento);
-               laValija.MarcaAvance = "FN";
-               _context.ValijasValoradas.Update(laValija);
-               await _context.SaveChangesAsync();
-               await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+                laValija.MarcaAvance = "FN";
+                _context.ValijasValoradas.Update(laValija);
+                await _context.SaveChangesAsync();
+
+                foreach (var item in ticketsAvanzar)
+                {
+                    _solicitudRepository.MoverEtapa(item, ProcesoDocumentos.ETAPA_ANALISIS_MESA_CONTROL, "Mesa Control", User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
+
+                }
+
+                //await _wfService.AvanzarRango(ProcesoDocumentos.NOMBRE_PROCESO, ProcesoDocumentos.ETAPA_APERTURA_VALIJA, ticketsAvanzar, User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", ""));
                return Ok();
            }
            catch (Exception)

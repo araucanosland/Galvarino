@@ -5,6 +5,14 @@
     <UserSecretsId>779b72ed-9e30-4954-a109-041b5184ae51</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="wwwroot\js\RegionConfig.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="dapper" Version="1.60.9" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.7" />

@@ -74,6 +74,11 @@ namespace Galvarino.Web
                 options.SlidingExpiration = true;
             });
 
+
+           //services.AddHostedService<CargaInicialWorker>();
+           //         services.AddHostedService<GeneraArchivoIronMountain>();
+
+
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
             services.AddTransient<IWorkflowKernel, DefaultWorkflowKernel>();
             services.AddTransient<IWorkflowService, WorkflowService>();
@@ -83,12 +88,12 @@ namespace Galvarino.Web
 
             /*Workers & background tasks*/
 
+
+         
             // services.AddHostedService<CargaDatosCreditoService>();
-             //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
-             services.AddHostedService<CargaInicialWorker>();
-             services.AddHostedService<GeneraArchivoIronMountain>();
+            //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
             // services.AddHostedService<CargaGalvarinoHistorico>();
-            //  services.AddHostedService<CargaGalvarinoVenta>();
+            // services.AddHostedService<CargaGalvarinoVenta>();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(ConfigureJson);

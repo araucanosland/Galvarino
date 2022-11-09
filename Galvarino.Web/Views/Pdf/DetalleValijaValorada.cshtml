@@ -76,7 +76,7 @@
             <tr>
                 <th style="text-align:center;">
                     <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
-                    @if (Model.ValijaValorada.MarcaAvance == "OF_PARTES")
+                    @if (Model.ValijaValorada.MarcaAvance == "OF_PARTES" || Model.ValijaValorada.MarcaAvance == "DEVOLUCION_OP" || Model.ValijaValorada.MarcaAvance == "OF_PARTES_REPARO")
                     {
                         <h4><strong>Oficina Remitente:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
                     }
@@ -97,7 +97,7 @@
                 <th>
                     <h3>Nómina Valija Valorada</h3>
                     <h4><strong>Fecha:</strong> @Model.FechaImpresion, <strong>Nro. Expedientes:</strong> @Model.ValijaValorada.Expedientes.Count</h4>
-                    @if (Model.ValijaValorada.MarcaAvance == "OF_PARTES")
+                    @if (Model.ValijaValorada.MarcaAvance == "OF_PARTES" || Model.ValijaValorada.MarcaAvance == "DEVOLUCION_OP" || Model.ValijaValorada.MarcaAvance == "OF_PARTES_REPARO")
                     {
                         <h4><strong>Oficina Remitente:</strong> @Model.ValijaValorada.Oficina.Nombre</h4>
                     }
