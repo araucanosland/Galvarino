@@ -27,6 +27,13 @@ namespace Galvarino.Web.Controllers
             _wfService = wfservice;
         }
 
+        [Route("busqueda-expediente")]
+        public IActionResult Busqueda()
+        {
+            return View();
+        }
+
+
         [Route("resultado-busqueda/{folioCredito}")]
         public IActionResult ResultadoBusqueda(string folioCredito)
         {

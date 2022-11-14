@@ -1460,7 +1460,7 @@ namespace Galvarino.Web.Controllers.Api
                 List<DevolucionReparos> folioReparos = new List<DevolucionReparos>();
                 List<EnvioNotariaFormHelper> expedientesReparo = new List<EnvioNotariaFormHelper>();
                 List<ValijaValorada> valijas = new List<ValijaValorada>();
-                var opt = new string[] { "Sin Reparos", "Sin Firma ni Huella de Afiliado", "Sin Huella Afiliado", "Sin Firma Afiliado", "Ilegible" };
+                var opt = new string[] { "Sin Reparos","En Espera de Documentación", "Sin Firma ni Huella de Afiliado", "Sin Huella Afiliado", "Sin Firma Afiliado", "Ilegible" };
                 foreach (var item in entrada)
                 {
                     var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);

@@ -381,7 +381,7 @@ namespace Galvarino.Web.Data.Repository
                     order by " + (order == null ? "cr.FechaDesembolso" : order);
                 _logger.LogDebug(sql);
                 
-                respuesta = con.Query<SolicitudResult>(sql,null,null,true,240).AsList();
+                respuesta = con.Query<SolicitudResult>(sql,null,null,true,360).AsList();
             }
 
 

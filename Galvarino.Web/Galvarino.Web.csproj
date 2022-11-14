@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="wwwroot\js\RegionConfig.cs" />
+    <Content Include="Data\Configurtations\Application\RegionConfig.cs" />
   </ItemGroup>
 
   <ItemGroup>

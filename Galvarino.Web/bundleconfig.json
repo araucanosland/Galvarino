@@ -1,5 +1,5 @@
 [
-    {
+  {
     "outputFileName": "wwwroot/js/main.min.js",
     "inputFiles": [
       "wwwroot/lib/js/jquery.min.js",
@@ -385,8 +385,20 @@
       "outputMode": "singleLine"
     },
     "sourceMap": true
+  },
+  {
+    "outputFileName": "wwwroot/js/Busquedas.min.js",
+    "inputFiles": [
+      "wwwroot/js/Busquedas.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
   }
-  
+
 
 
 

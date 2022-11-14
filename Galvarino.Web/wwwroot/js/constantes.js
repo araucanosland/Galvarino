@@ -16,6 +16,7 @@ const formatoFolios = {
 }
 const opcionesReparosAnalisis = [
     'Sin Reparos',
+    'En Espera de Documentación',
     'Sin Firma ni Huella de Afiliado',
     'Sin Huella Afiliado',
     'Sin Firma Afiliado',

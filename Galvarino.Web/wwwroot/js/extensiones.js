@@ -138,9 +138,14 @@ function soloNumeros(e) {
 
     $('#form-busqueda-general').on('submit', function(e){
         e.preventDefault();
-        var folioCredito = $('#search-input').val();
+         var folioCredito = $('#search-input').val();
+        if (folioCredito == '')
+            return;
+
         location.href = `/busqueda/resultado-busqueda/${folioCredito}`;
     });
+
+ 
     
 })(jQuery);
 
