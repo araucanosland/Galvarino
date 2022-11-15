@@ -9,7 +9,8 @@
       "wwwroot/lib/js/bootstrap-table.min.js",
       "wwwroot/js/constantes.js",
       "wwwroot/js/extensiones.js",
-      "wwwroot/js/configuracion.js"
+      "wwwroot/js/configuracion.js",
+      "wwwroot/js/bootstrap-datepicker.js"
     ],
     "minify": {
       "enabled": true,
@@ -25,7 +26,8 @@
       "wwwroot/lib/css/nifty.css",
       "wwwroot/lib/css/pace.min.css",
       "wwwroot/lib/css/demo/nifty-demo-icons.css",
-      "wwwroot/lib/css/bootstrap-table.min.css"
+      "wwwroot/lib/css/bootstrap-table.min.css",
+      "wwwroot/lib/css/bootstrap-datepicker.min.css"
     ],
     "minify": {
       "enabled": true,
@@ -397,8 +399,20 @@
       "outputMode": "singleLine"
     },
     "sourceMap": true
-  }
+  },
 
+  {
+    "outputFileName": "wwwroot/js/reportegestion.min.js",
+    "inputFiles": [
+      "wwwroot/js/reportegestion.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
 
 
 

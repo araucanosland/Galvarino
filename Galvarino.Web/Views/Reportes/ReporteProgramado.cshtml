@@ -1,7 +1,36 @@
-﻿
-@{
-    ViewData["Title"] = "ReporteProgramado";
+﻿@{
+    ViewData["Title"] = "Reporte de Gestión";
 }
 
-<h2>ReporteProgramado</h2>
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Reporte de Gestión</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/reportegestion.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/reportegestion.min.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
+
+}
+
+    <div class="row">
+        <div class="col-sm-2 mar-top">
+            <div class="form-group">
+                <label class="control-label">Fecha Desde</label>
+                <div id="dp-component">
+                    <div class="input-group date">
+                        <input type="text" class="form-control" id="dp_dia_desde"  readonly>
+                        <span class="input-group-addon"><i class="demo-pli-calendar-4"></i></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
