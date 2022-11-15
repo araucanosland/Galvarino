@@ -26,6 +26,16 @@ namespace Galvarino.Web.Controllers
             _wfService = wfservice;
         }
 
+
+        [Route("workflow/reporte-programado")]
+        public IActionResult ReporteProgramado()
+        {
+          
+            return View();
+        }
+
+
+
         [Route("workflow/carga-inicial/{fechaBuscar?}")]
         public IActionResult CargaInicial(string fechaBuscar = "")
         {
@@ -74,9 +84,22 @@ namespace Galvarino.Web.Controllers
         }
 
 
+        //[Route("workflow/carga-inicial/{fechaBuscar?}")]
+        //public IActionResult CargaInicial(string fechaBuscar = "")
+        //{
+        //    //DateTime fecb = string.IsNullOrEmpty(fechaBuscar) ? DateTime.Now : Convert.ToDateTime(fechaBuscar);
+
+        //    ViewBag.CargasIniciales = _context.CargasIniciales.ToList();
+
+        //    /*.Where(x => 
+        //        x.FechaCarga.Year == fecb.Year
+        //    &&  x.FechaCarga.Month == fecb.Month
+        //    &&  x.FechaCarga.Day == fecb.Day).ToList();*/
+        //    return View();
+        //}
 
 
-        
+
 
 
     }
