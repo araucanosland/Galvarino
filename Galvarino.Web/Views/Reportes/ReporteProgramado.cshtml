@@ -19,18 +19,68 @@
 
 }
 
+<form id="frm-generico">
+
     <div class="row">
         <div class="col-sm-2 mar-top">
             <div class="form-group">
                 <label class="control-label">Fecha Desde</label>
                 <div id="dp-component">
                     <div class="input-group date">
-                        <input type="text" class="form-control" id="dp_dia_desde"  readonly>
+                        <input type="text" class="form-control" id="dp_dia_desde" readonly>
                         <span class="input-group-addon"><i class="demo-pli-calendar-4"></i></span>
                     </div>
                 </div>
 
             </div>
         </div>
+
+        <div class="col-sm-2 mar-top">
+            <div class="form-group">
+                <label class="control-label">Fecha Hasta</label>
+                <div id="dp-component">
+                    <div class="input-group date">
+                        <input type="text" class="form-control" id="dp_dia_hasta" readonly>
+                        <span class="input-group-addon"><i class="demo-pli-calendar-4"></i></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-sm-2 mar-top">
+            <button type="button" id="btn_crear_reporte" class="btn btn-primary submit-generico">Crear Reporte</button>
+        </div>
     </div>
 
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="table-responsive">
+                <table id="table" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Fecha Desde</th>
+                            <th>Fecha Hasta</th>
+                            <th>Usuario</th>
+                            <th>Fecha Solicitud</th>
+                            <th>Ruta Archivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @*@foreach (var itm in ViewBag.ReporteProgramado)
+                            {
+                                <tr>
+                                    <td>@itm.Desde</td>
+                                    <td>@itm.Hasta</td>
+                                    <td>@itm.Usuario</td>
+                                    <td>@itm.CodigoOficinaPago</td>
+                                    <td>@itm.Solicitud</td>
+                                    <td>@itm.RutaArchivo</td>
+                                </tr>
+                            }*@
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
