@@ -26,11 +26,11 @@ namespace Galvarino.Web.Controllers
             _wfService = wfservice;
         }
 
-        [HttpPost]
+        
         [Route("workflow/reporte-programado")]
-        public IActionResult ReporteProgramado([FromBody] ReporteGestion reporteGestion)
+        public IActionResult ReporteProgramado()
         {
-            DateTime fechaInicial = reporteGestion.FechaInicial;     
+            ViewBag.reporte = _context.ReporteProgramado.ToList();
           
             return View();
         }

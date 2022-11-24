@@ -52,6 +52,32 @@
             <button type="button" id="btn_crear_reporte" class="btn btn-primary submit-generico">Crear Reporte</button>
         </div>
     </div>
+   
+    <div class="row">
+        <table id="tabla-generica"
+               data-toggle="table"
+               data-url="/api/wf/v1/workflow/Lista-Registros-Reportes"
+               data-search="false"
+               data-show-refresh="false"
+               data-show-toggle="false"
+               data-show-columns="false"
+               data-sort-name="Id"
+               data-page-list="[]"
+               data-page-size="20"
+               data-side-pagination="server"
+               data-pagination="true" data-show-pagination-switch="false">
+            <thead>
+                <tr>
+                    <th data-field="Id">ID</th>
+                    @*<th data-field="FechaInicio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Inicial</th>
+                        <th data-field="FechaFinal" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Final</th>
+                        <th data-field="FechaEjecucion" data-align="center" data-sortable="false" data-formatter="formatoFecha">Fecha Ejecucion</th>*@
+                    <th data-field="RutUsuario">Rut Usuario</th>
+                    <th data-field="Estado">Estado</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
 
     <div class="row">
         <div class="col-sm-12 col-md-12">
@@ -59,25 +85,26 @@
                 <table id="table" class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Fecha Desde</th>
-                            <th>Fecha Hasta</th>
-                            <th>Usuario</th>
-                            <th>Fecha Solicitud</th>
-                            <th>Ruta Archivo</th>
+                            <th>ID</th>
+                            <th>Fecha Inicial</th>
+                            <th>Fecha Final</th>
+                            <th>Fecha Ejecucion</th>
+                            <th>Rut Usuario</th>
+                            <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @*@foreach (var itm in ViewBag.ReporteProgramado)
-                            {
-                                <tr>
-                                    <td>@itm.Desde</td>
-                                    <td>@itm.Hasta</td>
-                                    <td>@itm.Usuario</td>
-                                    <td>@itm.CodigoOficinaPago</td>
-                                    <td>@itm.Solicitud</td>
-                                    <td>@itm.RutaArchivo</td>
-                                </tr>
-                            }*@
+                        @foreach (var itm in ViewBag.reporte)
+                        {
+                        <tr>
+                            <td>@itm.Id</td>
+                            <td>@itm.FechaInicio</td>
+                            <td>@itm.FechaFinal</td>
+                            <td>@itm.FechaEjecucion</td>
+                            <td>@itm.RutUsuario</td>
+                            <td>@itm.Estado</td>
+                        </tr>
+                        }
                     </tbody>
                 </table>
             </div>

@@ -35,26 +35,6 @@ $(function () {
    
     });
 
-    //$('#frm-generico').on('submit', function (e) {
-    //    e.preventDefault();
-    //    debugger;
-    //    $(".submit-generico").html("Cargando...");
-    //    var fechadesde = $("#dp_dia_desde").val();
-    //    var fechahasta = $("#dp_dia_hasta").val();
-    //    if (fechadesde > fechahasta)
-    //    {
-    //        $.niftyNoty({
-    //            type: "error",
-    //            container: "floating",
-    //            title: "Suceso Erroneo",
-    //            message: "La fecha inicial debe ser menor a Fecha final!",
-    //            closeBtn: false,
-    //            timer: 5000
-    //        });
-    //    }
-    //});
-
-
 
     $("#btn_crear_reporte").on("click", function () {
         debugger;
@@ -82,15 +62,31 @@ $(function () {
 
         $.ajax({
             type: "POST",
-            url: `/reportes/workflow/reporte-programado`,
+            url: `/api/wf/v1/workflow/Crear-Fecha-reporte-programado`,
             data: JSON.stringify(_data),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
             debugger;
+            if (data.estado === "OK") {
+                $.niftyNoty({
+                    type: "success",
+                    container: "floating",
+                    title: "Reporte Programado",
+                    message: data.mensaje,
+                    closeBtn: true,
+                    timer: 5000
+                });
+            }
         }).fail(function (errMsg) {
-
-        }).always(function () {
-
+            debugger;
+            $.niftyNoty({
+                type: "danger",
+                container: "floating",
+                title: "Reporte Programado",
+                message: "No se puede generar otro reporte, ya se encuentra uno Activo para ejecutar hoy ",
+                closeBtn: true,
+                timer: 5000
+            });
         });
     });
 

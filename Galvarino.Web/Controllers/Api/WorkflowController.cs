@@ -8,6 +8,7 @@ using Galvarino.Web.Services.Notification;
 using Galvarino.Web.Services.Workflow;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -2190,6 +2191,87 @@ namespace Galvarino.Web.Controllers.Api
                     return Ok(resultado);
 
                 }
+            }
+            catch (Exception ex)
+            {
+                ResultadoBase resultado = new ResultadoBase();
+                resultado.Estado = "Error";
+                resultado.Mensaje = ex.Message;
+                resultado.Objeto = "";
+
+                return Ok(resultado);
+            }
+        }
+
+        [HttpGet("workflow/Lista-Registros-Reportes")]
+        public IActionResult ListaRegistroReportes()
+        {
+            var listaRegistroReportes =  _solicitudRepository.ListaRegistroReporteProgramado();
+            //var reporte = await _context.ReporteProgramado.ToListAsync();
+            return Ok(listaRegistroReportes);
+        }
+
+        [HttpPost("workflow/Crear-Fecha-reporte-programado")]
+        public async Task<IActionResult> CreaFechaReportesProgramado([FromBody] dynamic data)
+        {
+            try
+            {
+                string inicio = data.FechaInicial;
+                string final = data.FechaFinal;
+                var reporte = await _context.ReporteProgramado.Where(x => x.Estado == "Activo").FirstOrDefaultAsync();
+               
+                
+                if(reporte != null)
+                {
+                    return BadRequest();
+                }
+
+                var rutUsuario = User.Claims.Where(x => x.Type == ClaimTypes.Name).Select(x => x.Value).FirstOrDefault();
+                   
+               
+                DateTime fechainicial = Convert.ToDateTime(inicio);
+                DateTime fechafinal = Convert.ToDateTime(final);
+                DateTime fechaActual = DateTime.Now;
+
+                ReporteProgramado repo = new ReporteProgramado();
+                repo.FechaInicio = fechainicial;
+                repo.FechaFinal = fechafinal;
+                repo.FechaEjecucion = fechaActual;
+                repo.Estado = "Activo";
+                repo.RutUsuario = rutUsuario;
+
+                _context.ReporteProgramado.Add(repo);
+                await _context.SaveChangesAsync();
+
+                //var creaRegistro = _solicitudRepository.CreaRegistroReporteProgramado(rutUsuario.ToString(), fechainicial, fechafinal, fechaActual);
+
+                //var salida = _solicitudRepository.ReporteGestion(fechainicial, fechafinal);
+                ResultadoBase resultado = new ResultadoBase();
+                resultado.Estado = "OK";
+                resultado.Mensaje = "Se agenda reporte programado...<br/><small>Correctamente!!!</small>";
+                resultado.Objeto = "";
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                ResultadoBase resultado = new ResultadoBase();
+                resultado.Estado = "Error";
+                resultado.Mensaje = ex.Message;
+                resultado.Objeto = "";
+
+                return Ok(resultado);
+            }
+            
+        }
+
+        public async Task<IActionResult> ExportarReportesProgramado(DateTime fechainicial,DateTime fechafinal)
+        {
+            try
+            {
+                var salida = _solicitudRepository.ReporteGestion(fechainicial, fechafinal);
+
+                return Ok();
             }
             catch (Exception ex)
             {

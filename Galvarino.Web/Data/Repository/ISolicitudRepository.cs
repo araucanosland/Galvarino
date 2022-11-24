@@ -1,3 +1,5 @@
+using Galvarino.Web.Models.Application;
+using System;
 using System.Collections.Generic;
 
 namespace Galvarino.Web.Data.Repository
@@ -23,5 +25,9 @@ namespace Galvarino.Web.Data.Repository
         string MoverEtapa(string FolioCredito, string EtapaaMover, string Encargado,string usuario);
 
         IEnumerable<SolicitudAnalisisMCReparos> ListarReparos(string FolioCredito,string nombreInterno);
+
+        IEnumerable<dynamic> ReporteGestion(DateTime fechaInicial, DateTime fechaFinal);
+
+        IEnumerable<ReporteProgramado> ListaRegistroReporteProgramado();
     }
 }
