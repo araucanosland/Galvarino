@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -21,6 +22,9 @@ namespace Galvarino.Web.Data.Repository
             _context = context;
             _logger = logger;
         }
+
+
+     
 
 
         public string MoverEtapa(string FolioCredito, string EtapaMover, string Encargado,string usuario)

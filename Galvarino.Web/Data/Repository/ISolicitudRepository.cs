@@ -1,11 +1,14 @@
 using Galvarino.Web.Models.Application;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace Galvarino.Web.Data.Repository
 {
     public interface ISolicitudRepository
     {
+
+        
         IEnumerable<SolicitudResult> listarSolicitudes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "");
 
         IEnumerable<dynamic> listarResumenInicial(string[] roles, string rut, string[] oficinas);

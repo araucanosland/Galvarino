@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.97.0" />
     <PackageReference Include="dapper" Version="1.60.9" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.7" />
     <PackageReference Include="Microsoft.AspNetCore.App" />

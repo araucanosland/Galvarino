@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using Galvarino.Web.Data;
 using Galvarino.Web.Data.Repository;
 using Galvarino.Web.Models.Application;
@@ -6,13 +7,14 @@ using Galvarino.Web.Models.Security;
 using Galvarino.Web.Models.Workflow;
 using Galvarino.Web.Services.Notification;
 using Galvarino.Web.Services.Workflow;
-using Galvarino.Web.Utils.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -32,49 +34,60 @@ namespace Galvarino.Web.Controllers.Api
         private readonly IWorkflowService _wfService;
         private readonly INotificationKernel _mailService;
         private readonly ISolicitudRepository _solicitudRepository;
-        public WorkflowController(ApplicationDbContext context, IWorkflowService wfservice, INotificationKernel mailService, ISolicitudRepository solicitudRepo)
+        private readonly IConfiguration _configuration;
+        public WorkflowController(IConfiguration configuration,ApplicationDbContext context, IWorkflowService wfservice, INotificationKernel mailService, ISolicitudRepository solicitudRepo)
         {
             _context = context;
             _wfService = wfservice;
             _mailService = mailService;
             _solicitudRepository = solicitudRepo;
+            _configuration = configuration;
         }
 
 
         [HttpGet("exportar-excel")]
         
-        public HttpResponseMessage ExportarXLS()
+        public IActionResult ExportarXLS()
         {
-           // DateTime elDia = Convert.ToDateTime(dia);
-            var listaRegistroReportes = _solicitudRepository.ListaRegistroReporteProgramado();
+            DataTable tabla_cliente = new DataTable();
+
+            using (var conexion = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
+            {
+                conexion.Open();
+                using (var adapter = new SqlDataAdapter())
+                {
+                    string sql = @"SELECT* FROM[dbo].[ReporteProgramado] ";
+                    adapter.SelectCommand = new SqlCommand(sql, conexion);
+                    adapter.SelectCommand.CommandType = CommandType.Text;
 
 
-            DataTable dataTable = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(Newtonsoft.Json.JsonConvert.SerializeObject(listaRegistroReportes.ToList()));
-                                                    
+                    adapter.Fill(tabla_cliente);
 
-            Columna[] columns = {
-                                    new Columna("rutUsuario", "Rut"),
-                                    //new Columna("RutAfiliado","Rut Afiliado"),
-                                    //new Columna("NombreAfiliado","Nombre Afiliado"),
-                                    //new Columna("FechaIngreso", "Fecha Ingreso"),
-                                    //new Columna("RutEjecutivo", "Rut Ejecutivo"),
-                                    //new Columna("NombreEjecutivo", "Nombre Ejecutivo"),
-                                    //new Columna("SinDatosEnSistema", "Sin datos en sistema"),
-                                    //new Columna("SucursalDestino","Sucursal Destino")
-            };
-
-            byte[] filecontent = ExcelExportHelper.ExportExcel(dataTable, "Galvarino", true, columns);
-            HttpResponseMessage response = new HttpResponseMessage();
+                   
+                }
+            }
 
 
-            Stream stri = new MemoryStream(filecontent);
-            response.Content = new StreamContent(stri);
-            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
-            response.Content.Headers.ContentDisposition.FileName = "Galvarino.xls";
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue(ExcelExportHelper.ExcelContentType);
-            response.Content.Headers.ContentLength = stri.Length;
+            using (var libro = new XLWorkbook())
+            {
+                
+                              
 
-            return response;
+
+                tabla_cliente.TableName = "Clientes";
+                var hoja = libro.Worksheets.Add(tabla_cliente);
+                hoja.ColumnsUsed().AdjustToContents();
+
+                using (var memoria = new MemoryStream())
+                {
+
+                    libro.SaveAs(memoria);
+
+                    var nombreExcel = string.Concat("Reporte ", DateTime.Now.ToString(), ".xlsx");
+
+                    return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
+                }
+            }
 
 
         }
