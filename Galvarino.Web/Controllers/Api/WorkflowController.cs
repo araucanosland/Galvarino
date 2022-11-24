@@ -6,12 +6,17 @@ using Galvarino.Web.Models.Security;
 using Galvarino.Web.Models.Workflow;
 using Galvarino.Web.Services.Notification;
 using Galvarino.Web.Services.Workflow;
+using Galvarino.Web.Utils.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -34,6 +39,49 @@ namespace Galvarino.Web.Controllers.Api
             _mailService = mailService;
             _solicitudRepository = solicitudRepo;
         }
+
+
+        [HttpGet("exportar-excel")]
+        
+        public HttpResponseMessage ExportarXLS()
+        {
+           // DateTime elDia = Convert.ToDateTime(dia);
+            var listaRegistroReportes = _solicitudRepository.ListaRegistroReporteProgramado();
+
+
+            DataTable dataTable = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(Newtonsoft.Json.JsonConvert.SerializeObject(listaRegistroReportes.ToList()));
+                                                    
+
+            Columna[] columns = {
+                                    new Columna("rutUsuario", "Rut"),
+                                    //new Columna("RutAfiliado","Rut Afiliado"),
+                                    //new Columna("NombreAfiliado","Nombre Afiliado"),
+                                    //new Columna("FechaIngreso", "Fecha Ingreso"),
+                                    //new Columna("RutEjecutivo", "Rut Ejecutivo"),
+                                    //new Columna("NombreEjecutivo", "Nombre Ejecutivo"),
+                                    //new Columna("SinDatosEnSistema", "Sin datos en sistema"),
+                                    //new Columna("SucursalDestino","Sucursal Destino")
+            };
+
+            byte[] filecontent = ExcelExportHelper.ExportExcel(dataTable, "Galvarino", true, columns);
+            HttpResponseMessage response = new HttpResponseMessage();
+
+
+            Stream stri = new MemoryStream(filecontent);
+            response.Content = new StreamContent(stri);
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+            response.Content.Headers.ContentDisposition.FileName = "Galvarino.xls";
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue(ExcelExportHelper.ExcelContentType);
+            response.Content.Headers.ContentLength = stri.Length;
+
+            return response;
+
+
+        }
+
+
+
+
 
         [HttpGet("mis-solicitudes-mesa-control-Nomina-Espcecial/{etapaIn?}")]
         public async Task<IActionResult> ListarMisSolicitudesMSCNE([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20)
@@ -1586,11 +1634,7 @@ namespace Galvarino.Web.Controllers.Api
                         var ci = await _context.CargasIniciales.Where(o => o.FolioCredito == item).FirstOrDefaultAsync();
                         var oficina = await _context.Oficinas.Where(o => o.Codificacion == ci.CodigoOficinaPago).FirstOrDefaultAsync();
 
-                        if (ci.FolioCredito== "084000889505")
-                        {
-
-                        }
-
+                      
 
                         if (ci.TipoVenta=="01" || ci.TipoVenta == "04" || ci.TipoVenta == "05")
                         {
@@ -2204,7 +2248,7 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpGet("workflow/Lista-Registros-Reportes")]
-        public IActionResult ListaRegistroReportes([FromQuery] int offset = 0, [FromQuery] int limit = 20)
+        public ActionResult ListaRegistroReportes([FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {
             var listaRegistroReportes =  _solicitudRepository.ListaRegistroReporteProgramado();
 
@@ -2213,6 +2257,9 @@ namespace Galvarino.Web.Controllers.Api
                 total = listaRegistroReportes.Count(),
                 rows = listaRegistroReportes.Skip(offset).Take(limit).ToList()
             };
+
+          
+
             //var reporte = await _context.ReporteProgramado.ToListAsync();
             return Ok(lida);
         }

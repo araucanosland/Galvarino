@@ -36,6 +36,11 @@ $(function () {
     });
 
 
+    $("#aaa").on("click", function () {
+        debugger;
+        location.href = "http://localhost:1803/api/wf/v1/exportar-excel";
+    });
+
     $("#btn_crear_reporte").on("click", function () {
         debugger;
         var fechadesde = $("#dp_dia_desde").val();
