@@ -75,8 +75,7 @@ namespace Galvarino.Web
             });
 
 
-           //services.AddHostedService<CargaInicialWorker>();
-           //         services.AddHostedService<GeneraArchivoIronMountain>();
+           
 
 
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
@@ -89,7 +88,11 @@ namespace Galvarino.Web
             /*Workers & background tasks*/
 
 
-         
+            //services.AddHostedService<CargaInicialWorker>();
+            //services.AddHostedService<GeneraArchivoIronMountain>();
+
+
+
             // services.AddHostedService<CargaDatosCreditoService>();
             //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
             // services.AddHostedService<CargaGalvarinoHistorico>();

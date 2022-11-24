@@ -2204,11 +2204,17 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpGet("workflow/Lista-Registros-Reportes")]
-        public IActionResult ListaRegistroReportes()
+        public IActionResult ListaRegistroReportes([FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {
             var listaRegistroReportes =  _solicitudRepository.ListaRegistroReporteProgramado();
+
+            var lida = new
+            {
+                total = listaRegistroReportes.Count(),
+                rows = listaRegistroReportes.Skip(offset).Take(limit).ToList()
+            };
             //var reporte = await _context.ReporteProgramado.ToListAsync();
-            return Ok(listaRegistroReportes);
+            return Ok(lida);
         }
 
         [HttpPost("workflow/Crear-Fecha-reporte-programado")]
