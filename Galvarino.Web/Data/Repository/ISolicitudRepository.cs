@@ -1,6 +1,7 @@
 using Galvarino.Web.Models.Application;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace Galvarino.Web.Data.Repository
@@ -32,5 +33,7 @@ namespace Galvarino.Web.Data.Repository
         IEnumerable<dynamic> ReporteGestion(DateTime fechaInicial, DateTime fechaFinal);
 
         IEnumerable<ReporteProgramado> ListaRegistroReporteProgramado();
+
+        DataTable ObtenerDataReporte(DateTime fechaInicial, DateTime fechaFinal);
     }
 }

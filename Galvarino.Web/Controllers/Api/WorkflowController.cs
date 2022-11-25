@@ -21,6 +21,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace Galvarino.Web.Controllers.Api
 {
@@ -59,36 +60,23 @@ namespace Galvarino.Web.Controllers.Api
                     string sql = @"SELECT* FROM[dbo].[ReporteProgramado] ";
                     adapter.SelectCommand = new SqlCommand(sql, conexion);
                     adapter.SelectCommand.CommandType = CommandType.Text;
-
-
-                    adapter.Fill(tabla_cliente);
-
-                   
+                    adapter.Fill(tabla_cliente);                   
                 }
             }
 
-
             using (var libro = new XLWorkbook())
             {
-                
-                              
-
-
                 tabla_cliente.TableName = "Clientes";
                 var hoja = libro.Worksheets.Add(tabla_cliente);
                 hoja.ColumnsUsed().AdjustToContents();
 
                 using (var memoria = new MemoryStream())
                 {
-
                     libro.SaveAs(memoria);
-
                     var nombreExcel = string.Concat("Reporte ", DateTime.Now.ToString(), ".xlsx");
-
                     return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
                 }
             }
-
 
         }
 
@@ -2331,13 +2319,93 @@ namespace Galvarino.Web.Controllers.Api
             
         }
 
-        public async Task<IActionResult> ExportarReportesProgramado(DateTime fechainicial,DateTime fechafinal)
+        [HttpGet("workflow/Exportar-Reporte-Programado")]
+        public IActionResult ExportarReportesProgramado()
         {
             try
             {
-                var salida = _solicitudRepository.ReporteGestion(fechainicial, fechafinal);
+                string nombreArchivo = "REPORTE_CREDITOS_GALVARINO.xlsx";
+                string ruta = _configuration["RutaCargaReporteProgramado"];
+                string rutacompleta = ruta + nombreArchivo ;
+                if (!Directory.Exists(ruta))
+                    Directory.CreateDirectory(ruta);
 
-                return Ok();
+                if (System.IO.File.Exists(rutacompleta))               
+                    System.IO.File.Delete(rutacompleta);
+
+                //revisar y modificar para que traiga el ultimo registro no solo el activo
+                ReporteProgramado reporte = _context.ReporteProgramado.Where(x => x.Estado == "Activo").First();
+
+                DateTime fechainicial = Convert.ToDateTime(reporte.FechaInicio);
+                DateTime fechafinal = Convert.ToDateTime(reporte.FechaFinal);
+
+                DataTable data = _solicitudRepository.ObtenerDataReporte(fechainicial, fechafinal);
+
+                //var salida = _solicitudRepository.ReporteGestion(fechainicial, fechafinal);
+
+                using (var libro = new XLWorkbook())
+                {
+                    data.TableName = "Reporte_" + DateTime.Now.ToString("M");
+                    var hoja = libro.Worksheets.Add(data);
+                    hoja.ColumnsUsed().AdjustToContents();
+
+                    using (var memoria = new MemoryStream())
+                    {
+                        //libro.SaveAs(memoria);
+                        libro.SaveAs(rutacompleta);
+                        //var nombreExcel = "REPORTE_CREDITOS_GALVARINO.xlsx";
+                        //return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
+                    }
+                }
+                ResultadoBase resultado = new ResultadoBase();
+                resultado.Estado = "Ok";
+                resultado.Mensaje = "Reporte descargado en ruta";
+                resultado.Objeto = "";
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                ResultadoBase resultado = new ResultadoBase();
+                resultado.Estado = "Error";
+                resultado.Mensaje = ex.Message;
+                resultado.Objeto = "";
+
+                return Ok(resultado);
+            }
+        }
+
+
+        [HttpGet("workflow/Exportar-OnDemand")]
+        public IActionResult ExportarOnDemand([FromRoute] string fecha)
+        {
+            try
+            {
+                DateTime fechainicial = Convert.ToDateTime(fecha);
+                DateTime fechafinal = Convert.ToDateTime(fecha);
+
+                DataTable data = _solicitudRepository.ObtenerDataReporte(fechainicial, fechafinal);
+
+                //var salida = _solicitudRepository.ReporteGestion(fechainicial, fechafinal);
+
+                using (var libro = new XLWorkbook())
+                {
+                    data.TableName = "Reporte_" + DateTime.Now.ToString("M");
+                    var hoja = libro.Worksheets.Add(data);
+                    hoja.ColumnsUsed().AdjustToContents();
+
+                    using (var memoria = new MemoryStream())
+                    {
+                        libro.SaveAs(memoria);
+                        //libro.SaveAs(rutacompleta);
+                        var nombreExcel = "REPORTE_CREDITOS_GALVARINO.xlsx";
+                        return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
+                    }
+                }
+                //ResultadoBase resultado = new ResultadoBase();
+                //resultado.Estado = "Ok";
+                //resultado.Mensaje = "Reporte descargado en ruta";
+                //resultado.Objeto = "";
+                //return Ok(resultado);
             }
             catch (Exception ex)
             {

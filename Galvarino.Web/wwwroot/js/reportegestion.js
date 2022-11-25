@@ -41,6 +41,15 @@ $(function () {
         location.href = "http://localhost:1803/api/wf/v1/exportar-excel";
     });
 
+    $("#OnDemand").on("click", function () {
+        var fechadesde = $("#dp_dia_desde").val();
+        let data = {
+            FechaInicial: $("#dp_dia_desde").val(),
+            FechaFinal: $("#dp_dia_hasta").val()
+        }
+        location.href = "http://localhost:1803/api/wf/v1/workflow/Exportar-OnDemand";
+    });
+
     $("#btn_crear_reporte").on("click", function () {
         debugger;
         var fechadesde = $("#dp_dia_desde").val();
@@ -67,7 +76,7 @@ $(function () {
 
         $.ajax({
             type: "POST",
-            url: `/api/wf/v1/workflow/Crear-Fecha-reporte-programado`,
+            url: `/api/wf/v1/workflow/Exportar-Reporte-Programado`,
             data: JSON.stringify(_data),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
