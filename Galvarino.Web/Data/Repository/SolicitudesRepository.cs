@@ -463,7 +463,7 @@ namespace Galvarino.Web.Data.Repository
             var respuesta = new List<ReporteProgramado>();
             using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
             {
-                string sql = @"SELECT * FROM [dbo].[ReporteProgramado] ";
+                string sql = @"SELECT * FROM [dbo].[ReporteProgramado] order by FechaEjecucion desc";
                 respuesta = con.Query<ReporteProgramado>(sql).AsList();
 
                //if (respuesta)

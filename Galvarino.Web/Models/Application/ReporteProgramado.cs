@@ -12,6 +12,7 @@ namespace Galvarino.Web.Models.Application
         public DateTime FechaFinal { get; set; }
         public DateTime FechaEjecucion { get; set; }
         public string RutUsuario { get; set; }
+        public string NombreUsuario { get; set; }
         public string Estado { get; set; }
     }
 }

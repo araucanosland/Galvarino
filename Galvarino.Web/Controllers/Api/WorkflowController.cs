@@ -44,46 +44,7 @@ namespace Galvarino.Web.Controllers.Api
             _solicitudRepository = solicitudRepo;
             _configuration = configuration;
         }
-
-
-        [HttpGet("exportar-excel")]
         
-        public IActionResult ExportarXLS()
-        {
-            DataTable tabla_cliente = new DataTable();
-
-            using (var conexion = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
-            {
-                conexion.Open();
-                using (var adapter = new SqlDataAdapter())
-                {
-                    string sql = @"SELECT* FROM[dbo].[ReporteProgramado] ";
-                    adapter.SelectCommand = new SqlCommand(sql, conexion);
-                    adapter.SelectCommand.CommandType = CommandType.Text;
-                    adapter.Fill(tabla_cliente);                   
-                }
-            }
-
-            using (var libro = new XLWorkbook())
-            {
-                tabla_cliente.TableName = "Clientes";
-                var hoja = libro.Worksheets.Add(tabla_cliente);
-                hoja.ColumnsUsed().AdjustToContents();
-
-                using (var memoria = new MemoryStream())
-                {
-                    libro.SaveAs(memoria);
-                    var nombreExcel = string.Concat("Reporte ", DateTime.Now.ToString(), ".xlsx");
-                    return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
-                }
-            }
-
-        }
-
-
-
-
-
         [HttpGet("mis-solicitudes-mesa-control-Nomina-Espcecial/{etapaIn?}")]
         public async Task<IActionResult> ListarMisSolicitudesMSCNE([FromRoute] string etapaIn = "", [FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {
@@ -2272,27 +2233,30 @@ namespace Galvarino.Web.Controllers.Api
             {
                 string inicio = data.FechaInicial;
                 string final = data.FechaFinal;
-                var reporte = await _context.ReporteProgramado.Where(x => x.Estado == "Activo").FirstOrDefaultAsync();
-               
-                
-                if(reporte != null)
-                {
-                    return BadRequest();
-                }
+                string ejecucion = data.FechaEjecucion;
 
-                var rutUsuario = User.Claims.Where(x => x.Type == ClaimTypes.Name).Select(x => x.Value).FirstOrDefault();
-                   
-               
                 DateTime fechainicial = Convert.ToDateTime(inicio);
                 DateTime fechafinal = Convert.ToDateTime(final);
-                DateTime fechaActual = DateTime.Now;
+                DateTime fechaEjecucion = Convert.ToDateTime(ejecucion);
+
+                var rutUsuario = User.Claims.Where(x => x.Type == ClaimTypes.Name).Select(x => x.Value).FirstOrDefault();
+                var nombreUsuario = User.Claims.FirstOrDefault(x => x.Type == CustomClaimTypes.UsuarioNombres).Value;
+                
+                //no puede generar mas de un reporte con el mismo dia de ejecucion
+                var reporte = await _context.ReporteProgramado.Where(x => x.Estado == "Pendiente" && x.RutUsuario == rutUsuario && x.FechaEjecucion == fechaEjecucion).FirstOrDefaultAsync();
+
+                if (reporte != null)
+                {
+                    return BadRequest();
+                }               
 
                 ReporteProgramado repo = new ReporteProgramado();
                 repo.FechaInicio = fechainicial;
                 repo.FechaFinal = fechafinal;
-                repo.FechaEjecucion = fechaActual;
-                repo.Estado = "Activo";
+                repo.FechaEjecucion = fechaEjecucion;
+                repo.Estado = "Pendiente";
                 repo.RutUsuario = rutUsuario;
+                repo.NombreUsuario = nombreUsuario;
 
                 _context.ReporteProgramado.Add(repo);
                 await _context.SaveChangesAsync();
@@ -2320,42 +2284,62 @@ namespace Galvarino.Web.Controllers.Api
         }
 
         [HttpGet("workflow/Exportar-Reporte-Programado")]
-        public IActionResult ExportarReportesProgramado()
+        public async Task<IActionResult> ExportarReportesProgramado()
         {
             try
             {
-                string nombreArchivo = "REPORTE_CREDITOS_GALVARINO.xlsx";
-                string ruta = _configuration["RutaCargaReporteProgramado"];
-                string rutacompleta = ruta + nombreArchivo ;
-                if (!Directory.Exists(ruta))
-                    Directory.CreateDirectory(ruta);
-
-                if (System.IO.File.Exists(rutacompleta))               
-                    System.IO.File.Delete(rutacompleta);
+                string fecha = DateTime.Now.ToString("dd-MM-yyyy");
+                DateTime fechaActual = Convert.ToDateTime(fecha);
+                
 
                 //revisar y modificar para que traiga el ultimo registro no solo el activo
-                ReporteProgramado reporte = _context.ReporteProgramado.Where(x => x.Estado == "Activo").First();
-
-                DateTime fechainicial = Convert.ToDateTime(reporte.FechaInicio);
-                DateTime fechafinal = Convert.ToDateTime(reporte.FechaFinal);
-
-                DataTable data = _solicitudRepository.ObtenerDataReporte(fechainicial, fechafinal);
-
-                //var salida = _solicitudRepository.ReporteGestion(fechainicial, fechafinal);
-
-                using (var libro = new XLWorkbook())
+                List<ReporteProgramado> reporte = await _context.ReporteProgramado.Where(x => x.Estado == "Pendiente" && x.FechaEjecucion == fechaActual).ToListAsync();
+                
+                if (reporte.Count() == 0)
                 {
-                    data.TableName = "Reporte_" + DateTime.Now.ToString("M");
-                    var hoja = libro.Worksheets.Add(data);
-                    hoja.ColumnsUsed().AdjustToContents();
+                    ResultadoBase respuesta = new ResultadoBase();
+                    respuesta.Estado = "Ok";
+                    respuesta.Mensaje = "No existen Reportes Pendientes";
+                    respuesta.Objeto = "";
+                    return Ok(respuesta);
+                }
 
-                    using (var memoria = new MemoryStream())
+                foreach (ReporteProgramado rep in reporte)
+                {
+
+                    string nombreArchivo = "REPORTE_CREDITOS_GALVARINO"+"_"+rep.RutUsuario+".xlsx";
+                    string ruta = _configuration["RutaCargaReporteProgramado"];
+                    string rutacompleta = ruta + nombreArchivo;
+                    if (!Directory.Exists(ruta))
+                        Directory.CreateDirectory(ruta);
+
+                    if (System.IO.File.Exists(rutacompleta))
+                        System.IO.File.Delete(rutacompleta);
+
+                    DateTime fechainicial = Convert.ToDateTime(rep.FechaInicio);
+                    DateTime fechafinal = Convert.ToDateTime(rep.FechaFinal);
+
+                    DataTable data = _solicitudRepository.ObtenerDataReporte(fechainicial, fechafinal);
+
+                    //var salida = _solicitudRepository.ReporteGestion(fechainicial, fechafinal);
+
+                    using (var libro = new XLWorkbook())
                     {
-                        //libro.SaveAs(memoria);
-                        libro.SaveAs(rutacompleta);
-                        //var nombreExcel = "REPORTE_CREDITOS_GALVARINO.xlsx";
-                        //return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
+                        data.TableName = "Reporte_" + DateTime.Now.ToString("M");
+                        var hoja = libro.Worksheets.Add(data);
+                        hoja.ColumnsUsed().AdjustToContents();
+
+                        using (var memoria = new MemoryStream())
+                        {
+                            //libro.SaveAs(memoria);
+                            libro.SaveAs(rutacompleta);
+                            //var nombreExcel = "REPORTE_CREDITOS_GALVARINO.xlsx";
+                            //return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
+                        }
                     }
+                    rep.Estado = "Finalizado";
+                    _context.ReporteProgramado.Update(rep);
+                    await _context.SaveChangesAsync();
                 }
                 ResultadoBase resultado = new ResultadoBase();
                 resultado.Estado = "Ok";

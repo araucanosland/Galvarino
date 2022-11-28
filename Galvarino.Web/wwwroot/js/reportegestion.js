@@ -15,12 +15,12 @@
 
 
 $(function () {
-  
+    debugger;
     var hoy = new Date();
     var d = hoy.getDate().toString() + "-" + (hoy.getMonth() + 1).toString() + "-" + hoy.getFullYear().toString();
     $("#dp_dia_desde").val(d)
     $("#dp_dia_hasta").val(d)
-
+    $("#dp_dia_ejecucion").val(d)
 
 
     $('#dp-component .input-group.date').datepicker({
@@ -47,13 +47,16 @@ $(function () {
             FechaInicial: $("#dp_dia_desde").val(),
             FechaFinal: $("#dp_dia_hasta").val()
         }
-        location.href = "http://localhost:1803/api/wf/v1/workflow/Exportar-OnDemand";
+        location.href = "http://localhost:1803/api/wf/v1/workflow/Exportar-Reporte-Programado";
     });
 
     $("#btn_crear_reporte").on("click", function () {
-        debugger;
+
         var fechadesde = $("#dp_dia_desde").val();
         var fechahasta = $("#dp_dia_hasta").val();
+        var fechaejecucion = $("#dp_dia_ejecucion").val();
+
+        
         if (fechadesde > fechahasta) {
             $.niftyNoty({
                 type: "error",
@@ -65,18 +68,28 @@ $(function () {
             });
             return false;
         }
+        debugger;
+        if (d > fechaejecucion) {
+            $.niftyNoty({
+                type: "error",
+                container: "floating",
+                title: "Suceso Erroneo",
+                message: "La fecha ejecucion debe ser mayor a hoy!",
+                closeBtn: false,
+                timer: 5000
+            });
+            return false;
+        }
 
         let _data = {
-             FechaInicial : $("#dp_dia_desde").val(),
-             FechaFinal : $("#dp_dia_hasta").val()
+            FechaInicial : $("#dp_dia_desde").val(),
+            FechaFinal: $("#dp_dia_hasta").val(),
+            FechaEjecucion: $("#dp_dia_ejecucion").val()
         }
-       
-        //var inicial = $("#dp_dia_desde").val();
-        //var final = $("#dp_dia_hasta").val();
 
         $.ajax({
             type: "POST",
-            url: `/api/wf/v1/workflow/Exportar-Reporte-Programado`,
+            url: `/api/wf/v1/workflow/Crear-Fecha-reporte-programado`,
             data: JSON.stringify(_data),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
