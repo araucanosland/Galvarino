@@ -9,7 +9,9 @@ namespace Galvarino.Web.Data.Repository
     public interface ISolicitudRepository
     {
 
-        
+
+        IEnumerable<dynamic> listarSolicitudesReportes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "");
+
         IEnumerable<SolicitudResult> listarSolicitudes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "");
 
         IEnumerable<dynamic> listarResumenInicial(string[] roles, string rut, string[] oficinas);

@@ -10,18 +10,13 @@ using Galvarino.Web.Services.Workflow;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace Galvarino.Web.Controllers.Api
 {

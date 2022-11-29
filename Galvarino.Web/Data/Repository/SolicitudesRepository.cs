@@ -288,15 +288,7 @@ namespace Galvarino.Web.Data.Repository
                             cr.RutCliente,
                             cr.TipoCredito,
                             cr.FechaDesembolso,
-                            pkn.CodigoSeguimiento seguimientoNotaria,
-                            pkn.FechaEnvio fechaEnvioNotaria,
-                            vv.CodigoSeguimiento seguimientoValija,
-                            vv.FechaEnvio fechaEnvioValija,
-                            vre.Valor reparo,
-                            vrn.Valor reparoNotaria,
-                            vdf.Valor documentosFaltantes,
-                            pvv.CodigoCajaValorada codigoCajaValorada
-
+  
                     from [" + _conf.GetValue<string>("schema") + @"].[Tareas] ta
                     inner join [" + _conf.GetValue<string>("schema") + @"].[Etapas] et on ta.EtapaId = et.Id
                     inner join [" + _conf.GetValue<string>("schema") + @"].[Solicitudes] sl on ta.SolicitudId = sl.Id
@@ -401,8 +393,66 @@ namespace Galvarino.Web.Data.Repository
         }
 
 
+        public IEnumerable<dynamic> listarSolicitudesReportes(string[] roles, string rut, string[] oficinas, string[] etapas, string order = null, string fechaConsulta = "", string notaria = "")
+        {
+            var theRoles = "'" + String.Join("','", roles) + "'";
+            var theOffices = "'" + String.Join("','", oficinas) + "'";
+            var theSteps = "'" + String.Join("','", etapas) + "'";
+            var respuesta = new List<dynamic>();
+            var sqlTrozoFechaConsulta = "";
 
-       
+
+            if (fechaConsulta != "")
+            {
+                sqlTrozoFechaConsulta = "and convert(date, cr.FechaDesembolso) = convert(date, '" + fechaConsulta + "')";
+            }
+
+
+            using (var con = new SqlConnection(_conf.GetConnectionString("DocumentManagementConnection")))
+            {
+                string sql = @"
+                    select 
+                            cr.FolioCredito,
+                            cr.RutCliente,
+                            cr.TipoCredito,
+                            cr.FechaDesembolso,
+                            pkn.CodigoSeguimiento seguimientoNotaria,
+                            vv.CodigoSeguimiento seguimientoValija,
+                            vre.Valor reparo,
+                            vrn.Valor reparoNotaria,
+                            vdf.Valor documentosFaltantes,
+                            vds.Valor descripcionReparos
+
+                    from [" + _conf.GetValue<string>("schema") + @"].[Tareas] ta  with (nolock) 
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[Etapas] et  with (nolock)  on ta.EtapaId = et.Id
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[Solicitudes] sl  with (nolock) on ta.SolicitudId = sl.Id
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[Creditos] cr  with (nolock) on sl.NumeroTicket = cr.NumeroTicket
+                    inner join [" + _conf.GetValue<string>("schema") + @"].[ExpedientesCreditos] ex  with (nolock) on cr.Id = ex.CreditoId
+                    left join [" + _conf.GetValue<string>("schema") + @"].[PacksNotarias] pkn  with (nolock) on ex.PackNotariaId = pkn.Id
+                    left join [" + _conf.GetValue<string>("schema") + @"].[ValijasValoradas] vv  with (nolock) on ex.ValijaValoradaId = vv.Id
+                    left join [" + _conf.GetValue<string>("schema") + @"].[Variables] vre  with (nolock) on sl.NumeroTicket = vre.NumeroTicket and vre.Clave = 'CODIGO_MOTIVO_DEVOLUCION_A_SUCURSAL'
+                    left join [" + _conf.GetValue<string>("schema") + @"].[Variables] vrn  with (nolock) on sl.NumeroTicket = vrn.NumeroTicket and vrn.Clave = 'REPARO_REVISION_DOCUMENTO_LEGALIZADO'
+                    left join [" + _conf.GetValue<string>("schema") + @"].[Variables] vdf  with (nolock) on sl.NumeroTicket = vdf.NumeroTicket and vdf.Clave = 'COLECCION_DOCUMENTOS_FALTANTES'
+                    left join [" + _conf.GetValue<string>("schema") + @"].[Variables] vds  with (nolock) on sl.NumeroTicket = vds.NumeroTicket and vds.Clave = 'DESCRIPCION_REPARO'
+                    where ta.Estado = 'Activada'
+                    and ((ta.AsignadoA in (" + theRoles + @") or ta.AsignadoA = '" + rut + @"')
+                            and ((ta.UnidadNegocioAsignada in (" + theOffices + @" ) or ta.UnidadNegocioAsignada is null))
+                            and (et.NombreInterno in (" + theSteps + @"))
+                        )
+                    and ('" + notaria + @"' = '' or pkn.NotariaEnvioId = '" + notaria + @"')    
+                    " + sqlTrozoFechaConsulta + @"
+                    order by " + (order == null ? "cr.FechaDesembolso" : order);
+                _logger.LogDebug(sql);
+
+                respuesta = con.Query<dynamic>(sql, null, null, true, 360).AsList();
+            }
+
+
+          
+            return respuesta;
+        }
+
+
         public IEnumerable<SolicitudlistarValijasEnviadas> listarValijasEnviadas(string marcaAvance)
         {
             var respuesta = new List<SolicitudlistarValijasEnviadas>();

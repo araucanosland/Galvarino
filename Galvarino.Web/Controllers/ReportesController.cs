@@ -11,6 +11,9 @@ using Galvarino.Web.Models.Workflow;
 using Galvarino.Web.Models.Helper;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Services.Workflow;
+using System.Security.Claims;
+using System.IO;
+using ClosedXML.Excel;
 
 namespace Galvarino.Web.Controllers
 {
@@ -105,28 +108,6 @@ namespace Galvarino.Web.Controllers
 
     }
 
-    [HttpGet("Preparar-Nomina")]
-    public IActionResult ReportePrepararNomina(dynamic list)
-    {
-        
-
-        DataTable data = new DataTable();
-        data = ToDataTable(list);
-        using (var libro = new XLWorkbook())
-        {
-            data.TableName = "Reporte_" + DateTime.Now.ToString("M");
-            var hoja = libro.Worksheets.Add(data);
-            hoja.ColumnsUsed().AdjustToContents();
-
-            using (var memoria = new MemoryStream())
-            {
-                libro.SaveAs(memoria);
-                //libro.SaveAs("C://Users/13771155-9/Desktop/as400/libro.xlsx");
-                var nombreExcel = "libro.xlsx";
-                return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
-            }
-        }
-    }
 
     public class EstructuraMovilidad{
         public Oficina Oficina { get; set; }

@@ -10,40 +10,47 @@
 
 @section script{
 
- <!--Page Script-->
-<environment include="Development">
-    <script src="~/js/prepararNomina.js"></script>
-</environment>
-<environment exclude="Development">
-    <script src="~/js/prepararNomina.min.js?g=@Guid.NewGuid().ToString()"></script>
-</environment>
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/prepararNomina.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/prepararNomina.min.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
 
 }
 
-<div class="row">
-    <div class="col-sm-6 table-toolbar-left">                      
-        <div class="btn-group">
-            <button class="btn btn-default" data-target="#modal-pistoleo" data-toggle="modal"><i class="glyphicon glyphicon-barcode"></i></button>
+    <div class="row">
+        <div class="col-sm-12 table-toolbar-left">
+            <div class="btn-group">
+                <button class="btn btn-default" data-target="#modal-pistoleo" data-toggle="modal"><i class="glyphicon glyphicon-barcode"></i></button>
+
+            </div>
+            <div class="btn-group" style="margin-right:-50px;">
+                <button  class="btn btn-default" id="btn-exportar-excel"><i class="fa fa-file-excel-o"></i></button>
+
+            </div>
         </div>
+       
     </div>
-</div>
+
 <div class="row">
-    <table          id="tabla-generica"
-                    data-toggle="table"
-                    data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_PREPARAR_NOMINA"
-                    data-search="false"
-                    data-show-refresh="false"
-                    data-show-toggle="false"
-                    data-show-columns="false"
-                    data-sort-name="folioCredito"
-                    data-page-list="[]"
-                    data-page-size="20"
-                    data-side-pagination="server"
-                    data-pagination="true" data-show-pagination-switch="false">
+    <table id="tabla-generica"
+           data-toggle="table"
+           data-url="/api/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_PREPARAR_NOMINA"
+           data-search="false"
+           data-show-refresh="false"
+           data-show-toggle="false"
+           data-show-columns="false"
+           data-sort-name="folioCredito"
+           data-page-list="[]"
+           data-page-size="20"
+           data-side-pagination="server"
+           data-pagination="true" data-show-pagination-switch="false">
         <thead>
             <tr>
                 <th data-field="folioCredito" data-sortable="true">Folio Crédito</th>
-                <th data-field="rutCliente" data-align="center" data-sortable="true" >Rut Afiliado</th>
+                <th data-field="rutCliente" data-align="center" data-sortable="true">Rut Afiliado</th>
                 <th data-field="tipoCredito" data-sortable="true" data-formatter="formatoTipoCredito">Tipo Crédito</th>
                 <th data-field="folioCredito" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentos">Documentos</th>
                 <th data-field="fechaDesembolso" data-sortable="true" data-formatter="formatoFecha">Fecha Colocación</th>
@@ -72,7 +79,7 @@
                         <input type="text" id="folio-shot" class="form-control solo-numeros" maxlength="@ViewBag.CantidadCaracteresFolio" placeholder="Pistolea el documento" autocomplete="off" />
                     </div>
                     <div class="well contenedor-folios">
-                        
+
                     </div>
                 </div>
 

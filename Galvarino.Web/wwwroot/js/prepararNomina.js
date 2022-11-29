@@ -218,4 +218,14 @@ $(function () {
         metodos.avanzarWf();
     });
 
+
+    $("#btn-exportar-excel").on("click", function () {
+        debugger;
+        var etapa_actual = $("#etapa-actual").val();
+        location.href = `${BASE_URL}/api/reportes/Preparar-Nomina/${etapa_actual}`;
+
+
+    });
+    
+
 });

@@ -25,6 +25,7 @@ public class CustomClaimsTransformer : IClaimsTransformation
         if(user != null)
         {
             idt.AddClaim(new Claim(CustomClaimTypes.UsuarioNombres, user.Nombres));
+            idt.AddClaim(new Claim(CustomClaimTypes.Rut, rut));
             idt.AddClaim(new Claim(CustomClaimTypes.OficinaCodigo, user.Oficina != null ? user.Oficina.Codificacion : ""));
             idt.AddClaim(new Claim(CustomClaimTypes.OficinaDescripcion, user.Oficina != null ? user.Oficina.Nombre : ""));
             idt.AddClaim(new Claim(CustomClaimTypes.UsuarioCorreo, user.NormalizedEmail.ToLower()));
