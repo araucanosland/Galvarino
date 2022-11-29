@@ -91,52 +91,12 @@ namespace Galvarino.Web.Controllers.Api
                 valijas = valijas.Where(d => d.MarcaAvance == marcavance).ToList();
                 
             }
-            generarexcel(valijas);//Rafa quitar solo prueba 
+           
             return Ok(valijas);
         }
 
-        public DataTable ToDataTable<T>(List<T> items)
-        {
-            DataTable dataTable = new DataTable(typeof(T).Name);
-            //Get all the properties
-            PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            foreach (PropertyInfo prop in Props)
-            {
-                //Setting column names as Property names
-                dataTable.Columns.Add(prop.Name);
-            }
-            foreach (T item in items)
-            {
-                var values = new object[Props.Length];
-                for (int i = 0; i < Props.Length; i++)
-                {
-                    //inserting property values to datatable rows
-                    values[i] = Props[i].GetValue(item, null);
-                }
-                dataTable.Rows.Add(values);
-            }
-            //put a breakpoint here and check datatable
-            return dataTable;
-        }
-        public IActionResult generarexcel(dynamic list)
-        {
-            DataTable data = new DataTable();
-            data = ToDataTable(list);
-            using (var libro = new XLWorkbook())
-            {
-                data.TableName = "Reporte_" + DateTime.Now.ToString("M");
-                var hoja = libro.Worksheets.Add(data);
-                hoja.ColumnsUsed().AdjustToContents();
 
-                using (var memoria = new MemoryStream())
-                {
-                    libro.SaveAs(memoria);
-                    //libro.SaveAs("C://Users/13771155-9/Desktop/as400/libro.xlsx");
-                    var nombreExcel = "libro.xlsx";
-                    return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
-                }
-            }
-        }
+        
 
         [HttpGet("listar-expedientes-valija/{folioValija}")]
         public IActionResult ListarExpedientesValija(string folioValija)
