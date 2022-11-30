@@ -219,4 +219,17 @@ $(function () {
         metodos.avanzarWf();
     });
 
+    $("#btn-exportar-excel").on("click", function () {
+        let filas = $('#tabla-generica').find('tbody td').length;
+        debugger;
+        if (filas > 0) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+        var etapa_actual = $("#etapa-actual").val();
+        location.href = `${BASE_URL}/api/reportes/Envio-Notaria/${etapa_actual}`;
+    });
+
 });

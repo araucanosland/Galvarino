@@ -415,13 +415,7 @@ namespace Galvarino.Web.Data.Repository
                             cr.FolioCredito,
                             cr.RutCliente,
                             cr.TipoCredito,
-                            cr.FechaDesembolso,
-                            pkn.CodigoSeguimiento seguimientoNotaria,
-                            vv.CodigoSeguimiento seguimientoValija,
-                            vre.Valor reparo,
-                            vrn.Valor reparoNotaria,
-                            vdf.Valor documentosFaltantes,
-                            vds.Valor descripcionReparos
+                            cr.FechaDesembolso                            
 
                     from [" + _conf.GetValue<string>("schema") + @"].[Tareas] ta  with (nolock) 
                     inner join [" + _conf.GetValue<string>("schema") + @"].[Etapas] et  with (nolock)  on ta.EtapaId = et.Id
