@@ -93,18 +93,22 @@ $(function () {
     });
 
     $("#btn-exportar-excel").on("click", function () {
-        var nFilas = "";
-        let filas = $('#tabla-generica').find('tbody tr').length;
-        nFilas = $("#tabla-generica tr").length;
-        debugger;
-        if (filas > 0) {
-            return 1;
+        var value = $("#tabla-generica tr").find('td:first').html();        
+        if (value == "No matching records found") {
+            $.niftyNoty({
+                type: "warning",
+                container: "floating",
+                title: "Generar Excel",
+                message: "No puede generar excel, no existen datos a cargar!",
+                closeBtn: true,
+                timer: 5000
+            });
         }
         else {
-            return 0;
+            var etapa_actual = $("#etapa-actual").val();
+            location.href = `${BASE_URL}/api/reportes/Despacho-Of-Partes/${etapa_actual}`;
         }
-        var etapa_actual = $("#etapa-actual").val();
-        location.href = `${BASE_URL}/api/reportes/Despacho-Of-Partes/${etapa_actual}`;
+
     });
 
 });

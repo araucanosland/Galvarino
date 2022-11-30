@@ -15,12 +15,15 @@
 
 
 $(function () {
-    debugger;
+
     var hoy = new Date();
+    var tomorrow = new Date(hoy);
+    tomorrow.setDate(tomorrow.getDate() + 1)
     var d = hoy.getDate().toString() + "-" + (hoy.getMonth() + 1).toString() + "-" + hoy.getFullYear().toString();
+    var m = tomorrow.getDate().toString() + "-" + (tomorrow.getMonth() + 1).toString() + "-" + tomorrow.getFullYear().toString();
     $("#dp_dia_desde").val(d)
     $("#dp_dia_hasta").val(d)
-    $("#dp_dia_ejecucion").val(d)
+    $("#dp_dia_ejecucion").val(m)
 
 
     $('#dp-component .input-group.date').datepicker({
@@ -36,28 +39,21 @@ $(function () {
     });
 
 
-    $("#aaa").on("click", function () {
-        debugger;
-        location.href = "http://localhost:1803/api/wf/v1/exportar-excel";
-    });
-
-    $("#OnDemand").on("click", function () {
-        var fechadesde = $("#dp_dia_desde").val();
-        let data = {
-            FechaInicial: $("#dp_dia_desde").val(),
-            FechaFinal: $("#dp_dia_hasta").val()
-        }
-        location.href = "http://localhost:1803/api/wf/v1/workflow/Exportar-Reporte-Programado";
-    });
-
     $("#btn_crear_reporte").on("click", function () {
 
         var fechadesde = $("#dp_dia_desde").val();
         var fechahasta = $("#dp_dia_hasta").val();
         var fechaejecucion = $("#dp_dia_ejecucion").val();
 
+        fechadesde = fechadesde.replace("-", "/").replace("-", "/");
+        var newfechadesde = fechadesde.replace(/(\d+[/])(\d+[/])/, '$2$1');
+        var fdesde = new Date(newfechadesde);
+
+        fechahasta = fechahasta.replace("-", "/").replace("-", "/");
+        var newfechahasta = fechahasta.replace(/(\d+[/])(\d+[/])/, '$2$1');
+        var fhasta = new Date(newfechahasta);
         
-        if (fechadesde > fechahasta) {
+        if (fdesde > fhasta) {
             $.niftyNoty({
                 type: "error",
                 container: "floating",
@@ -68,8 +64,13 @@ $(function () {
             });
             return false;
         }
-        debugger;
-        if (d > fechaejecucion) {
+
+        fechaejecucion = fechaejecucion.replace("-", "/").replace("-", "/");
+        var newfechaejecucion = fechaejecucion.replace(/(\d+[/])(\d+[/])/, '$2$1');
+        var fejecucion = new Date(newfechaejecucion);
+        var ahora = new Date();
+       
+        if (ahora >= fejecucion) {
             $.niftyNoty({
                 type: "error",
                 container: "floating",
@@ -93,7 +94,7 @@ $(function () {
             data: JSON.stringify(_data),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
-            debugger;
+
             if (data.estado === "OK") {
                 $.niftyNoty({
                     type: "success",
@@ -105,7 +106,7 @@ $(function () {
                 });
             }
         }).fail(function (errMsg) {
-            debugger;
+
             $.niftyNoty({
                 type: "danger",
                 container: "floating",

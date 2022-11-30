@@ -54,14 +54,14 @@ namespace Galvarino.Web.Controllers.Api
             
             using (var libro = new XLWorkbook())
             {
-                data.TableName = "Preparar_Nomina_" + DateTime.Now.ToString("M");
+                data.TableName = "Prep_Nomina_" + DateTime.Now.ToString("M");
                 var hoja = libro.Worksheets.Add(data);
                 hoja.ColumnsUsed().AdjustToContents();
 
                 using (var memoria = new MemoryStream())
                 {
                     libro.SaveAs(memoria);
-                    var nombreExcel = "Preparar_Nomina_" + DateTime.Now.ToString("dd/MM/yyyy") + ".xlsx";
+                    var nombreExcel = "Prep_Nomina_" + DateTime.Now.ToString("M") + ".xlsx";
                     return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
                 }
             }
@@ -90,14 +90,14 @@ namespace Galvarino.Web.Controllers.Api
 
             using (var libro = new XLWorkbook())
             {
-                data.TableName = "Envio_Notaria_" + DateTime.Now.ToString("M");
+                data.TableName = "Env_Notaria_" + DateTime.Now.ToString("M");
                 var hoja = libro.Worksheets.Add(data);
                 hoja.ColumnsUsed().AdjustToContents();
 
                 using (var memoria = new MemoryStream())
                 {
                     libro.SaveAs(memoria);
-                    var nombreExcel = "Envio_Notaria_" + DateTime.Now.ToString("dd/MM/yyyy") + ".xlsx";
+                    var nombreExcel = "Env_Notaria_" + DateTime.Now.ToString("M") + ".xlsx";
                     return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
                 }
             }
@@ -127,14 +127,14 @@ namespace Galvarino.Web.Controllers.Api
 
                 using (var libro = new XLWorkbook())
                 {
-                    data.TableName = "Despacho_Oficina_Partes_" + DateTime.Now.ToString("M");
+                    data.TableName = "Des_Of_Partes_" + DateTime.Now.ToString("M");
                     var hoja = libro.Worksheets.Add(data);
                     hoja.ColumnsUsed().AdjustToContents();
 
                     using (var memoria = new MemoryStream())
                     {
                         libro.SaveAs(memoria);
-                        var nombreExcel = "Despacho_Oficina_Partes_" + DateTime.Now.ToString("dd/MM/yyyy") + ".xlsx";
+                        var nombreExcel = "Des_Of_Partes_" + DateTime.Now.ToString("M") + ".xlsx";
                         return File(memoria.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreExcel);
                     }
                 }
