@@ -55,7 +55,7 @@ $(function () {
         
         if (fdesde > fhasta) {
             $.niftyNoty({
-                type: "error",
+                type: "danger",
                 container: "floating",
                 title: "Suceso Erroneo",
                 message: "La fecha inicial debe ser menor a Fecha final!",
@@ -72,7 +72,7 @@ $(function () {
        
         if (ahora >= fejecucion) {
             $.niftyNoty({
-                type: "error",
+                type: "danger",
                 container: "floating",
                 title: "Suceso Erroneo",
                 message: "La fecha ejecucion debe ser mayor a hoy!",
@@ -90,7 +90,7 @@ $(function () {
 
         $.ajax({
             type: "POST",
-            url: `/api/wf/v1/workflow/Crear-Fecha-reporte-programado`,
+            url: `/api/reportes/Crear-Fecha-reporte-programado`,
             data: JSON.stringify(_data),
             contentType: "application/json; charset=utf-8"
         }).done(function (data) {
@@ -104,6 +104,7 @@ $(function () {
                     closeBtn: true,
                     timer: 5000
                 });
+                $('#tabla-generica').bootstrapTable('refresh');
             }
         }).fail(function (errMsg) {
 
@@ -111,7 +112,7 @@ $(function () {
                 type: "danger",
                 container: "floating",
                 title: "Reporte Programado",
-                message: "No se puede generar otro reporte, ya se encuentra uno Activo para ejecutar hoy ",
+                message: "No se puede generar otro reporte, ya se encuentra un reporte pendiente para ejecutar día " + fechaejecucion,
                 closeBtn: true,
                 timer: 5000
             });

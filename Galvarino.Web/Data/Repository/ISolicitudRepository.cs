@@ -32,8 +32,6 @@ namespace Galvarino.Web.Data.Repository
 
         IEnumerable<SolicitudAnalisisMCReparos> ListarReparos(string FolioCredito,string nombreInterno);
 
-        IEnumerable<dynamic> ReporteGestion(DateTime fechaInicial, DateTime fechaFinal);
-
         IEnumerable<ReporteProgramado> ListaRegistroReporteProgramado();
 
         DataTable ObtenerDataReporte(DateTime fechaInicial, DateTime fechaFinal);
