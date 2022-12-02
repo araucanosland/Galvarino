@@ -34,8 +34,7 @@ namespace Galvarino.Web.Workers
         private bool estaOcupado = false;
         private TimeSpan horaInicial;
         private TimeSpan horaFinal;
-        private IEnumerable<string> registrosArchivoIM;
-        private IEnumerable<string> foliosCajasCerrar;
+
 
         public CargaInicialWorker(ILogger<CargaInicialWorker> logger, IServiceProvider services, IConfiguration configuration, INotificationKernel mailService)
         {
