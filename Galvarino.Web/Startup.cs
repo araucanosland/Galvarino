@@ -85,13 +85,15 @@ namespace Galvarino.Web
             services.AddTransient<ISolicitudRepository, SolicitudesRepository>();
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
 
+
+
             /*Workers & background tasks*/
 
 
             //services.AddHostedService<CargaInicialWorker>();
             //services.AddHostedService<GeneraArchivoIronMountain>();
-
-
+            
+            services.AddHostedService<GenerarReporteGestion>();
 
             // services.AddHostedService<CargaDatosCreditoService>();
             //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
