@@ -2,14 +2,12 @@
 using Galvarino.Web.Data;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Services.Notification;
-using Galvarino.Web.Services.Workflow;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -75,16 +73,15 @@ namespace Galvarino.Web.Workers
                         if (System.IO.File.Exists(rutacompleta))
                             System.IO.File.Delete(rutacompleta);
 
-                        DateTime fechainicial = Convert.ToDateTime(rep.FechaInicio);
-                        DateTime fechafinal = Convert.ToDateTime(rep.FechaFinal);
+                        DateTime fechaInicio = Convert.ToDateTime(rep.FechaInicio);
+                        DateTime fechaFinal = Convert.ToDateTime(rep.FechaFinal);
 
                         //DataTable aux = new DataTable();
-                       
+
                         //DataTable data = _solicitudRepository.ObtenerDataReporte(fechainicial, fechafinal);
 
                         using (var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
-                       
-                        {
+                       {
                             string sql = @"
                             select reporte.PERIODO,reporte.FECHA_PROC,reporte.Folio_Credito,reporte.FECHA_COLOCACION,
                             reporte.RUT_AFILIADO,reporte.DV_RUT_AFILIADO,reporte.TIPO_CREDITO,reporte.ID_OFICINA_EVALUACION,reporte.OFICINA_EVALUACION,
@@ -125,12 +122,21 @@ namespace Galvarino.Web.Workers
                                     left join [dbo].[CajasValoradas] cv on ex.CajaValoradaId = cv.Id
                                     left join [dbo].[ValijasValoradas] vv on ex.ValijaValoradaId = vv.Id
                                     where ta.Estado = 'Activada'
-                                    and ci.FechaCorresponde >= '" + fechainicial + @"'/*'2022-08-18 00:00:00.0000000' */
-                                    and ci.FechaCorresponde <= '" + fechafinal + @"'/*'2022-09-19 00:00:00.0000000'*/
+                                    and ci.FechaCorresponde >= convert(datetime,@fechaInicio)
+                                    and ci.FechaCorresponde <= convert(datetime,@fechaFinal)
                                     )reporte
                                     where reporte.rnk=1
                                     ";
-                            var aux = connection.Query<string>(sql);
+
+
+                            var parametros = new
+                            {
+                                @fechaInicio = fechaInicio,
+                                @fechaFinal = fechaFinal
+                                
+                            };
+
+                            var aux = connection.Query<dynamic>(sql, parametros, null, false, 360);
                             DataTable data = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(Newtonsoft.Json.JsonConvert.SerializeObject(aux.ToList()));
                         }
                     }
