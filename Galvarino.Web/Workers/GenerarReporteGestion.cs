@@ -182,6 +182,7 @@ namespace Galvarino.Web.Workers
                                 file = reader.ReadLine();
                             }
 
+
                             //grabar
 
                              dirFtp = ((FtpWebRequest)FtpWebRequest.Create(_configuration["RutaFTP"] + "/" + nombreArchivo));
