@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using ClosedXML.Excel;
+using Dapper;
 using Galvarino.Web.Data;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Services.Notification;
@@ -12,6 +13,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,27 +61,24 @@ namespace Galvarino.Web.Workers
 
             if (horaActual >= horaInicial && horaActual <= horaFinal && !estaOcupado)
             {
+                estaOcupado = true;
                 var reporte = await _context.ReporteProgramado.Where(x => x.Estado == "Pendiente" && x.FechaEjecucion == fechaActual).ToListAsync();
 
                 if (reporte != null)
                 {
                     foreach (ReporteProgramado rep in reporte)
                     {
-                        string nombreArchivo = "REPORTE_CREDITOS_GALVARINO" + "_" + rep.RutUsuario + ".xlsx";
-                        string ruta = _configuration["RutaCargaReporteProgramado"];
-                        string rutacompleta = ruta + nombreArchivo;
-                        if (!Directory.Exists(ruta))
-                            Directory.CreateDirectory(ruta);
+                        string nombreArchivo = _configuration["NombreArchivoReporteProgramado"] + "_" + rep.RutUsuario + ".xlsx";
+                        string rutalocal = _configuration["RutaDescargaLocalReporteProgramado"];
+                        string rutacompleta = rutalocal + nombreArchivo;
+                        if (!Directory.Exists(rutalocal))
+                            Directory.CreateDirectory(rutalocal);
 
                         if (System.IO.File.Exists(rutacompleta))
                             System.IO.File.Delete(rutacompleta);
 
                         DateTime fechaInicio = Convert.ToDateTime(rep.FechaInicio);
                         DateTime fechaFinal = Convert.ToDateTime(rep.FechaFinal);
-
-                        //DataTable aux = new DataTable();
-
-                        //DataTable data = _solicitudRepository.ObtenerDataReporte(fechainicial, fechafinal);
 
                         using (var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
                        {
@@ -92,8 +92,8 @@ namespace Galvarino.Web.Workers
                             reporte.AREA_RESP_ETAPA,reporte.FOLIO_SKP,reporte.CODIGO_VALIJA,reporte.TIPO_VENTA
                             from (
                                 select  
-                                    ROW_NUMBER() over (partition by cr.foliocredito order by ci.FechaCarga) as rnk,FORMAT(ci.FechaCarga,'yyyyMM') as PERIODO
-                                    ,ci.FechaCarga as FECHA_PROC,cr.FolioCredito as Folio_Credito, LEFT( cr.RutCliente,CHARINDEX('-', cr.RutCliente)-1) as RUT_AFILIADO
+                                    ROW_NUMBER() over (partition by cr.foliocredito order by ci.FechaCarga) as rnk,FORMAT(getdate(),'yyyyMM') as PERIODO
+                                    ,format(getdate(),'dd/MM/yyyy') as FECHA_PROC,cr.FolioCredito as Folio_Credito, LEFT( cr.RutCliente,CHARINDEX('-', cr.RutCliente)-1) as RUT_AFILIADO
                                     ,ci.FechaCorresponde as FECHA_COLOCACION,RIGHT(cr.RutCliente,1) as DV_RUT_AFILIADO,tc.TipoCredito as TIPO_CREDITO
                                     ,ci.CodigoOficinaIngreso as ID_OFICINA_EVALUACION 
                                     ,(select nombre from dbo.Oficinas where ci.CodigoOficinaIngreso = Codificacion) as OFICINA_EVALUACION
@@ -136,14 +136,81 @@ namespace Galvarino.Web.Workers
                                 
                             };
 
-                            var aux = connection.Query<dynamic>(sql, parametros, null, false, 360);
+                            var aux = await connection.QueryAsync<dynamic>(sql, parametros, null,360,null);
                             DataTable data = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(Newtonsoft.Json.JsonConvert.SerializeObject(aux.ToList()));
+
+                            using (var libro = new XLWorkbook())
+                            {
+                                data.TableName = "Reporte_" + DateTime.Now.ToString("M");
+                                var hoja = libro.Worksheets.Add(data);
+                                hoja.ColumnsUsed().AdjustToContents();
+
+                                using (var memoria = new MemoryStream())
+                                {
+                                    libro.SaveAs(rutacompleta);                                  
+                                }
+                            }
+
+                            string user = _configuration["UserFTP"];
+                            string pass = _configuration["PasswordFTP"];
+                            FtpWebRequest dirFtp = ((FtpWebRequest)FtpWebRequest.Create(_configuration["RutaFTP"] ));
+
+                            NetworkCredential cr = new NetworkCredential(user, pass);
+                            dirFtp.Credentials = cr;
+                            dirFtp.UsePassive = true;
+                            dirFtp.UseBinary = true;
+                            dirFtp.KeepAlive = true;
+
+                            dirFtp.Method = WebRequestMethods.Ftp.ListDirectory;
+                            WebResponse response = dirFtp.GetResponse();
+                            StreamReader reader = new StreamReader(response.GetResponseStream());
+                            string file = reader.ReadLine();
+                            while (file != null)
+                            {
+                                if (file.Equals(nombreArchivo))
+                                {
+                                    dirFtp = ((FtpWebRequest)FtpWebRequest.Create(_configuration["RutaFTP"] + "/" + nombreArchivo));
+                                    NetworkCredential crdelete = new NetworkCredential(user, pass);
+                                    dirFtp.Credentials = crdelete;
+                                    dirFtp.UsePassive = true;
+                                    dirFtp.UseBinary = true;
+                                    dirFtp.KeepAlive = true;
+
+                                    dirFtp.Method = WebRequestMethods.Ftp.DeleteFile;
+                                    WebResponse responsedelete = dirFtp.GetResponse();
+                                }
+                                file = reader.ReadLine();
+                            }
+
+                            //grabar
+
+                             dirFtp = ((FtpWebRequest)FtpWebRequest.Create(_configuration["RutaFTP"] + "/" + nombreArchivo));
+
+                             cr = new NetworkCredential(user, pass);
+                            dirFtp.Credentials = cr;
+                            dirFtp.UsePassive = true;
+                            dirFtp.UseBinary = true;
+                            dirFtp.KeepAlive = true;
+                            dirFtp.Method = WebRequestMethods.Ftp.UploadFile;
+                            FileStream stream = File.OpenRead(rutacompleta);
+                            byte[] buffer = new byte[stream.Length];
+                            stream.Read(buffer, 0, buffer.Length);
+                            stream.Close();
+                            Stream reqStream = dirFtp.GetRequestStream();
+                            reqStream.Write(buffer, 0, buffer.Length);
+                            reqStream.Flush();
+                            reqStream.Close();
+
+                            rep.Estado = "Finalizado";
+                            _context.ReporteProgramado.Update(rep);
+                            await _context.SaveChangesAsync();
                         }
                     }
 
                 }
 
             }
+            estaOcupado = false;
 
         }
 
