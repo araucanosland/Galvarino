@@ -105,7 +105,7 @@ $(function () {
             });
         }
         else {
-            var etapa_actual = $("#etapa-actual").val();
+            var etapa_actual = $("#la_etapa").val();
             location.href = `${BASE_URL}/api/reportes/Despacho-Of-Partes/${etapa_actual}`;
         }
 
