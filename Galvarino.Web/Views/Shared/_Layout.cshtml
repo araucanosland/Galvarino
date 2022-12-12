@@ -509,6 +509,11 @@
                                            </ul>
                                        </li>
 
+                                       
+                                   }
+
+                                   @if ( User.IsInRole("Mantenedor de Sistema") || User.IsInRole("Mesa Control") || User.IsInRole("Administrador Sistema"))
+                                    {
                                        <li>
                                            <a href="#">
                                                <i class="glyphicon glyphicon-stats"></i>
@@ -518,10 +523,10 @@
 
                                            <!--Submenu-->
                                            <ul class="collapse">
-                                               <li><a href="/reportes/workflow/carga-inicial">Carga Inicial</a></li>
+                                               <li><a href="/reportes/workflow/reporte-programado">Reporte Programado</a></li>
                                            </ul>
                                        </li>
-                                   }
+                                    }
 
                                    @if (User.IsInRole("Mantenedor de Sistema"))
                                    {
