@@ -12,6 +12,19 @@
 };
 
 
+function formatoPendienteReporte(val, row, inc) {
+    debugger;
+    if (row.estado == 'Pendiente') {
+        
+        return `<strong>${row.estado}</strong> `
+    }
+    else {
+        return `${row.estado} `  }  
+       
+   
+  
+}
+
 
 
 $(function () {

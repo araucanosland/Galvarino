@@ -3,6 +3,11 @@ window._ingresados = [];
 const eventos = {
     pistolaDisparada: "snapshot.events.galvarino"
 }
+
+
+
+
+
 const metodos = {
     disparo: function () {
 

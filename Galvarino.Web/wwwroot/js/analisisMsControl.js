@@ -4,6 +4,10 @@ window.operateEvents = {
     }
 };
 
+
+
+
+
 const metodos = {
     avanzarWf: function () {
         debugger;

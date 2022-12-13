@@ -86,42 +86,12 @@
                     <th data-field="fechaInicio" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Inicial</th>
                         <th data-field="fechaFinal" data-align="center" data-sortable="true" data-formatter="formatoFecha">Fecha Final</th>
                         <th data-field="fechaEjecucion" data-align="center" data-sortable="false" data-formatter="formatoFecha">Fecha Ejecucion</th>
-                    <th data-field="nombreUsuario">Nombre Solicitante</th>
-                    <th data-field="estado">Estado</th>
+                    <th data-field="nombreUsuario" >Nombre Solicitante</th>
+                    <th data-field="estado" data-formatter="formatoPendienteReporte">Estado</th>
                 </tr>
             </thead>
         </table>
     </div>
 
-    @*<div class="row">
-        <div class="col-sm-12 col-md-12">
-            <div class="table-responsive">
-                <table id="table" class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Fecha Inicial</th>
-                            <th>Fecha Final</th>
-                            <th>Fecha Ejecucion</th>
-                            <th>Rut Usuario</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var itm in ViewBag.reporte)
-                        {
-                        <tr>
-                            <td>@itm.Id</td>
-                            <td>@itm.FechaInicio</td>
-                            <td>@itm.FechaFinal</td>
-                            <td>@itm.FechaEjecucion</td>
-                            <td>@itm.RutUsuario</td>
-                            <td>@itm.Estado</td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>*@
+   
 </form>
