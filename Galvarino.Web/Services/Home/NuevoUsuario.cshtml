@@ -1,0 +1,168 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Registro de Usuario | Galvarino - Workflow de Documentos</title>
+
+
+    <!--STYLESHEET-->
+    <!--=================================================-->
+
+    <!--Open Sans Font [ OPTIONAL ]-->
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+
+
+    <!--Bootstrap Stylesheet [ REQUIRED ]-->
+    <link href="/lib/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!--Nifty Stylesheet [ REQUIRED ]-->
+    <link href="/lib/css/nifty.min.css" rel="stylesheet">
+
+
+    <!--Nifty Premium Icon [ DEMONSTRATION ]-->
+    <link href="/lib/css/demo/nifty-demo-icons.min.css" rel="stylesheet">
+
+
+    <!--=================================================-->
+
+
+
+    <!--Pace - Page Load Progress Par [OPTIONAL]-->
+    <link href="/lib/css/pace.min.css" rel="stylesheet">
+    <script src="/lib/js/pace.min.js"></script>
+
+
+        
+    <!--Demo [ DEMONSTRATION ]-->
+    <link href="/lib/css/demo/nifty-demo.min.css" rel="stylesheet">
+      
+</head>
+
+<body>
+    <div id="container" class="cls-container">
+        
+		
+		<!-- BACKGROUND IMAGE -->
+		<!--===================================================-->
+		<div id="bg-overlay"></div>
+		
+		
+		<!-- REGISTRATION FORM -->
+		<!--===================================================-->
+		<div class="cls-content">
+		    <div class="cls-content-lg panel">
+		        <div class="panel-body">
+		            <div class="mar-ver pad-btm">
+		                <h1 class="h3">Crear Nueva Cuenta de Usuario</h1>
+		                <p>Ingresa los datos del ejecutivo para crear la cuenta</p>
+		            </div>
+		            <form id="form-usuario-generico">
+		                <div class="row">
+		                    <div class="col-sm-6">
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="Nombre" name="Nombres">
+		                        </div>
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="E-mail" name="Correo">
+		                        </div>
+		                    </div>
+		                    <div class="col-sm-6">
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="Rut" name="Identificacion">
+		                        </div>
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="Oficina" name="CodificacionOficina">
+		                        </div>
+		                    </div>
+                            <div class="col-sm-8 col-sm-offset-2">
+		                        <div class="form-group">
+		                            <input type="text" class="form-control" placeholder="Rol" name="Rol">
+		                        </div>
+		                    </div>
+		                </div>
+		                <button class="btn btn-primary btn-lg btn-block" type="submit">Registrar</button>
+                        <input type="hidden" name="Firma" value="CARLITOS%EL%MAS%BONITO" />
+		            </form>
+		        </div>
+		    </div>
+		</div>
+		<!--===================================================-->
+		
+    </div>
+    <!--===================================================-->
+    <!-- END OF CONTAINER -->
+
+
+        
+    <!--JAVASCRIPT-->
+    <!--=================================================-->
+
+    <!--jQuery [ REQUIRED ]-->
+    <script src="/lib/js/jquery.min.js"></script>
+
+
+    <!--BootstrapJS [ RECOMMENDED ]-->
+    <script src="/lib/js/bootstrap.min.js"></script>
+
+
+    <!--NiftyJS [ RECOMMENDED ]-->
+    <script src="/lib/js/nifty.min.js"></script>
+    <script src="/js/main.min.js"></script>
+
+    <script>
+        $(function(){
+            $('#form-usuario-generico').on('submit', function(event){
+                event.preventDefault();
+                let model = $(this).serializeFormJSON();
+
+                console.log({model});
+                $.ajax({
+                    type: "POST",
+                    url: `/api/auth/user-create`,
+                    data: JSON.stringify(model),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+
+                    $.niftyNoty({
+                        type: "success",
+                        container: "floating",
+                        title: "Exito",
+                        message: "Usuario Registrado!!"+"<br/><small>Este mensaje se cierra en 5 segundos.</small>",
+                        closeBtn: true,
+                        timer: 5000
+                    });
+
+                    $(this).reset();
+                }).fail(function (errMsg) {
+                    $.niftyNoty({
+                        type: "warning",
+                        container: "floating",
+                        title: "Problemas",
+                        message: "Revisa los Logs<br/><small>Este mensaje se cierra en 5 segundos.</small>",
+                        closeBtn: true,
+                        timer: 5000
+                    });
+
+                }).always(function () {
+                    
+
+                });
+
+            });
+        });
+    </script>
+    
+
+
+    
+
+</body>
+</html>

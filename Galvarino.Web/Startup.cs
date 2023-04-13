@@ -90,10 +90,10 @@ namespace Galvarino.Web
             /*Workers & background tasks*/
 
 
-            //services.AddHostedService<CargaInicialWorker>();
+            services.AddHostedService<CargaInicialWorker>();
             //services.AddHostedService<GeneraArchivoIronMountain>();
-            
-            services.AddHostedService<GenerarReporteGestion>();
+            //services.AddHostedService<GenerarReporteGestion>();
+
 
             // services.AddHostedService<CargaDatosCreditoService>();
             //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
