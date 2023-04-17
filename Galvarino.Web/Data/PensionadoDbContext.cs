@@ -12,6 +12,8 @@ namespace Galvarino.Web.Data
 
         public DbSet<HomologacionOficinas> HomologacionOficinas { get; set; }
 
+        public DbSet<CargasIniciales> CargasIniciales { get; set; }
+
         private readonly IConfiguration _conf;
 
         public PensionadoDbContext(DbContextOptions<PensionadoDbContext> options, IConfiguration conf)
