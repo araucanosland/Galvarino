@@ -13,7 +13,7 @@ namespace Galvarino.Web.Data.Configurtations.Application
         public void Configure(EntityTypeBuilder<HomologacionOficinas> builder)
         {
          
-                builder.HasOne(e => e.IdSucursalActividad).WithOne().IsRequired();
+                builder.Property(e => e.IdSucursalActividad).IsRequired();
                 builder.Property(f => f.IdOficina).IsRequired();
         }
     }

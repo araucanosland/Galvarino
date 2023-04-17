@@ -15,7 +15,7 @@ namespace Galvarino.Web.Workers
     internal class CargaInicialPensionado : BackgroundService
     {
 
-        private readonly PensionadoDbContext _contextPensionado;
+       
 
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
@@ -27,13 +27,13 @@ namespace Galvarino.Web.Workers
         private TimeSpan horaInicial;
         private TimeSpan horaFinal;
 
-        public CargaInicialPensionado(PensionadoDbContext contextPensionado, ILogger<CargaInicialPensionado> logger, IServiceProvider services, IConfiguration configuration, INotificationKernel mailService)
+        public CargaInicialPensionado( ILogger<CargaInicialPensionado> logger, IServiceProvider services, IConfiguration configuration, INotificationKernel mailService)
         {
             _logger = logger;
             _configuration = configuration;
             _mailService = mailService;
             _scope = services.CreateScope();
-            _contextPensionado =contextPensionado;
+           
             this.setHora();
         }
 
@@ -54,9 +54,11 @@ namespace Galvarino.Web.Workers
 
         private void DoWork(object state)
         {
+            var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
+           
+            var lista = _context.HomologacionOficinas.ToList();
 
-            var lista = _contextPensionado.HomologacionOficinas.ToList();
-        }
+    }
 
 
         private void setHora()
@@ -80,7 +82,7 @@ namespace Galvarino.Web.Workers
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Timed Background Service is starting.");
+          
             object state = null;
             _timer = new Timer(DoWork, state, TimeSpan.Zero, TimeSpan.FromMinutes(1));
             return Task.CompletedTask;
