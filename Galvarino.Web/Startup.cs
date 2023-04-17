@@ -31,16 +31,28 @@ namespace Galvarino.Web
         public void ConfigureServices(IServiceCollection services)
         {
 
+            #region Creditos
             services.AddDbContext<ApplicationDbContext>(options =>
             
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
                 options.EnableSensitiveDataLogging();
             });
-
+                                 
             services.AddIdentity<Usuario, Rol>()
                  .AddEntityFrameworkStores<ApplicationDbContext>()
                  .AddDefaultTokenProviders();
+
+            #endregion
+
+            #region Pensionado
+            services.AddDbContext<PensionadoDbContext>(options =>
+
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
+                options.EnableSensitiveDataLogging();
+            });
+            #endregion
 
             services.Configure<IISOptions>(options =>
             {
@@ -91,9 +103,12 @@ namespace Galvarino.Web
 
 
             //services.AddHostedService<CargaInicialWorker>();
-            //services.AddHostedService<GeneraArchivoIronMountain>();
-            
-            services.AddHostedService<GenerarReporteGestion>();
+            //services.AddHostedService<GeneraArchivoIronMountain>();            
+            //services.AddHostedService<GenerarReporteGestion>();
+
+
+           // services.AddHostedService<CargaInicialPensionado>();
+
 
             // services.AddHostedService<CargaDatosCreditoService>();
             //services.AddHostedService<CierrePagaresDeIronMountainWorker>();

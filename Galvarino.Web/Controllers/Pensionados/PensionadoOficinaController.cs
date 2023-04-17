@@ -24,6 +24,7 @@ namespace Galvarino.Web.Controllers.Pensionados
     {
         public IActionResult PrepararNominaDespacho()
         {
+   
             var texto = "pagina Pensionados";
             ViewBag.editando = texto;
             return View();

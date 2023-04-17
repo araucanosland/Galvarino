@@ -15,7 +15,8 @@ namespace Galvarino.Web.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasDefaultSchema("dbo")
+                .HasAnnotation("ProductVersion", "2.1.14-servicing-32113")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -84,6 +85,10 @@ namespace Galvarino.Web.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Afecto");
+
+                    b.Property<string>("Aval");
+
                     b.Property<string>("CanalVenta");
 
                     b.Property<string>("CodigoOficinaIngreso");
@@ -108,6 +113,14 @@ namespace Galvarino.Web.Data.Migrations
                     b.Property<string>("RutAfiliado");
 
                     b.Property<string>("RutResponsable");
+
+                    b.Property<string>("SeguroCesantia");
+
+                    b.Property<string>("SeguroDesgravamen");
+
+                    b.Property<string>("TipoSegmento");
+
+                    b.Property<string>("TipoVenta");
 
                     b.HasKey("Id");
 
@@ -213,8 +226,7 @@ namespace Galvarino.Web.Data.Migrations
 
                     b.Property<int?>("CajaValoradaId");
 
-                    b.Property<int?>("CreditoId")
-                        .IsRequired();
+                    b.Property<int>("CreditoId");
 
                     b.Property<DateTime>("FechaCreacion");
 
@@ -433,6 +445,24 @@ namespace Galvarino.Web.Data.Migrations
                     b.ToTable("PasosValijasValoradas");
                 });
 
+            modelBuilder.Entity("Galvarino.Web.Models.Application.Pensionado.HomologacionOficinas", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("IdSucursalActvidad")
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int?>("oficinaId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("oficinaId");
+
+                    b.ToTable("HomologacionOficinas");
+                });
+
             modelBuilder.Entity("Galvarino.Web.Models.Application.Region", b =>
                 {
                     b.Property<int>("Id")
@@ -446,6 +476,29 @@ namespace Galvarino.Web.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Regiones");
+                });
+
+            modelBuilder.Entity("Galvarino.Web.Models.Application.ReporteProgramado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Estado");
+
+                    b.Property<DateTime>("FechaEjecucion");
+
+                    b.Property<DateTime>("FechaFinal");
+
+                    b.Property<DateTime>("FechaInicio");
+
+                    b.Property<string>("NombreUsuario");
+
+                    b.Property<string>("RutUsuario");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReporteProgramado");
                 });
 
             modelBuilder.Entity("Galvarino.Web.Models.Application.ValijaOficina", b =>
@@ -1005,6 +1058,13 @@ namespace Galvarino.Web.Data.Migrations
                         .WithMany("PacksNotaria")
                         .HasForeignKey("OficinaId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Galvarino.Web.Models.Application.Pensionado.HomologacionOficinas", b =>
+                {
+                    b.HasOne("Galvarino.Web.Models.Application.Oficina", "oficina")
+                        .WithMany()
+                        .HasForeignKey("oficinaId");
                 });
 
             modelBuilder.Entity("Galvarino.Web.Models.Application.ValijaOficina", b =>

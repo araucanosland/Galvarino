@@ -12,6 +12,7 @@ using Galvarino.Web.Data.Configurtations.Security;
 using Galvarino.Web.Data.Configurtations.Workflow;
 using Galvarino.Web.Data.Configurtations.Application;
 using Microsoft.Extensions.Configuration;
+using Galvarino.Web.Models.Application.Pensionado;
 
 namespace Galvarino.Web.Data
 {
@@ -26,6 +27,11 @@ namespace Galvarino.Web.Data
         public DbSet<TareaAutomatica> TareasAutomaticas { get; set; }
         public DbSet<Transito> Transiciones { get; set; }
         public DbSet<Variable> Variables { get; set; }
+        public DbSet<Oficina> Oficinas { get; set; }
+
+
+
+        #region Creditos
 
         public DbSet<CargaInicial> CargasIniciales { get; set; }
         public DbSet<Comuna> Comunas { get; set; }
@@ -33,7 +39,6 @@ namespace Galvarino.Web.Data
         public DbSet<Documento> Documentos { get; set; }
         public DbSet<ExpedienteCredito> ExpedientesCreditos { get; set; }
         public DbSet<Notaria> Notarias { get; set; }
-        public DbSet<Oficina> Oficinas { get; set; }
         public DbSet<PackNotaria> PacksNotarias { get; set; }
         public DbSet<ValijaValorada> ValijasValoradas { get; set; }
         public DbSet<ValijaOficina> ValijasOficinas { get; set; }
@@ -47,6 +52,11 @@ namespace Galvarino.Web.Data
         public DbSet<PasoValijaValorada> PasosValijasValoradas { get; set; }
 
         public DbSet<ReporteProgramado> ReporteProgramado { get; set; }
+
+
+        #endregion
+
+       
 
 
         private readonly IConfiguration _conf;
