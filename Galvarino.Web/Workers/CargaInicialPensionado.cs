@@ -57,18 +57,19 @@ namespace Galvarino.Web.Workers
 
         private void DoWork(object state)
         {
-
-
+           
+            string rutaDescargar = @"C:\Desarrollos\Archivos\Galvarino\";
+            string nombreArchivo = "Aux_OportunidadesPensionados.txt";
 
             string Schema = _configuration.GetValue<string>("schemaPensionado");
             using (var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
             {
                 CsvParserOptions csvParserOptions = new CsvParserOptions(true, ';');
                 CargaInicialPensionadoMapping csvMapper = new CargaInicialPensionadoMapping();
-                CsvParser<CargaInicialIM> csvParser = new CsvParser<CargaInicialIM>(csvParserOptions, csvMapper);
+                CsvParser<CargaInicialPensionadoIM> csvParser = new CsvParser<CargaInicialPensionadoIM>(csvParserOptions, csvMapper);
 
                 var result = csvParser
-                    .ReadFromFile(rutaDescargar, Encoding.ASCII)
+                    .ReadFromFile(rutaDescargar+nombreArchivo, Encoding.ASCII)
                     .Where(x => x.IsValid)
                     .Select(x => x.Result)
                     .AsSequential()
@@ -76,7 +77,7 @@ namespace Galvarino.Web.Workers
                 StringBuilder inserts = new StringBuilder();
 
                
-                result.ForEach(x => inserts.AppendLine($"insert into {Schema}.Cargasiniciales values ('{DateTime.Now}','{DateTime.ParseExact(x.FechaCorresponde.ToString(), "ddMMyyyy", CultureInfo.InvariantCulture)}','{x.FolioCredito}','{x.RutAfiliado}','{x.CodigoOficinaIngreso}','{x.CodigoOficinaPago}','{x.LineaCredito}','{x.RutResponsable}','{x.CanalVenta}','{x.Estado}','{x.FechaCorresponde}','{nombreArchivo}','{x.SeguroCesantia}','{x.Afecto}','{x.Aval}','{x.SeguroDesgravamen}','','{x.TipoVenta}');"));
+                result.ForEach(x => inserts.AppendLine($"insert into {Schema}.Cargasiniciales (FechaCarga,FechaProceso,Folio,DvPensionado,FechaSolicitud,FechaEfectiva ) values ('{DateTime.Now}','{x.FechaProceso}','{x.Folio}','{x.DvPensionado}','{x.FechaSolicitud}','{x.FechaEfectiva}');"));
 
                 connection.Execute(inserts.ToString(), null, null, 240);
             }

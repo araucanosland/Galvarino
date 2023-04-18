@@ -39,16 +39,16 @@ namespace Galvarino.Web
             });
 
 
-            //services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<ApplicationDbContext>(options =>
             
-            //{
-            //    options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
-            //    options.EnableSensitiveDataLogging();
-            //});
+            {
+               options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
+                options.EnableSensitiveDataLogging();
+            });
                                  
-            //services.AddIdentity<Usuario, Rol>()
-            //     .AddEntityFrameworkStores<ApplicationDbContext>()
-            //     .AddDefaultTokenProviders();
+            services.AddIdentity<Usuario, Rol>()
+                 .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
 
 
@@ -106,7 +106,7 @@ namespace Galvarino.Web
             //services.AddHostedService<GenerarReporteGestion>();
 
 
-            services.AddHostedService<CargaInicialPensionado>();
+            //services.AddHostedService<CargaInicialPensionado>();
 
 
             // services.AddHostedService<CargaDatosCreditoService>();
