@@ -14,6 +14,8 @@ namespace Galvarino.Web.Data
 
         public DbSet<CargasIniciales> CargasIniciales { get; set; }
 
+        public DbSet<CargasInicialesEstado> CargasInicialesEstado { get; set; }
+
         private readonly IConfiguration _conf;
 
         public PensionadoDbContext(DbContextOptions<PensionadoDbContext> options, IConfiguration conf)
@@ -26,7 +28,7 @@ namespace Galvarino.Web.Data
             base.OnModelCreating(builder);
 
             builder.HasDefaultSchema(_conf.GetValue<string>("schemaPensionado"));
-
+           
            /*Configurar Modelos */
             builder.ApplyConfiguration(new HomologacionOficinaConfig());
         }

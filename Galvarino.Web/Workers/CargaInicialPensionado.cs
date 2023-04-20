@@ -1,8 +1,11 @@
 ﻿using Dapper;
+using Galvarino.Web.Data;
+using Galvarino.Web.Models.Application.Pensionado;
 using Galvarino.Web.Models.Mappings;
 using Galvarino.Web.Services.Notification;
 using Galvarino.Web.Services.Workflow;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -57,9 +60,9 @@ namespace Galvarino.Web.Workers
             return Task.CompletedTask;
         }
 
-        private void DoWork(object state)
+        private  void DoWork(object state)
         {
-           
+            var _context= _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
            
             string rutaDescargar = _configuration.GetValue<string>("RutaArchivoPensionado");// @"C:\Desarrollos\Archivos\Galvarino\";
             string nombreArchivo = _configuration.GetValue<string>("ArchivoOportunidadPensionado");// "Aux_OportunidadesPensionados.txt";
@@ -74,15 +77,35 @@ namespace Galvarino.Web.Workers
                 string sql = "";
                 int existeCarga;
                 string SchemaEstado = _configuration.GetValue<string>("schema");
-                sql = "SELECT COUNT(1) " +
+                sql = "SELECT * " +
                       " FROM " + SchemaEstado + ".CargasInicialesEstado CIE  " +
                       "WHERE CIE.NombreArchivoCarga = '" + nombreArchivo + "' " +
                       "  AND CONVERT(varchar,CIE.FechaCarga,120) BETWEEN '" + DateTime.Today.ToString("yyyy-MM-dd") + " 00:00:00.000'" +
                       "                                              AND '" + DateTime.Today.ToString("yyyy-MM-dd") + " 23:59:59.999';";
 
-                existeCarga = connection.Query<int>(sql).FirstOrDefault();
+                existeCarga = 1;// await connection.QueryFirstAsync<int>(sql);
 
-                if (existeCarga == 0)
+                DateTime elDia = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd"));
+
+                var valida = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivo && p.FechaCarga.Date >= elDia).FirstOrDefault();
+                
+
+                var cargasIniciales = _context.CargasIniciales.Include(p => p.Sucursal).Include(t => t.Tipo).FirstOrDefault();
+
+
+                DateTime elDia2 = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd"));
+                CargasInicialesEstado ci = new CargasInicialesEstado();
+                ci.NombreArchivoCarga = "adsdasdasd";
+                ci.Estado = "asdassad";
+                ci.FechaCarga = elDia2;
+
+
+                _context.CargasInicialesEstado.Add(ci);
+                _context.SaveChanges();
+
+
+
+                if (valida!=null)
                 {
                     CsvParserOptions csvParserOptions = new CsvParserOptions(true, ';');
                     CargaInicialPensionadoMapping csvMapper = new CargaInicialPensionadoMapping();
@@ -123,6 +146,7 @@ namespace Galvarino.Web.Workers
                                                                $"'AFILIACION');"));
 
                     connection.Execute(inserts.ToString(), null, null, 240);
+                 
 
                     string insertarCargasInincialesEstado = @"INSERT INTO " + SchemaEstado + ".CargasInicialesEstado" +
                                                                 "(fechacarga,NombreArchivoCarga,Estado) " +

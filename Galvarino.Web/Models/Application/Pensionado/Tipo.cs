@@ -10,7 +10,7 @@ namespace Galvarino.Web.Models.Application.Pensionado
     public class Tipo
     {
         [Key]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Column(TypeName = "varchar(20)")]
         public string TipoDescripcion { get; set; }

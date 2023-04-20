@@ -14,6 +14,7 @@ using Galvarino.Web.Data.Configurtations.Application;
 using Microsoft.Extensions.Configuration;
 using Galvarino.Web.Models.Application.Pensionado;
 
+
 namespace Galvarino.Web.Data
 {
     public class ApplicationDbContext : IdentityDbContext<Usuario, Rol, string>
@@ -32,7 +33,7 @@ namespace Galvarino.Web.Data
 
 
         #region Creditos
-
+       
         public DbSet<CargaInicial> CargasIniciales { get; set; }
         public DbSet<Comuna> Comunas { get; set; }
         public DbSet<Credito> Creditos { get; set; }
