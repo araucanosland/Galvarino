@@ -18,11 +18,14 @@ namespace Galvarino.Web.Models.Mappings
         public string RutPensionado { get; set; }
         public string DvPensionado { get; set; }
         public string NombrePensionado { get; set; }
+        public string Nombre2Pensionado { get; set; }
+        public string ApellidoPatPensionado { get; set; }
+        public string ApellidoMatPensionado { get; set; }
         public int IdTipo { get; set; }
         public string Tipo { get; set; }
         public DateTime FechaSolicitud { get; set; }
         public DateTime FechaEfectiva { get; set; }
-        public int IdSucursal { get; set; }
+        public string IdSucursal { get; set; }
         public string Sucursal { get; set; }
         public string Forma { get; set; }
         public string TipoMovimiento { get; set; }
@@ -40,15 +43,16 @@ namespace Galvarino.Web.Models.Mappings
             MapProperty(5, x => x.Estado);
             MapProperty(9, x => x.RutPensionado);
             MapProperty(10, x => x.DvPensionado);
-            //MapProperty(7, x => x.LineaCredito);
-            //MapProperty(8, x => x.RutResponsable);
-            //MapProperty(9, x => x.CanalVenta);
-            //MapProperty(10, x => x.FechaCorresponde);
-            //MapProperty(13, x => x.SeguroCesantia);
+            MapProperty(11, x => x.NombrePensionado);
+            MapProperty(12, x => x.Nombre2Pensionado);
+            MapProperty(13, x => x.ApellidoPatPensionado);
+            MapProperty(14, x => x.ApellidoMatPensionado);
             MapProperty(31, x => x.FechaSolicitud);
+            MapProperty(40, x => x.IdSucursal);
+            MapProperty(41, x => x.Sucursal);
             MapProperty(55, x => x.FechaEfectiva);
-            //MapProperty(16, x => x.SeguroDesgravamen);
-            //MapProperty(17, x => x.TipoVenta);
+            MapProperty(56, x => x.IdTipo);
+            MapProperty(57, x => x.Tipo);
         }
 
 

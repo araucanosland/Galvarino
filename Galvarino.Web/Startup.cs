@@ -105,9 +105,10 @@ namespace Galvarino.Web
             //services.AddHostedService<GeneraArchivoIronMountain>();            
             //services.AddHostedService<GenerarReporteGestion>();
 
-
-            //services.AddHostedService<CargaInicialPensionado>();
-
+            #region Pensionados
+            services.AddHostedService<CargaInicialPensionado>();
+            services.AddHostedService<CargaInicialPensionadoDesafiliacion>();
+            #endregion
 
             // services.AddHostedService<CargaDatosCreditoService>();
             //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
