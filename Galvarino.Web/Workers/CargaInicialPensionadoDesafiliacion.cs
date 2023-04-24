@@ -1,7 +1,10 @@
 ﻿using Dapper;
+using Galvarino.Web.Data;
+using Galvarino.Web.Models.Application.Pensionado;
 using Galvarino.Web.Models.Mappings;
 using Galvarino.Web.Services.Notification;
 using Galvarino.Web.Services.Workflow;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -60,10 +63,9 @@ namespace Galvarino.Web.Workers
         private void DoWork(object state)
         {
 
+            var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
             string rutaDescargar = _configuration.GetValue<string>("RutaArchivoPensionado");// @"C:\Desarrollos\Archivos\Galvarino\";
             string nombreArchivo = _configuration.GetValue<string>("ArchivoDesafilliacionPensionado");// "DESAFILIACION_PENSIONADO.csv";
-
-
             string Schema = _configuration.GetValue<string>("schemaPensionado");
 
             #region carga_desafiliacion
@@ -75,18 +77,25 @@ namespace Galvarino.Web.Workers
             {
                 string sql = "";
                 int existeCarga;
-                string SchemaEstado = _configuration.GetValue<string>("schema");
+                
+                DateTime Dia = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd"));
 
-                sql = "SELECT COUNT(1) "+
-                      " FROM " + SchemaEstado + ".CargasInicialesEstado CIE  " +
-                      "WHERE CIE.NombreArchivoCarga = '"+ nombreArchivo + "' " +
-                      "  AND CONVERT(varchar,CIE.FechaCarga,120) BETWEEN '" + DateTime.Today.ToString("yyyy-MM-dd") + " 00:00:00.000'" +
-                      "                                              AND '" + DateTime.Today.ToString("yyyy-MM-dd") + " 23:59:59.999';";
+                var existe = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivo && p.FechaCarga.Date >= Dia).FirstOrDefault();
+                
 
-                existeCarga = connection.Query<int>(sql).FirstOrDefault();
-
-                if (existeCarga == 0)
+                if (existe == null)
                 {
+
+                    CargasInicialesEstado cie = new CargasInicialesEstado();
+                    cie.NombreArchivoCarga = nombreArchivo;
+                    cie.Estado = "DesafiliacionParcial";
+                    cie.FechaCarga = Convert.ToDateTime(Dia);
+
+                    _context.CargasInicialesEstado.Add(cie);
+                    _context.SaveChanges();
+
+                    cie = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivo && p.FechaCarga.Date >= Dia).FirstOrDefault();
+
                     CsvParserOptions csvParserOptions = new CsvParserOptions(true, ';');
                     CargaInicialPensionadoDesafiliacionMapping csvMapper = new CargaInicialPensionadoDesafiliacionMapping();
                     CsvParser<CargaInicialPensionadoDesafiliacionIM> csvParser = new CsvParser<CargaInicialPensionadoDesafiliacionIM>(csvParserOptions, csvMapper);
@@ -102,7 +111,8 @@ namespace Galvarino.Web.Workers
 
                     StringBuilder inserts = new StringBuilder();
                     result.ForEach(x => inserts.AppendLine($"INSERT INTO {Schema}.Cargasiniciales " +
-                                                               $"(FechaCarga, " +
+                                                               $"(CargaInicialEstadoId," +
+                                                               $"FechaCarga, " +
                                                                $"FechaProceso, " +
                                                                $"Folio, " +
                                                                $"Estado, " +
@@ -116,6 +126,7 @@ namespace Galvarino.Web.Workers
                                                                $"Forma, " +
                                                                $"TipoMovimiento) " +
                                                            $"VALUES(" +
+                                                               $"'{cie.Id}'," +
                                                                $"'{DateTime.Now}', " +
                                                                $"'{x.FechaProceso}', " +
                                                                $"N'{x.Folio}', " +
@@ -132,11 +143,6 @@ namespace Galvarino.Web.Workers
                                                                ));
 
                     connection.Execute(inserts.ToString(), null, null, 240);
-
-                    string insertarCargasInincialesEstado = @"INSERT INTO " + SchemaEstado + ".CargasInicialesEstado" +
-                                                                "(fechacarga,NombreArchivoCarga,Estado) " +
-                                                            "VALUES (getdate(),'" + nombreArchivo + "','PencionadosDesafiliacionParcial')";
-                    connection.Execute(insertarCargasInincialesEstado.ToString(), null, null, 240);
 
                 }
                 else {

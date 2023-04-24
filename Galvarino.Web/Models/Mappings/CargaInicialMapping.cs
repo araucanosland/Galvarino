@@ -9,6 +9,7 @@ namespace Galvarino.Web.Models.Mappings
     {
 
         public int Id { get; set; }
+        public int CargaInidicalEstadoId { get; set; }
         public string FechaCarga { get; set; }
         public string FechaCorresponde { get; set; }
         public string FolioCredito { get; set; }

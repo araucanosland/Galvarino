@@ -75,38 +75,35 @@ namespace Galvarino.Web.Workers
             using (var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
             {
                 string sql = "";
-                int existeCarga;
-                string SchemaEstado = _configuration.GetValue<string>("schema");
-                sql = "SELECT * " +
-                      " FROM " + SchemaEstado + ".CargasInicialesEstado CIE  " +
-                      "WHERE CIE.NombreArchivoCarga = '" + nombreArchivo + "' " +
-                      "  AND CONVERT(varchar,CIE.FechaCarga,120) BETWEEN '" + DateTime.Today.ToString("yyyy-MM-dd") + " 00:00:00.000'" +
-                      "                                              AND '" + DateTime.Today.ToString("yyyy-MM-dd") + " 23:59:59.999';";
+                int idCarga;
+                //string SchemaEstado = _configuration.GetValue<string>("schema");
+                //sql = "SELECT * " +
+                //      " FROM " + SchemaEstado + ".CargasInicialesEstado CIE  " +
+                //      "WHERE CIE.NombreArchivoCarga = '" + nombreArchivo + "' " +
+                //      "  AND CONVERT(varchar,CIE.FechaCarga,120) BETWEEN '" + DateTime.Today.ToString("yyyy-MM-dd") + " 00:00:00.000'" +
+                //      "                                              AND '" + DateTime.Today.ToString("yyyy-MM-dd") + " 23:59:59.999';";
 
-                existeCarga = 1;// await connection.QueryFirstAsync<int>(sql);
+                //existeCarga = await connection.QueryFirstAsync<int>(sql);
 
-                DateTime elDia = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd"));
+                DateTime Dia = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd"));
 
-                var valida = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivo && p.FechaCarga.Date >= elDia).FirstOrDefault();
-                
+                var existe = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivo && p.FechaCarga.Date >= Dia).FirstOrDefault();
+               
 
-                var cargasIniciales = _context.CargasIniciales.Include(p => p.Sucursal).Include(t => t.Tipo).FirstOrDefault();
-
-
-                DateTime elDia2 = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd"));
-                CargasInicialesEstado ci = new CargasInicialesEstado();
-                ci.NombreArchivoCarga = "adsdasdasd";
-                ci.Estado = "asdassad";
-                ci.FechaCarga = elDia2;
-
-
-                _context.CargasInicialesEstado.Add(ci);
-                _context.SaveChanges();
-
-
-
-                if (valida!=null)
+                if (existe==null)
                 {
+                    CargasInicialesEstado cie = new CargasInicialesEstado();
+                    cie.NombreArchivoCarga = nombreArchivo;
+                    cie.Estado = "OportunidadParcial";
+                    cie.FechaCarga = Convert.ToDateTime(Dia);
+
+                    _context.CargasInicialesEstado.Add(cie);
+                    _context.SaveChanges();
+
+                    
+                    cie = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivo && p.FechaCarga.Date >= Dia).FirstOrDefault(); 
+
+
                     CsvParserOptions csvParserOptions = new CsvParserOptions(true, ';');
                     CargaInicialPensionadoMapping csvMapper = new CargaInicialPensionadoMapping();
                     CsvParser<CargaInicialPensionadoIM> csvParser = new CsvParser<CargaInicialPensionadoIM>(csvParserOptions, csvMapper);
@@ -119,7 +116,8 @@ namespace Galvarino.Web.Workers
                         .ToList();
                
                     result.ForEach(x => inserts.AppendLine($"insert into {Schema}.Cargasiniciales " +
-                                                               $"(FechaCarga," +
+                                                               $"(CargaInicialEstadoId, " +
+                                                               $"FechaCarga," +
                                                                $"FechaProceso," +
                                                                $"Folio,Estado," +
                                                                $"RutPensionado," +
@@ -131,6 +129,7 @@ namespace Galvarino.Web.Workers
                                                                $"Forma," +
                                                                $"TipoMovimiento) " +
                                                            $"values (" +
+                                                               $"'{cie.Id}',"+
                                                                $"'{DateTime.Now}'," +
                                                                $"'{x.FechaProceso}'," +
                                                                $"'{x.Folio}'," +
@@ -146,12 +145,13 @@ namespace Galvarino.Web.Workers
                                                                $"'AFILIACION');"));
 
                     connection.Execute(inserts.ToString(), null, null, 240);
-                 
 
-                    string insertarCargasInincialesEstado = @"INSERT INTO " + SchemaEstado + ".CargasInicialesEstado" +
-                                                                "(fechacarga,NombreArchivoCarga,Estado) " +
-                                                            "VALUES (getdate(),'" + nombreArchivo + "','PencionadosOportunidadParcial')";
-                    connection.Execute(insertarCargasInincialesEstado.ToString(), null, null, 240);
+                   
+
+                    //string insertarCargasInincialesEstado = @"INSERT INTO " + SchemaEstado + ".CargasInicialesEstado" +
+                    //                                            "(fechacarga,NombreArchivoCarga,Estado) " +
+                    //                                        "VALUES (getdate(),'" + nombreArchivo + "','PencionadosOportunidadParcial')";
+                    //connection.Execute(insertarCargasInincialesEstado.ToString(), null, null, 240);
                 }
                 else
                 {

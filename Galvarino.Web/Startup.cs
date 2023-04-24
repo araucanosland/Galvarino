@@ -107,7 +107,7 @@ namespace Galvarino.Web
 
             #region Pensionados
             services.AddHostedService<CargaInicialPensionado>();
-           // services.AddHostedService<CargaInicialPensionadoDesafiliacion>();
+            services.AddHostedService<CargaInicialPensionadoDesafiliacion>();
             #endregion
 
             // services.AddHostedService<CargaDatosCreditoService>();

@@ -16,15 +16,10 @@ namespace Galvarino.Web.Common
             string textoSinAcentos = reg.Replace(textoNormalizado, "");
             return textoSinAcentos;
 
-        }
+        } 
 
-        public string QuitaAcentos(string input)
-        {
-            string textoSinAcentos = input.Replace("á", "a").Replace("é", "e").Replace("í", "i").Replace("ó", "o").Replace("ú", "u");
-            Debug.WriteLine(textoSinAcentos);
-            return textoSinAcentos;
 
-        }
+
 
       
     }
