@@ -10,6 +10,7 @@ using Galvarino.Web.Models.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace Galvarino.Web.Controllers
 {
@@ -17,15 +18,17 @@ namespace Galvarino.Web.Controllers
     {
         private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly string _currentUserName;
+       
 
-        public HomeController(SignInManager<Usuario> signInManager, IConfiguration configuration)
+        public HomeController(SignInManager<Usuario> signInManager, IConfiguration configuration, IHttpContextAccessor accessor)
         {
             _signInManager = signInManager;
             _configuration = configuration;
+            _currentUserName = accessor.HttpContext.User.Identity.Name;
         }
         
         public IActionResult Index()
-
         {
             string userAgent = Request.Headers["User-Agent"].ToString();
             if(userAgent.Contains("MSIE") || userAgent.Contains("Trident"))
@@ -34,6 +37,9 @@ namespace Galvarino.Web.Controllers
             }
             else
             {
+
+                
+
                 if (User.Identity.IsAuthenticated)
                 {
                     return Redirect("/wf/v1/mis-solicitudes");
@@ -52,9 +58,17 @@ namespace Galvarino.Web.Controllers
         {        
             try
             {
+                
+                string rutAd = _currentUserName.Replace(@"LAARAUCANA\", "");
 
-               
-                var user = await _signInManager.UserManager.FindByNameAsync(rut);
+         
+
+                if (rutAd != rut)
+                {
+                    return View("SinPermiso");
+                }
+
+                var user = await _signInManager.UserManager.FindByNameAsync(rut);               
 
                 if (user.Eliminado==true)
                 {

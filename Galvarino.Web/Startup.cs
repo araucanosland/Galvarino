@@ -8,11 +8,14 @@ using Galvarino.Web.Workers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Rotativa.AspNetCore;
 using System;
 
@@ -31,8 +34,15 @@ namespace Galvarino.Web
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-            
+            services.Configure<IISOptions>(iis =>
+            {
+                iis.AuthenticationDisplayName = "Windows";
+                iis.AutomaticAuthentication = true;
+            });
+
+            services.AddAuthentication(IISDefaults.AuthenticationScheme);
+
+            services.AddDbContext<ApplicationDbContext>(options =>            
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DocumentManagementConnection"));
                 options.EnableSensitiveDataLogging();
@@ -48,6 +58,7 @@ namespace Galvarino.Web
                 options.AutomaticAuthentication = true;
             });
 
+ 
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings.
@@ -75,7 +86,11 @@ namespace Galvarino.Web
             });
 
 
-           
+
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+
 
 
             services.AddScoped<IUserClaimsPrincipalFactory<Usuario>, GalvarinoClaimsPrincipalFactory>();
@@ -127,6 +142,13 @@ namespace Galvarino.Web
             app.UseStaticFiles();
             app.UseAuthentication();
 
+            //app.Run(async (context) =>
+            //{
+            //    await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+            //    {
+            //        UserName = context?.User?.Identity?.Name
+            //    }));
+            //});
 
             app.UseMvc(routes =>
             {
