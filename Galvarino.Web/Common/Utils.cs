@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Text;
+using System;
 
 namespace Galvarino.Web.Common
 {
@@ -16,11 +17,16 @@ namespace Galvarino.Web.Common
             string textoSinAcentos = reg.Replace(textoNormalizado, "");
             return textoSinAcentos;
 
-        } 
+        }
+
+
+        public string GeneraTicket(string IdProceso)
+        {
+            DateTime now = DateTime.Now;
+            return now.Year.ToString() + now.Month.ToString().PadLeft(2, '0') + now.Day.ToString().PadLeft(2, '0') + IdProceso.PadLeft(2, '0') + (now.Hour.ToString() + now.Minute.ToString() + now.Second.ToString() + now.Millisecond.ToString()).PadLeft(10, '0');
+        }
 
 
 
-
-      
     }
 }

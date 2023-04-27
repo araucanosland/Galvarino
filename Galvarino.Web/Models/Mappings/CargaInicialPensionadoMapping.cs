@@ -11,7 +11,7 @@ namespace Galvarino.Web.Models.Mappings
     {
 
         public int Id { get; set; }
-        public int CargaInidicalEstadoId { get; set; }
+        public int CargaInicalEstadoId { get; set; }
         public DateTime FechaCarga { get; set; }
         public DateTime FechaProceso { get; set; }
         public string Folio { get; set; }
