@@ -1,5 +1,6 @@
 ﻿using Galvarino.Web.Data;
 using Galvarino.Web.Data.Repository;
+using Galvarino.Web.Data.Repository.Pensionado;
 using Galvarino.Web.Models.Security;
 using Galvarino.Web.Services;
 using Galvarino.Web.Services.Notification;
@@ -95,7 +96,7 @@ namespace Galvarino.Web
             services.AddTransient<INotificationKernel, MailSender>();
             services.AddTransient<ISolicitudRepository, SolicitudesRepository>();
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
-
+            services.AddTransient<ICargaInicialRepository, CargaInicialRepository>();
 
 
             /*Workers & background tasks*/

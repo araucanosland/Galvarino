@@ -21,6 +21,8 @@ namespace Galvarino.Web.Data
 
         public DbSet<Expedientes> Expedientes { get; set; }
 
+        public DbSet<Tipo> Tipo { get; set; }
+
 
         private readonly IConfiguration _conf;
 

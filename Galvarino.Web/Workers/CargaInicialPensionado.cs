@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.Drawing;
 using Galvarino.Web.Common;
 using Galvarino.Web.data.migrations.pensionado;
 using Galvarino.Web.Data;
+using Galvarino.Web.Data.Repository.Pensionado;
 using Galvarino.Web.Models.Application;
 using Galvarino.Web.Models.Application.Pensionado;
 using Galvarino.Web.Models.Mappings;
@@ -43,13 +44,15 @@ namespace Galvarino.Web.Workers
         private bool estaOcupado = false;
         private TimeSpan horaInicial;
         private TimeSpan horaFinal;
+        private readonly ICargaInicialRepository _cargainicialrepository;
 
-        public CargaInicialPensionado(ILogger<CargaInicialPensionado> logger, IServiceProvider services, IConfiguration configuration, INotificationKernel mailService)
+        public CargaInicialPensionado(ICargaInicialRepository cargainicialrepository, ILogger<CargaInicialPensionado> logger, IServiceProvider services, IConfiguration configuration, INotificationKernel mailService)
         {
             _logger = logger;
             _configuration = configuration;
             _mailService = mailService;
             _scope = services.CreateScope();
+            _cargainicialrepository = cargainicialrepository;
 
             this.setHora();
         }
@@ -79,9 +82,6 @@ namespace Galvarino.Web.Workers
             string nombreArchivoDesafilliacion = _configuration.GetValue<string>("ArchivoDesafilliacionPensionado");// "DESAFILIACION_PENSIONADO.csv";
             string Schema = _configuration.GetValue<string>("schemaPensionado");
             Common.Utils utils = new Common.Utils();
-
-
-
 
             using (var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
             {
@@ -124,6 +124,8 @@ namespace Galvarino.Web.Workers
                     cie = CargaEstado(cie, nombreArchivoDesafilliacion, Dia);
                     result.ForEach(x => inserts.AppendLine($"('{cie.Id}','{DateTime.Now}','{x.FechaProceso}', N'{x.Folio}', N'{x.Estado}', N'{x.RutPensionado}', N'{x.DvPensionado}', N'{x.NombrePensionado}', N'{x.IdTipo}', " +
                                                                $"'{x.FechaSolicitud}', '{x.FechaEfectiva}', '{x.IdSucursal.Replace("O ", "")}', N'{utils.QuitaAcento(x.Tipo)}', N'DESAFILIACION'),"));
+
+                    string estadoCarga = _cargainicialrepository.CargaAfiliaciones();
                     CargaInicial(Schema, connection, inserts);
 
                 }
@@ -160,53 +162,57 @@ namespace Galvarino.Web.Workers
                     cie = CargaEstado(cie, nombreArchivoOportunidad, Dia);
 
                     StringBuilder inserts = new StringBuilder();
-                    result.ForEach(x => inserts.AppendLine($"('{cie.Id}','{DateTime.Now}','{x.FechaProceso}', N'{x.Folio}', N'{x.Estado}', N'{x.RutPensionado}', N'{x.DvPensionado}', N'{x.NombrePensionado + " " + x.Nombre2Pensionado + " " + x.ApellidoPatPensionado + " " + x.ApellidoMatPensionado}', N'{x.IdTipo}', " +
-                                                               $"'{x.FechaSolicitud}', '{x.FechaEfectiva}', '{x.IdSucursal.Replace("O ", "")}', N'{utils.QuitaAcento(x.Tipo)}', N'AFILIACION'),"));
+                    //result.ForEach(x => inserts.AppendLine($"('{cie.Id}','{DateTime.Now}','{x.FechaProceso}', N'{x.Folio}', N'{x.Estado}', N'{x.RutPensionado}', N'{x.DvPensionado}', N'{x.NombrePensionado + " " + x.Nombre2Pensionado + " " + x.ApellidoPatPensionado + " " + x.ApellidoMatPensionado}', N'{x.IdTipo}', " +
+                    //                                           $"'{x.FechaSolicitud}', '{x.FechaEfectiva}', '{x.IdSucursal.Replace("O ", "")}', N'{utils.QuitaAcento(x.Tipo)}', N'AFILIACION'),"));
 
-                    CargaInicial(Schema, connection, inserts);
+                    //CargaInicial(Schema, connection, inserts);
                     // INtento de carga con Entity framework
-                    //foreach (var ci in result)
-                    //{
+                    foreach (var ci in result)
+                    {
 
-                    //    var cargaInicialEstado = new CargasInicialesEstado()
-                    //    {
-                    //        Id = cie.Id
-                    //    };
+                        var cargaInicialEstado = new CargasInicialesEstado()
+                        {
+                            Id = cie.Id
+                        };
 
-                    //    var tipo = new Tipo()
-                    //    {
-                    //       Id = ci.IdTipo.ToString()
-                    //    };
+                        //var tipo = new Tipo()
+                        //{
+                        //    Id = ci.IdTipo.ToString()
+                        //};
 
-                    //    var sucursal = new Sucursal()
-                    //    {
-                    //        Id = Int32.Parse(ci.IdSucursal.Replace("O ", ""))
-                    //    };
+                        var sucursal = new Sucursal()
+                        {
+                            Id = Int32.Parse(ci.IdSucursal.Replace("O ", ""))
+                        };
 
-                    //    var caragaInicial = new CargasIniciales()
-                    //    {
-                    //        FechaCarga =  DateTime.Now,
-                    //        FechaProceso = ci.FechaProceso,
-                    //        Folio = ci.Folio,
-                    //        Estado = ci.Estado,
-                    //        RutPensionado = ci.RutPensionado,
-                    //        DvPensionado = ci.DvPensionado,
-                    //        NombrePensionado = ci.NombrePensionado + " " + ci.Nombre2Pensionado + " " + ci.ApellidoPatPensionado + " " + ci.ApellidoMatPensionado,
-                    //        //Tipo = ci.IdTipo.ToString(),
-                    //        FechaSolicitud = ci.FechaSolicitud,
-                    //        FechaEfectiva = ci.FechaEfectiva,
-                    //       // Sucursal = sucursal,
-                    //        Forma = utils.QuitaAcento(ci.Tipo),
-                    //        TipoMovimiento = "AFILIACION"
-
-                    //    };
-
-                    //    _context.CargasIniciales.Add(caragaInicial);
-                    //    _context.SaveChanges();
+                        var tipo = _context.Tipo.Where(t => t.Id == ci.Tipo).FirstOrDefault();
 
 
 
-                    //}
+                        var caragaInicial = new CargasIniciales()
+                        {
+                            FechaCarga = DateTime.Now,
+                            FechaProceso = ci.FechaProceso,
+                            Folio = ci.Folio,
+                            Estado = ci.Estado,
+                            RutPensionado = ci.RutPensionado,
+                            DvPensionado = ci.DvPensionado,
+                            NombrePensionado = ci.NombrePensionado + " " + ci.Nombre2Pensionado + " " + ci.ApellidoPatPensionado + " " + ci.ApellidoMatPensionado,
+                            Tipo = tipo,
+                            FechaSolicitud = ci.FechaSolicitud,
+                            FechaEfectiva = ci.FechaEfectiva,
+                            // Sucursal = sucursal,
+                            Forma = utils.QuitaAcento(ci.Tipo),
+                            TipoMovimiento = "AFILIACION"
+
+                        };
+
+                        _context.CargasIniciales.Add(caragaInicial);
+                        _context.SaveChanges();
+
+
+
+                    }
 
 
                 }
@@ -216,12 +222,12 @@ namespace Galvarino.Web.Workers
                 }
                 #endregion
 
-                outCarga = CargaPensionado( nombreArchivoOportunidad, connection, Dia);
+                //outCarga = CargaPensionado( nombreArchivoOportunidad, connection, Dia);
 
-                Debug.WriteLine("salida carga pensionado ["+ outCarga.Mensaje + "]");
+                //Debug.WriteLine("salida carga pensionado ["+ outCarga.Mensaje + "]");
 
-                outCarga = CargaExpediente(null, connection, Dia);
-                Debug.WriteLine("salida carga expedientes [" + outCarga.Mensaje + "]");
+                //outCarga = CargaExpediente(null, connection, Dia);
+                //Debug.WriteLine("salida carga expedientes [" + outCarga.Mensaje + "]");
 
 
             }
