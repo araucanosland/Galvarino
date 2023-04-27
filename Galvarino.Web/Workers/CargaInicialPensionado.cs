@@ -102,40 +102,41 @@ namespace Galvarino.Web.Workers
                 #region carga_desafiliacion
                 var existe = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivoDesafilliacion && p.FechaCarga.Date >= Dia).FirstOrDefault();
 
-                if (existe == null)
-                {
-                    cie = new CargasInicialesEstado();
-                    cie.NombreArchivoCarga = nombreArchivoDesafilliacion;
-                    cie.Estado = "DesafiliacionParcial";
-                    cie.FechaCarga = Convert.ToDateTime(Dia);
-                    archivo = rutaDesafilliacionPensionado + nombreArchivoDesafilliacion;
+                //if (existe == null)
+                //{
+                //    cie = new CargasInicialesEstado();
+                //    cie.NombreArchivoCarga = nombreArchivoDesafilliacion;
+                //    cie.Estado = "DesafiliacionParcial";
+                //    cie.FechaCarga = Convert.ToDateTime(Dia);
+                //    archivo = rutaDesafilliacionPensionado + nombreArchivoDesafilliacion;
 
-                    CargaInicialPensionadoDesafiliacionMapping csvMapper = new CargaInicialPensionadoDesafiliacionMapping();
-                    csvParserD = new CsvParser<CargaInicialPensionadoDesafiliacionIM>(csvParserOptions, csvMapper);
+                //    CargaInicialPensionadoDesafiliacionMapping csvMapper = new CargaInicialPensionadoDesafiliacionMapping();
+                //    csvParserD = new CsvParser<CargaInicialPensionadoDesafiliacionIM>(csvParserOptions, csvMapper);
 
-                    var result = csvParserD
-                        .ReadFromFile(archivo, Encoding.ASCII)
-                        .Where(x => x.IsValid)
-                        .Select(x => x.Result)
-                        .AsSequential()
-                        .ToList();
+                //    var result = csvParserD
+                //        .ReadFromFile(archivo, Encoding.ASCII)
+                //        .Where(x => x.IsValid)
+                //        .Select(x => x.Result)
+                //        .AsSequential()
+                //        .ToList();
 
-                    StringBuilder inserts = new StringBuilder();
-                    cie = CargaEstado(cie, nombreArchivoDesafilliacion, Dia);
-                    result.ForEach(x => inserts.AppendLine($"('{cie.Id}','{DateTime.Now}','{x.FechaProceso}', N'{x.Folio}', N'{x.Estado}', N'{x.RutPensionado}', N'{x.DvPensionado}', N'{x.NombrePensionado}', N'{x.IdTipo}', " +
-                                                               $"'{x.FechaSolicitud}', '{x.FechaEfectiva}', '{x.IdSucursal.Replace("O ", "")}', N'{utils.QuitaAcento(x.Tipo)}', N'DESAFILIACION'),"));
+                //    StringBuilder inserts = new StringBuilder();
+                //    cie = CargaEstado(cie, nombreArchivoDesafilliacion, Dia);
+                //    result.ForEach(x => inserts.AppendLine($"('{cie.Id}','{DateTime.Now}','{x.FechaProceso}', N'{x.Folio}', N'{x.Estado}', N'{x.RutPensionado}', N'{x.DvPensionado}', N'{x.NombrePensionado}', N'{x.IdTipo}', " +
+                //                                               $"'{x.FechaSolicitud}', '{x.FechaEfectiva}', '{x.IdSucursal.Replace("O ", "")}', N'{utils.QuitaAcento(x.Tipo)}', N'DESAFILIACION'),"));
 
-                    string estadoCarga = _cargainicialrepository.CargaAfiliaciones();
-                    CargaInicial(Schema, connection, inserts);
+                //    //string estadoCarga = _cargainicialrepository.CargaAfiliaciones();
+                //    CargaInicial(Schema, connection, inserts);
 
-                }
-                else
-                {
-                    Debug.WriteLine("Ya existe carga de [" + nombreArchivoDesafilliacion + "] con fecha [" + DateTime.Today.ToString("yyyy-MM-dd") + "]");
-                }
-                outCarga = CargaPensionado(nombreArchivoDesafilliacion, connection, Dia);
+                //}
+                //else
+                //{
+                //    Debug.WriteLine("Ya existe carga de [" + nombreArchivoDesafilliacion + "] con fecha [" + DateTime.Today.ToString("yyyy-MM-dd") + "]");
+                //}
+                //outCarga = CargaPensionado(nombreArchivoDesafilliacion, connection, Dia);
                 #endregion
 
+                //_cargainicialrepository.CargaAfiliaciones();
 
 
                 #region carga_oportunidad
@@ -175,19 +176,13 @@ namespace Galvarino.Web.Workers
                             Id = cie.Id
                         };
 
-                        //var tipo = new Tipo()
-                        //{
-                        //    Id = ci.IdTipo.ToString()
-                        //};
+                       
+                        var tipo = _context.Tipo.Where(t => t.Id == ci.IdTipo.ToString()).FirstOrDefault();
 
-                        var sucursal = new Sucursal()
-                        {
-                            Id = Int32.Parse(ci.IdSucursal.Replace("O ", ""))
-                        };
+                        var sucursal = _context.Sucursal.Where(t => t.Id == Int32.Parse(ci.IdSucursal.Replace("O ", ""))).FirstOrDefault();
+                        
 
-                        var tipo = _context.Tipo.Where(t => t.Id == ci.Tipo).FirstOrDefault();
-
-
+                       
 
                         var caragaInicial = new CargasIniciales()
                         {
@@ -201,7 +196,7 @@ namespace Galvarino.Web.Workers
                             Tipo = tipo,
                             FechaSolicitud = ci.FechaSolicitud,
                             FechaEfectiva = ci.FechaEfectiva,
-                            // Sucursal = sucursal,
+                            Sucursal = sucursal,
                             Forma = utils.QuitaAcento(ci.Tipo),
                             TipoMovimiento = "AFILIACION"
 

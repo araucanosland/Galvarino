@@ -96,7 +96,7 @@ namespace Galvarino.Web
             services.AddTransient<INotificationKernel, MailSender>();
             services.AddTransient<ISolicitudRepository, SolicitudesRepository>();
             services.AddScoped<IClaimsTransformation, CustomClaimsTransformer>();
-            services.AddTransient<ICargaInicialRepository, CargaInicialRepository>();
+            services.AddScoped<ICargaInicialRepository, CargaInicialRepository>();
 
 
             /*Workers & background tasks*/

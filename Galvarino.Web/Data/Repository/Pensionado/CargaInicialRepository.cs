@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Galvarino.Web.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,17 +10,20 @@ namespace Galvarino.Web.Data.Repository.Pensionado
     public class CargaInicialRepository : ICargaInicialRepository
     {
 
-        readonly private PensionadoDbContext _context;
+        //readonly private PensionadoDbContext _context;
 
-        CargaInicialRepository(PensionadoDbContext context)
+        
+        //CargaInicialRepository(PensionadoDbContext context)
+        //{
+        //    _context = context;
+        //}
+
+
+        public string CargaAfiliaciones()
         {
-            _context = context;
-        }
+            //var tst = _context.Tipo.ToList();
 
-
-        public string CargaAfiliaciones(StringBuilder inserts)
-        {
-          
+            throw new NotImplementedException();
         }
 
         public string CargaDesafialiacion()

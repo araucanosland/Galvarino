@@ -23,6 +23,8 @@ namespace Galvarino.Web.Data
 
         public DbSet<Tipo> Tipo { get; set; }
 
+        public DbSet <Sucursal> Sucursal{ get; set; }
+
 
         private readonly IConfiguration _conf;
 

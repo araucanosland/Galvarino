@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Galvarino.Web.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,6 @@ namespace Galvarino.Web.Data.Repository.Pensionado
 
         string CargaDesafialiacion();
 
-        string CargaAfiliaciones(StringBuilder inserts);
+        string CargaAfiliaciones();
     }
 }
