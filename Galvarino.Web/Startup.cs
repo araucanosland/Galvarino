@@ -142,13 +142,7 @@ namespace Galvarino.Web
             app.UseStaticFiles();
             app.UseAuthentication();
 
-            //app.Run(async (context) =>
-            //{
-            //    await context.Response.WriteAsync(JsonConvert.SerializeObject(new
-            //    {
-            //        UserName = context?.User?.Identity?.Name
-            //    }));
-            //});
+
 
             app.UseMvc(routes =>
             {
