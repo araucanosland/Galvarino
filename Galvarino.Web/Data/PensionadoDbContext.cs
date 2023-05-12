@@ -17,13 +17,21 @@ namespace Galvarino.Web.Data
 
         public DbSet<CargasInicialesEstado> CargasInicialesEstado { get; set; }
 
-        public DbSet<Pensionado>Pensionado { get; set; }
+        public DbSet<Pensionado> Pensionado { get; set; }
 
         public DbSet<Expedientes> Expedientes { get; set; }
 
         public DbSet<Tipo> Tipo { get; set; }
 
-        public DbSet <Sucursal> Sucursal{ get; set; }
+        public DbSet<Sucursal> Sucursal { get; set; }
+
+        public DbSet<Procesos> Procesos { get; set; }
+
+        public DbSet<Solicitudes> Solicitudes { get; set; }
+
+        public DbSet<ConfiguracionDocumentos> ConfiguracionDocumentos { get; set; }
+
+        public DbSet<Documentos> Documentos { get; set; }
 
 
         private readonly IConfiguration _conf;

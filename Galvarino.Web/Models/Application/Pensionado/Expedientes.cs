@@ -8,7 +8,7 @@ namespace Galvarino.Web.Models.Application.Pensionado
         [Key]
         public int Id { get; set; }
         public DateTime FechaCreacion { get; set; }
-        public int PensionadoId { get; set; }
+        public Pensionado Pensionado { get; set; }
         public int TipoExpediente { get; set; }
         public int ValijaValoradaId { get; set; }
         public int CajaValoradaId { get; set; }

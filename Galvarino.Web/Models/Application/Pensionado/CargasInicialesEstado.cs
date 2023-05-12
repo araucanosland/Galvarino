@@ -11,6 +11,7 @@ namespace Galvarino.Web.Models.Application.Pensionado
         public DateTime FechaCarga { get; set; }
         public string NombreArchivoCarga { get; set; }
         public string Estado { get; set; }
-        
+        public int Procesado { get; set; }
+
     }
 }

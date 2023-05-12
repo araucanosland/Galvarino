@@ -14,5 +14,9 @@ namespace Galvarino.Web.Models.Application.Pensionado
 
         [Column(TypeName = "varchar(20)")]
         public string TipoDescripcion { get; set; }
+
+        [Column(TypeName = "varchar(20)")]
+        public string Motivo { get; set; }
+
     }
 }
