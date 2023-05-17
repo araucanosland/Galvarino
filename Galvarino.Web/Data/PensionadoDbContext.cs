@@ -33,6 +33,8 @@ namespace Galvarino.Web.Data
 
         public DbSet<Documentos> Documentos { get; set; }
 
+        public DbSet<LogCargaInicial> LogCargaInicial { get; set; }
+
 
         private readonly IConfiguration _conf;
 

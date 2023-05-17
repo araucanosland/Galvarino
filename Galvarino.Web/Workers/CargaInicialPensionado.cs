@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using OfficeOpenXml.Style;
 using Remotion.Linq.Clauses;
 using System;
@@ -72,64 +73,122 @@ namespace Galvarino.Web.Workers
             return Task.CompletedTask;
         }
 
+        private string rutaDescargar = null;
+        private string nombreArchivoOportunidad = null;
+        private string rutaDesafilliacionPensionado = null;
+        private string nombreArchivoDesafilliacion = null;
+
+
         private void DoWork(object state)
         {
+            
+            DateTime Dia = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd"));
 
+            rutaDescargar = _configuration.GetValue<string>("RutaOportunidadPensionado");// @"C:\Desarrollos\Archivos\Galvarino\";
+            nombreArchivoOportunidad = _configuration.GetValue<string>("ArchivoOportunidadPensionado");// "Aux_OportunidadesPensionados.txt";
+            rutaDesafilliacionPensionado = _configuration.GetValue<string>("RutaDesafilliacionPensionado");// @"C:\Desarrollos\Archivos\Galvarino\";
+            nombreArchivoDesafilliacion = _configuration.GetValue<string>("ArchivoDesafilliacionPensionado");// "DESAFILIACION_PENSIONADO.csv";
+            var okExpediente = "";
+            var okSolicitud = "";
             var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
-            string rutaDescargar = _configuration.GetValue<string>("RutaOportunidadPensionado");// @"C:\Desarrollos\Archivos\Galvarino\";
-            string nombreArchivoOportunidad = _configuration.GetValue<string>("ArchivoOportunidadPensionado");// "Aux_OportunidadesPensionados.txt";
-            string rutaDesafilliacionPensionado = _configuration.GetValue<string>("RutaDesafilliacionPensionado");// @"C:\Desarrollos\Archivos\Galvarino\";
-            string nombreArchivoDesafilliacion = _configuration.GetValue<string>("ArchivoDesafilliacionPensionado");// "DESAFILIACION_PENSIONADO.csv";
-            string Schema = _configuration.GetValue<string>("schemaPensionado");
+            var iniciaProceso = false;
+            Output outCarga = new Output();
+
+            RegistraLog(new Output("INICIO CARGA ARCHIVOS PENSIONADO", "CARGA PENSIONADO", "CARGA PENSIONADO", "INICIO", "Inicio Proceso"));
+            try
+            {
+               outCarga = CargaInicial(Dia);
+            }
+            catch (Exception ex)
+            {
+                RegistraLog(new Output("Erro Al Leer Archivo e Intentar cargar Archivo "+ex, "CARGA PENSIONADO", "CARGA PENSIONADO", "INICIO", "Inicio Proceso"));
+            }
+            var cargasInicialesPendientes = _context.CargasInicialesEstado.Where(p => p.FechaCarga.Date >= Dia && p.Procesado == 0).ToList();
+
+            var cantidad = cargasInicialesPendientes.Count();
+            if (cargasInicialesPendientes.Count() >= 1) 
+                { 
+                    iniciaProceso = true;
+                }
+            
+            if (iniciaProceso)
+            {
+                outCarga = CargaPensionado(Dia);
+                if (outCarga.Codigo == "00" || outCarga.Codigo == "01")
+                {
+                    outCarga = CargaExpediente(Dia);
+                }
+                if (outCarga.Codigo == "00" || outCarga.Codigo == "01")
+                {
+                    outCarga = CargaSolicitud(Dia);
+                }
+                if (outCarga.Codigo == "00" || outCarga.Codigo == "01")
+                {
+                    outCarga = CargaDocumento(Dia);
+                }
+                if (outCarga.Codigo == "00" || outCarga.Codigo == "01")
+                {
+                    RegistraLog(new Output("CARGA ARCHIVOS PENSIONADO PROCESADA", "CARGA PENSIONADO", "CARGA PENSIONADO", "FIN", "FinProceso"));
+                }
+            }
+            else {
+
+                RegistraLog(new Output("SIN DATOS A PROCESAR DE ARCHIVOS PENSIONADO", "CARGA PENSIONADO", "CARGA PENSIONADO", "FIN", "FinProceso"));
+
+            }
+            
+
+        }
+        #region Carga tabla CargaInicial
+        private Output CargaInicial(DateTime Dia)
+        {
+            Output outCarga = new Output();
+            var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
+           
             Common.Utils utils = new Common.Utils();
 
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DocumentManagementConnection")))
+            string sql = "";
+            int existeCarga;
+
+           
+            CargasInicialesEstado cie = new CargasInicialesEstado();
+            CsvParserOptions csvParserOptions = new CsvParserOptions(true, ';');
+            string archivo = null;
+            CsvParser<CargaInicialPensionadoDesafiliacionIM> csvParserD;
+            CsvParser<CargaInicialPensionadoIM> csvParserA;
+
+            #region carga_desafiliacion
+            var existe = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivoDesafilliacion && p.FechaCarga.Date >= Dia).FirstOrDefault();
+
+            if (existe == null)
             {
-                string sql = "";
-                int existeCarga;
+                cie = new CargasInicialesEstado();
+                cie.NombreArchivoCarga = nombreArchivoDesafilliacion;
+                cie.Estado = "DesafiliacionParcial";
+                cie.FechaCarga = Convert.ToDateTime(Dia);
+                cie.Procesado = 0;
+                archivo = rutaDesafilliacionPensionado + nombreArchivoDesafilliacion;
 
-                DateTime Dia = Convert.ToDateTime(DateTime.Today.ToString("yyyy-MM-dd"));
-                Output outCarga = new Output();
+                CargaInicialPensionadoDesafiliacionMapping csvMapper = new CargaInicialPensionadoDesafiliacionMapping();
+                csvParserD = new CsvParser<CargaInicialPensionadoDesafiliacionIM>(csvParserOptions, csvMapper);
 
+                var result = csvParserD
+                    .ReadFromFile(archivo, Encoding.ASCII)
+                    .Where(x => x.IsValid)
+                    .Select(x => x.Result)
+                    .AsSequential()
+                    .ToList();
 
-                CargasInicialesEstado cie = new CargasInicialesEstado();
-                CsvParserOptions csvParserOptions = new CsvParserOptions(true, ';');
-                string archivo = null;
-                CsvParser<CargaInicialPensionadoDesafiliacionIM> csvParserD;
-                CsvParser<CargaInicialPensionadoIM> csvParserA;
+                cie = CargaEstado(cie, nombreArchivoDesafilliacion, Dia);
 
-
-                #region carga_desafiliacion
-                var existe = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivoDesafilliacion && p.FechaCarga.Date >= Dia ).FirstOrDefault();
-
-
-                if (existe == null)
+                foreach (var ci in result)
                 {
-                    cie = new CargasInicialesEstado();
-                    cie.NombreArchivoCarga = nombreArchivoDesafilliacion;
-                    cie.Estado = "DesafiliacionParcial";
-                    cie.FechaCarga = Convert.ToDateTime(Dia);
-                    cie.Procesado = 0;
-                    archivo = rutaDesafilliacionPensionado + nombreArchivoDesafilliacion;
-
-                    CargaInicialPensionadoDesafiliacionMapping csvMapper = new CargaInicialPensionadoDesafiliacionMapping();
-                    csvParserD = new CsvParser<CargaInicialPensionadoDesafiliacionIM>(csvParserOptions, csvMapper);
-
-                    var result = csvParserD
-                        .ReadFromFile(archivo, Encoding.ASCII)
-                        .Where(x => x.IsValid)
-                        .Select(x => x.Result)
-                        .AsSequential()
-                        .ToList();
-
-                    cie = CargaEstado(cie, nombreArchivoDesafilliacion, Dia);
-
-                    foreach (var ci in result)
+                    try
                     {
                         var tipo = _context.Tipo.Where(t => t.Id == ci.IdTipo.ToString()).FirstOrDefault();
                         var sucursal = _context.Sucursal.Where(t => t.Id == Int32.Parse(ci.IdSucursal.Replace("O ", ""))).FirstOrDefault();
                         var fechaProc = utils.formatearFecha(ci.FechaProceso, "YYYYMMDD");
-                       
+
 
                         var caragaInicial = new CargasIniciales()
                         {
@@ -152,38 +211,56 @@ namespace Galvarino.Web.Workers
 
                         _context.CargasIniciales.Add(caragaInicial);
                         _context.SaveChanges();
+
+                        outCarga = new Output("Datos Cargados Con Exito", "00", "CargaDesafiliacion", ci.Folio, "Folio");
+
                     }
-                }else
-                {
-                    Debug.WriteLine("Ya existe carga de [" + nombreArchivoDesafilliacion + "] con fecha [" + DateTime.Today.ToString("yyyy-MM-dd") + "]");
+                    catch (Exception ex)
+                    {
+                        outCarga = new Output("Error Al Cargar Datos :" + ex, "10", "CargaDesafiliacion", ci.Folio, "Folio");
+
+                    }
+                    if (!outCarga.Mensaje.Equals(null))
+                    {
+                        RegistraLog(outCarga);
+                    }
                 }
-                
-                #endregion
+                outCarga = new Output("Datos Cargados Con Exito", "00", "CargaDesafiliacion", "FIN", "Fin Proceso");
+            }
+            else
+            {
+                outCarga = new Output("Dato Se Encontraba Cargado", "01", "CargaDesafiliacion", nombreArchivoDesafilliacion, "NombreArchivo");
+            }
 
-                #region carga_oportunidad
-                existe = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivoOportunidad && p.FechaCarga.Date >= Dia ).FirstOrDefault();
+            RegistraLog(outCarga);
 
-                if (existe == null)
+            #endregion
+
+            #region carga_oportunidad
+            existe = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivoOportunidad && p.FechaCarga.Date >= Dia).FirstOrDefault();
+
+            if (existe == null)
+            { 
+                cie = new CargasInicialesEstado();
+                cie.NombreArchivoCarga = nombreArchivoOportunidad;
+                cie.Estado = "OportunidadParcial";
+                cie.FechaCarga = Convert.ToDateTime(Dia);
+                archivo = rutaDescargar + nombreArchivoOportunidad;
+
+                CargaInicialPensionadoMapping csvMapper = new CargaInicialPensionadoMapping();
+                csvParserA = new CsvParser<CargaInicialPensionadoIM>(csvParserOptions, csvMapper);
+                var result = csvParserA
+                    .ReadFromFile(archivo, Encoding.ASCII)
+                    .Where(x => x.IsValid)
+                    .Select(x => x.Result)
+                    .AsSequential()
+                    .ToList();
+
+                cie = CargaEstado(cie, nombreArchivoOportunidad, Dia);
+
+                foreach (var ci in result)
                 {
-
-                    cie = new CargasInicialesEstado();
-                    cie.NombreArchivoCarga = nombreArchivoOportunidad;
-                    cie.Estado = "OportunidadParcial";
-                    cie.FechaCarga = Convert.ToDateTime(Dia);
-                    archivo = rutaDescargar + nombreArchivoOportunidad;
-
-                    CargaInicialPensionadoMapping csvMapper = new CargaInicialPensionadoMapping();
-                    csvParserA = new CsvParser<CargaInicialPensionadoIM>(csvParserOptions, csvMapper);
-                    var result = csvParserA
-                        .ReadFromFile(archivo, Encoding.ASCII)
-                        .Where(x => x.IsValid)
-                        .Select(x => x.Result)
-                        .AsSequential()
-                        .ToList();
-
-                    cie = CargaEstado(cie, nombreArchivoOportunidad, Dia);
-                    
-                    foreach (var ci in result)
+                    try
                     {
                         var tipo = _context.Tipo.Where(t => t.Id == ci.IdTipo.ToString()).FirstOrDefault();
                         var sucursal = _context.Sucursal.Where(t => t.Id == Int32.Parse(ci.IdSucursal.Replace("O ", ""))).FirstOrDefault();
@@ -208,39 +285,57 @@ namespace Galvarino.Web.Workers
 
                         _context.CargasIniciales.Add(caragaInicial);
                         _context.SaveChanges();
+                        outCarga = new Output("Datos Cargados Con Exito", "00", "CargaAfiliacion", ci.Folio, "Folio");
 
                     }
-
+                    catch (Exception ex)
+                    {
+                        outCarga = new Output("Error Al Cargar Datos :" + ex, "10", "CargaAfiliacion", ci.Folio, "Folio");
+                    }
+                    if (outCarga.Mensaje != null)
+                    {
+                        RegistraLog(outCarga);
+                    }
                 }
-                else
-                {
-                    Debug.WriteLine("Ya existe carga de [" + nombreArchivoOportunidad + "] con fecha [" + DateTime.Today.ToString("yyyy-MM-dd") + "]");
-                }
-                #endregion
-                
-                outCarga = CargaPensionado(Dia);
-                Debug.WriteLine("Salida Carga Pencionado  - ["+outCarga.codigo+"] [" + outCarga.Mensaje + "]");
-                outCarga = CargaExpediente(Dia);
-                Debug.WriteLine("salida carga expedientes - ["+outCarga.codigo+"] [" + outCarga.Mensaje + "]");
-                outCarga = cargaSolicitud(Dia);
-                Debug.WriteLine("salida carga Solicitud - [" + outCarga.codigo + "] [" + outCarga.Mensaje + "]");
-                outCarga = CargaDocumento(Dia);
-                Debug.WriteLine("salida carga Documento - [" + outCarga.codigo + "] [" + outCarga.Mensaje + "]");
+                outCarga = new Output("Datos Cargados Con Exito", "00", "CargaAfiliacion", "Fin Proceso", "FinProceso");
 
             }
-           
-        }
+            else
+            {
+                outCarga = new Output("Dato Se Encontraba Cargado", "01", "CargaAfiliacion", nombreArchivoOportunidad, "NombreArchivo");
+            }
 
+            RegistraLog(outCarga);
+
+            #endregion
+
+            return outCarga;
+        }
+        #endregion
+       
         #region Carga tabla CargaInicialEstado
         private CargasInicialesEstado CargaEstado(CargasInicialesEstado cie, string nombreArchivo, DateTime Dia)
         {
+            Output outCarga = new Output();
+            try { 
+                var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
 
-            var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
+                _context.CargasInicialesEstado.Add(cie);
+                _context.SaveChanges();
 
-            _context.CargasInicialesEstado.Add(cie);
-            _context.SaveChanges();
+                cie = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivo && p.FechaCarga.Date >= Dia).FirstOrDefault();
 
-            cie = _context.CargasInicialesEstado.Where(p => p.NombreArchivoCarga == nombreArchivo && p.FechaCarga.Date >= Dia).FirstOrDefault();
+                outCarga = new Output("Datos Cargados Con Exito", "00", "CargasInicialesEstado", "Fin Proceso["+ nombreArchivo + "]", "NombreArchivo");
+            }
+            catch (Exception ex)
+            {                
+                outCarga = new Output("Error Al Cargar Datos :" + ex, "10", "CargasInicialesEstado", "Fin Proceso[" + nombreArchivo + "]", "NombreArchivo");
+            }
+            if (outCarga.Mensaje != null)
+            {
+                RegistraLog(outCarga);
+            }
+
             return cie;
         }
         #endregion
@@ -252,7 +347,7 @@ namespace Galvarino.Web.Workers
             Common.Utils utils = new Common.Utils();
             Output output = new Output();
             var cargaInicials = new List<CargasIniciales>();
-
+            var procesados = 0;
             try
             {
 
@@ -262,41 +357,58 @@ namespace Galvarino.Web.Workers
                     cargaInicials = _context.CargasIniciales.Where(o => o.FechaCarga.Date >= Dia && o.CargaInicialEstado.Id == cie.Id && o.CargaInicialEstado.Procesado == 0 && (o.Estado == "Ganada" || o.Estado == "Aprobado")).Include(c => c.CargaInicialEstado).ToList();
                     foreach (var ci in cargaInicials)
                     {
-                        var existeCarga = _context.Pensionado.Where(o => o.Folio == ci.Folio && o.RutCliente == ci.RutPensionado + "-" + ci.DvPensionado).FirstOrDefault();
-                        if (existeCarga == null)
+                        try
                         {
-                            var numTicket = utils.GeneraTicket("02");
-                            var pensionado = new Pensionado()
+                            var existeCarga = _context.Pensionado.Where(o => o.Folio == ci.Folio && o.RutCliente == ci.RutPensionado + "-" + ci.DvPensionado).FirstOrDefault();
+                            if (existeCarga == null)
                             {
-                                Folio = ci.Folio,
-                                FechaFormaliza = Dia,
-                                RutCliente = ci.RutPensionado + "-" + ci.DvPensionado,
-                                NombreCliente = ci.NombrePensionado,
-                                NumeroTicket = numTicket,
-                                TipoPensionado = ci.Tipo.Id
-                            };
-                            _context.Pensionado.Add(pensionado);
-                            _context.SaveChanges();
+                                var numTicket = utils.GeneraTicket("02");
+                                var pensionado = new Pensionado()
+                                {
+                                    Folio = ci.Folio,
+                                    FechaFormaliza = Dia,
+                                    RutCliente = ci.RutPensionado + "-" + ci.DvPensionado,
+                                    NombreCliente = ci.NombrePensionado,
+                                    NumeroTicket = numTicket,
+                                    TipoPensionado = ci.Tipo.Id
+                                };
+                                _context.Pensionado.Add(pensionado);
+                                _context.SaveChanges();
+                                procesados++;
+                                output = new Output("Datos Cargados Con Exito", "00", "CargaPensionado", ci.RutPensionado + "-" + ci.DvPensionado, "RutRut");
+                            }
                         }
-
+                        catch (Exception ex)
+                        {
+                            output = new Output("Error Al Cargar Datos :" + ex, "10", "CargaPensionado", ci.RutPensionado + "-" + ci.DvPensionado, "RutRut");
+                        }
+                        if (output.Mensaje != null)
+                        {
+                            RegistraLog(output);
+                        }
                     }
                     cie.Procesado = 1;
                     _context.CargasInicialesEstado.Update(cie);
                     _context.SaveChanges();
+                    
                 }
-                    output.Exito = true;
-                    output.Mensaje = "Datos Cargado Con Exito";
-                    output.codigo = "00";
+
+                if (procesados == 0)
+                {
+                    output = new Output("Sin Datos a Procesar", "01", "CargaPensionado", "FinProceso", "FinProceso");
+                }
+                else 
+                {
+                    output = new Output("Datos Cargados Con Exito", "00", "CargaPensionado", "FinProceso", "FinProceso");
+                }
 
 
             }
             catch (Exception ex)
             {
-                output.Exito = false;
-                output.Mensaje = "Error Al Cargar Datos" + ex;
-                output.codigo = "10";
-
+                output = new Output("Error Al Cargar Datos :" + ex, "10", "CargaPensionado", "FinProceso", "FinProceso");
             }
+            RegistraLog(output);
 
             return output;
         }
@@ -306,65 +418,78 @@ namespace Galvarino.Web.Workers
         private Output CargaExpediente( DateTime Dia) {
             Output output = new Output();
             var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
-
+            var procesados = 0;
             try
             {
                 var pensionados = _context.Pensionado.Where(p =>p.FechaFormaliza >= Dia).ToList();
 
                 foreach (var p in pensionados)
                 {
-
-                    var existe = _context.Expedientes.Where(e => e.Pensionado.Id == p.Id).Include(t => t.Pensionado).FirstOrDefault();
-                    if (existe == null)
+                    try
                     {
-                        var pensionado = new Pensionado()
+                        var existe = _context.Expedientes.Where(e => e.Pensionado.Id == p.Id).Include(t => t.Pensionado).FirstOrDefault();
+                        if (existe == null)
                         {
-                            Id = p.Id,
-                            FechaFormaliza = p.FechaFormaliza,
-                            RutCliente = p.RutCliente,
-                            NombreCliente = p.NombreCliente,
-                            NumeroTicket = p.NumeroTicket,
-                            TipoPensionado = p.TipoPensionado
-                        };
+                            var pensionado = new Pensionado()
+                            {
+                                Id = p.Id,
+                                FechaFormaliza = p.FechaFormaliza,
+                                RutCliente = p.RutCliente,
+                                NombreCliente = p.NombreCliente,
+                                NumeroTicket = p.NumeroTicket,
+                                TipoPensionado = p.TipoPensionado
+                            };
 
-                        var sucursal = _context.CargasIniciales.Where(c => c.Folio == p.Folio).Include(s =>s.Sucursal).FirstOrDefault();
-                        var expediente = new Expedientes()
-                        {
-                            FechaCreacion = Dia,
-                            Pensionado = pensionado,
-                            TipoExpediente = 0,
-                            IdSucursalActividad = sucursal.Sucursal.Id.ToString()
-                        };
+                            var sucursal = _context.CargasIniciales.Where(c => c.Folio == p.Folio).Include(s => s.Sucursal).FirstOrDefault();
+                            var expediente = new Expedientes()
+                            {
+                                FechaCreacion = Dia,
+                                Pensionado = pensionado,
+                                TipoExpediente = 0,
+                                IdSucursalActividad = sucursal.Sucursal.Id.ToString()
+                            };
 
-                        _context.Expedientes.Add(expediente);
-                        _context.SaveChanges();
-
+                            _context.Expedientes.Add(expediente);
+                            _context.SaveChanges();
+                            output = new Output("Datos Cargados Con Exito", "00", "CargaExpediente", p.RutCliente, "Rut");
+                            procesados++;
+                        }
                     }
-                }
+                    catch (Exception ex)
+                    {
+                        output = new Output("Error Al Cargar Datos :" + ex, "10", "CargaExpediente", p.RutCliente, "Rut");
+                    }
+                    if (output.Mensaje != null)
+                    {
+                        RegistraLog(output);
+                    }
 
-                output.Exito = true;
-                output.Mensaje = "Datos Cargado Con Exito";
-                output.codigo = "00";
+                }
+                if (procesados == 0)
+                {
+                    output = new Output("Sin Datos a Procesar", "01", "CargaExpediente", "Fin Proceso", "FinProceso");
+                }
+                else
+                {
+                    output = new Output("Datos Cargados Con Exito" , "00", "CargaExpediente", "Fin Proceso", "FinProceso");
+                }               
             }
             catch (Exception ex)
             {
-                output.Exito = false;
-                output.Mensaje = "Error Al Cargar Datos"+ex;
-                output.codigo = "10";
-
+                output = new Output("Error Al Cargar Datos :" + ex, "10", "CargaExpediente", "Fin Proceso", "FinProceso");
             }
-        
+            RegistraLog(output);
             return output;
         }
         #endregion
 
         #region Carga tabla Solicitud
-        private Output cargaSolicitud( DateTime Dia) {
+        private Output CargaSolicitud( DateTime Dia) {
             Output output = new Output();
             var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
             var proceso = new Procesos();
             proceso =_context.Procesos.Where(p => p.NombreInterno == "SOLICITUD_CUSTODIA_PENSIONADOS").FirstOrDefault();
-
+            var procesados = 0;
             if (proceso != null)
             {
 
@@ -374,42 +499,55 @@ namespace Galvarino.Web.Workers
                 {
                     foreach (var pe in pensionado)
                     {
-                         var existe = _context.Solicitudes.Where(p => p.NumeroTicket == pe.NumeroTicket).FirstOrDefault();
+                        try 
+                        { 
+                             var existe = _context.Solicitudes.Where(p => p.NumeroTicket == pe.NumeroTicket).FirstOrDefault();
 
-                        if (existe == null) { 
-                            var solicitud = new Solicitudes()
-                            {
-                                NumeroTicket = pe.NumeroTicket,
-                                Resumen = "Ingreso Automatico de pensionado",
-                                InstanciadoPor = "wfboot",
-                                Estado = "Iniciada",
-                                FechaInicio = Dia,
-                                Proceso = proceso
-                            };
+                            if (existe == null) { 
+                                var solicitud = new Solicitudes()
+                                {
+                                    NumeroTicket = pe.NumeroTicket,
+                                    Resumen = "Ingreso Automatico de pensionado",
+                                    InstanciadoPor = "wfboot",
+                                    Estado = "Iniciada",
+                                    FechaInicio = Dia,
+                                    Proceso = proceso,
+                                };
 
-                            _context.Solicitudes.Add(solicitud);
-                            _context.SaveChanges();
+                                _context.Solicitudes.Add(solicitud);
+                                _context.SaveChanges();
+                                output = new Output("Datos Cargados Con Exito", "00", "CargaSolicitud", pe.NumeroTicket, "NumeroTicket");
+                                procesados++;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            output = new Output("Error Al Cargar Datos :" + ex, "10", "CargaSolicitud", pe.NumeroTicket, "NumeroTicket");
+                        }
+                        if (output.Mensaje != null)
+                        {
+                            RegistraLog(output);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    output.Exito = false;
-                    output.Mensaje = "Error Al Cargar Datos" + ex;
-                    output.codigo = "10";
-
+                    output = new Output("Error Al Cargar Datos: " + ex, "10", "CargaSolicitud", "Fin Proceso", "FinProceso");
+                }
+                if (procesados == 0)
+                {
+                    output = new Output("Sin Datos a Procesar", "01", "CargaSolicitud", "Fin Proceso", "FinProceso");
+                }
+                else
+                {
+                    output = new Output("Datos Cargados Con Exito", "00", "CargaSolicitud", "Fin Proceso", "FinProceso");
                 }
 
-                output.Exito = true;
-                output.Mensaje = "Datos Cargado Con Exito";
-                output.codigo = "00";
-
-            }else{
-                output.Exito = false;
-                output.Mensaje = "No Se Encunetra Proceso [SOLICITUD_CUSTODIA_PENSIONADOS] Cargado En Tabla de Procesos";
-                output.codigo = "00";
             }
-           
+            else{
+                output = new Output("No Se Encunetra Proceso [SOLICITUD_CUSTODIA_PENSIONADOS] Cargado En Tabla de Procesos", "10", "CargaSolicitud", "Fin Proceso", "FinProceso");
+            }
+            RegistraLog(output);
             return output;
         }
         #endregion
@@ -421,44 +559,86 @@ namespace Galvarino.Web.Workers
             var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
             var configuracionDocumentos = _context.ConfiguracionDocumentos.Where(cd => cd.Activo == 1 && cd.TipoPensionado == 1).ToList();
             var expediente = _context.Expedientes.Where(e => e.FechaCreacion == Dia).ToList();
-            
+            var procesados = 0;
             try
             {
 
                 foreach (var e in expediente)
                 {
-                    foreach (var cd in configuracionDocumentos) {
-
-                        var existeDocumento =_context.Documentos.Where(d => d.ExpedienteId == e.Id && d.Codificacion == cd.Codificacion).FirstOrDefault();
-                        if (existeDocumento == null)
+                    foreach (var cd in configuracionDocumentos)
+                    {
+                        try
                         {
-                            var documento = new Documentos()
+
+                            var existeDocumento = _context.Documentos.Where(d => d.ExpedienteId == e.Id && d.Codificacion == cd.Codificacion).FirstOrDefault();
+                            if (existeDocumento == null)
                             {
-                                Resumen = cd.TipoDocumento.ToString(),
-                                Codificacion = cd.Codificacion,
-                                ConfiguracionDocumento = cd,
-                                ExpedienteId = e.Id
-                            };
-                            _context.Documentos.Add(documento);
-                            _context.SaveChanges();
+                                var documento = new Documentos()
+                                {
+                                    Resumen = cd.TipoDocumento.ToString(),
+                                    Codificacion = cd.Codificacion,
+                                    ConfiguracionDocumento = cd,
+                                    ExpedienteId = e.Id
+                                };
+                                _context.Documentos.Add(documento);
+                                _context.SaveChanges();
+                                output = new Output("Datos Cargados Con Exito", "00", "CargaDocumento", e.Id.ToString(), "ExpedienteId");
+                                procesados++;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            output = new Output("Error Al Cargar Datos: " + ex, "10", "CargaDocumento", e.Id.ToString(), "ExpedienteId");
+
+                        }
+                        if (output.Mensaje != null)
+                        {
+                            RegistraLog(output);
                         }
                     }
                 }
-
-                output.Exito = true;
-                output.Mensaje = "Datos Cargado Con Exito";
-                output.codigo = "00";
+                if (procesados == 0)
+                {
+                    output = new Output("Sin Datos a Procesar", "01", "CargaDocumento", "Fin Proceso", "FinProceso");
+                }
+                else
+                {
+                   output = new Output("Datos Cargados Con Exito" , "00", "CargaDocumento", "Fin Proceso", "FinProceso");
+                }
+                
             }
             catch (Exception ex)
             {
-                output.Exito = false;
-                output.Mensaje = "Error Al Cargar Datos" + ex;
-                output.codigo = "10";
-
+                output = new Output("Error Al Cargar Datos: " + ex, "10", "CargaDocumento", "FinProceso", "FinProceso");
             }
+            RegistraLog(output);
 
             return output;
         }
+        #endregion
+
+        #region Carga tabla registraLog
+        private void RegistraLog( Output output) {
+            var _context = _scope.ServiceProvider.GetRequiredService<PensionadoDbContext>();
+            try {
+                var logCargaInicial = new LogCargaInicial()
+                { 
+                    Fecha = DateTime.Now,
+                    Paso = output.Paso,
+                    CampoReferencia = output.CampoReferencia,
+                    Identificador = output.Identificador,
+                    CodigoEstado = output.Codigo,
+                    Cometario = output.Mensaje,
+                };
+                Debug.WriteLine("salida ["+output.Paso+"] - [" + output.Codigo + "] [" + output.Mensaje + "]");
+                _context.LogCargaInicial.Add(logCargaInicial);
+                _context.SaveChanges();
+            }catch (Exception ex)
+            {
+                Debug.WriteLine("error al generar log: " + ex+ "]");
+            }
+        }
+
         #endregion
 
         private void setHora()
