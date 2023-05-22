@@ -94,8 +94,6 @@ namespace Galvarino.Web.Workers
             var iniciciarCarga = false;
             Output outCarga = new Output();
 
-
-
             var horaActual = DateTime.Now.TimeOfDay;
             if (horaActual >= horaInicial && horaActual <= horaFinal && !estaOcupado)
             {
@@ -744,14 +742,14 @@ namespace Galvarino.Web.Workers
 
         private void setHora()
         {
-            var rawMomentoInicio = _configuration.GetValue<string>("CoordinacionWorkers:CargaInicialCreditosWorker:HoraInicio");
+            var rawMomentoInicio = _configuration.GetValue<string>("CoordinacionWorkers:CargaInicialPensionadosWorker:HoraInicio");
             int hInicio = Convert.ToInt32(rawMomentoInicio.Split(':')[0]);
             int mInicio = Convert.ToInt32(rawMomentoInicio.Split(':')[1]);
             int sInicio = Convert.ToInt32(rawMomentoInicio.Split(':')[2]);
 
             this.horaInicial = new TimeSpan(hInicio, mInicio, sInicio);
 
-            var rawMomentoFin = _configuration.GetValue<string>("CoordinacionWorkers:CargaInicialCreditosWorker:HoraFin");
+            var rawMomentoFin = _configuration.GetValue<string>("CoordinacionWorkers:CargaInicialPensionadosWorker:HoraFin");
             int hFin = Convert.ToInt32(rawMomentoFin.Split(':')[0]);
             int mFin = Convert.ToInt32(rawMomentoFin.Split(':')[1]);
             int sFin = Convert.ToInt32(rawMomentoFin.Split(':')[2]);
