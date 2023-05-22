@@ -35,6 +35,9 @@ namespace Galvarino.Web.Data
 
         public DbSet<LogCargaInicial> LogCargaInicial { get; set; }
 
+        public DbSet <Tareas> Tareas{ get; set; }
+
+        public DbSet <Etapas> Etapas { get; set; }
 
         private readonly IConfiguration _conf;
 
