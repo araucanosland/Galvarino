@@ -1,6 +1,7 @@
 ﻿using Galvarino.Web.Models.Workflow;
 using System.ComponentModel.DataAnnotations;
 using System;
+using System.Collections.Generic;
 
 namespace Galvarino.Web.Models.Application.Pensionado
 {
@@ -15,6 +16,8 @@ namespace Galvarino.Web.Models.Application.Pensionado
         public DateTime FechaInicio { get; set; }
         public DateTime FechaTermino { get; set; }
 
+        //public ICollection<Tarea> Tareas { get; set; }
 
     }
+    
 }

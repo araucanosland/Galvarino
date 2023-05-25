@@ -365,10 +365,11 @@ namespace Galvarino.Web.Workers
                     cargaInicials = _context.CargasIniciales.Where(o => o.FechaCarga.Date >= Dia && o.CargaInicialEstado.Id == cie.Id && o.CargaInicialEstado.Procesado == 0 && (o.Estado == "Ganada" || o.Estado == "Aprobado")).Include(c => c.CargaInicialEstado).ToList();
                     foreach (var ci in cargaInicials)
                     {
-                        try
+                        
+                        var existeCarga = _context.Pensionado.Where(o => o.Folio == ci.Folio && o.RutCliente == ci.RutPensionado + "-" + ci.DvPensionado).FirstOrDefault();
+                        if (existeCarga == null)
                         {
-                            var existeCarga = _context.Pensionado.Where(o => o.Folio == ci.Folio && o.RutCliente == ci.RutPensionado + "-" + ci.DvPensionado).FirstOrDefault();
-                            if (existeCarga == null)
+                            try
                             {
                                 var numTicket = utils.GeneraTicket("02");
                                 var pensionado = new Pensionado()
@@ -385,15 +386,16 @@ namespace Galvarino.Web.Workers
                                 procesados++;
                                 output = new Output("Datos Cargados Con Exito", "00", "CargaPensionado", ci.RutPensionado + "-" + ci.DvPensionado, "RutRut");
                             }
+                            catch (Exception ex)
+                            {
+                                output = new Output("Error Al Cargar Datos :" + ex, "10", "CargaPensionado", ci.RutPensionado + "-" + ci.DvPensionado, "RutRut");
+                            }
+                            if (!output.Codigo.Equals("00"))
+                            {
+                                RegistraLog(output);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            output = new Output("Error Al Cargar Datos :" + ex, "10", "CargaPensionado", ci.RutPensionado + "-" + ci.DvPensionado, "RutRut");
-                        }
-                        if (!output.Codigo.Equals("00"))
-                        {
-                            RegistraLog(output);
-                        }
+                       
                     }
                     cie.Procesado = 1;
                     _context.CargasInicialesEstado.Update(cie);
@@ -641,9 +643,11 @@ namespace Galvarino.Web.Workers
                 {
                     var solicitudes = _context.Solicitudes.Where(s => s.NumeroTicket == p.NumeroTicket ).ToList();
 
-                    foreach (var s in solicitudes)
+                    foreach (var s in solicitudes) 
+
+
                     {
-                        var etapas = _context.Etapas.Where(e => e.ValorUsuarioAsignado == "wfboot").ToList();
+                        var etapas = _context.Etapas.Where(e => e.NombreInterno == "INICIO" || e.NombreInterno == "CARGA_INICIAL" || e.NombreInterno == "PREPARAR_NOMINA_PENSIONADO").ToList();
                         foreach (var e in etapas)
                         {
                             try
@@ -657,7 +661,7 @@ namespace Galvarino.Web.Workers
                                     etapa = e;
                                     var estado = "";
                                     var fecha = DateTime.Now;
-                                    if (e.TipoEtapa.Equals("Inicio"))
+                                    if (e.NombreInterno.Equals("INICIO") || e.NombreInterno.Equals("CARGA_INICIAL"))
                                     {
                                         estado = "Finalizada";
                                         fecha = DateTime.Now;
@@ -665,7 +669,7 @@ namespace Galvarino.Web.Workers
                                     else
                                     {
                                         estado = "Activa";
-                                        fecha = new DateTime();
+                                        fecha = DateTime.Now;
                                     }
 
                                     var tarea = new Tareas()

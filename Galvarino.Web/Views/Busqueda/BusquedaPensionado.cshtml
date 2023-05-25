@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Búsqueda de Expediente Pensionado";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Búsqueda</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/pensionado/busqueda.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/pensionado/busqueda.min.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
+
+}
+
+<div class="row">
+    <div class="col-sm-5 table-toolbar-left">
+        <input class="form-control" placeholder="Ingrese un Expediente" type="text" id="search-input-busqueda" autocomplete="off">
+
+    </div>
+    <div class="col-sm-2">
+        <button type="button" id="btn_busqueda_pensionado" class="btn btn-primary">Buscar</button>
+    </div>
+</div>
