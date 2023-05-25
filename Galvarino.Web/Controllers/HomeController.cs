@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Galvarino.Web.Controllers
 {
@@ -18,14 +19,14 @@ namespace Galvarino.Web.Controllers
     {
         private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _configuration;
-        private readonly string _currentUserName;
-       
+       private readonly ILogger _logger;
 
-        public HomeController(SignInManager<Usuario> signInManager, IConfiguration configuration, IHttpContextAccessor accessor)
+        public HomeController(ILogger<HomeController> logger,SignInManager<Usuario> signInManager, IConfiguration configuration)
         {
+            _logger = logger;
             _signInManager = signInManager;
             _configuration = configuration;
-            _currentUserName = accessor.HttpContext.User.Identity.Name;
+            
         }
         
         public IActionResult Index()
@@ -58,15 +59,24 @@ namespace Galvarino.Web.Controllers
         {        
             try
             {
-                
-                string rutAd = _currentUserName.Replace(@"LAARAUCANA\", "");
 
-         
+                string usuarioWindows = User.Identity.Name.Replace(@"LAARAUCANA\", "");
 
-                if (rutAd != rut)
+                if (usuarioWindows != rut)
                 {
                     return View("SinPermiso");
                 }
+                //_logger.LogInformation("entro al Sign");
+
+                // string rutAd = _currentUserName.Replace(@"LAARAUCANA\", "");
+
+                //_logger.LogInformation("Rut Ad= "+rutAd);
+
+
+                //if (rutAd != rut)
+                //{
+                //    return View("SinPermiso");
+                //}
 
                 var user = await _signInManager.UserManager.FindByNameAsync(rut);               
 

@@ -138,6 +138,7 @@ namespace Galvarino.Web.Controllers
         [Route("despacho-reparo-oficina-partes")]
         public IActionResult DespachoOfPtReparoSucursal()
         {
+            
             ViewBag.CantidadCaracteresFolio = CantidadCaracteres;
             var mistareas = _context.Tareas.Include(d => d.Etapa).Include(f => f.Solicitud).Where(x => (x.AsignadoA == User.Identity.Name.ToUpper().Replace(@"LAARAUCANA\", "") || x.Etapa.TipoUsuarioAsignado == TipoUsuarioAsignado.Rol && User.IsInRole(x.AsignadoA)) && x.Estado == EstadoTarea.Activada && x.Etapa.NombreInterno == "DESPACHO_OF_PARTES_DEVOLUCION").ToList();
 
@@ -145,7 +146,7 @@ namespace Galvarino.Web.Controllers
            
             foreach (var tarea in mistareas)
             {
-                var codigoOficinaDevolucion = _wfService.ObtenerVariable("OFINA_PROCESA_NOTARIA", tarea.Solicitud.NumeroTicket);
+                var codigoOficinaDevolucion = _wfService.ObtenerVariable("OFICINA_PROCESA_NOTARIA", tarea.Solicitud.NumeroTicket);
                 var oficinaDevolucion = _context.Oficinas.FirstOrDefault(o => o.Codificacion == codigoOficinaDevolucion);
                 //salida.Add(oficinaDevolucion);
 

@@ -87,8 +87,8 @@ namespace Galvarino.Web
 
 
 
-            services.AddHttpContextAccessor();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            //services.AddHttpContextAccessor();
+            //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 
 
@@ -107,9 +107,9 @@ namespace Galvarino.Web
 
             services.AddHostedService<CargaInicialWorker>();
             //services.AddHostedService<GeneraArchivoIronMountain>();
+
+
             //services.AddHostedService<GenerarReporteGestion>();
-
-
             // services.AddHostedService<CargaDatosCreditoService>();
             //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
             // services.AddHostedService<CargaGalvarinoHistorico>();

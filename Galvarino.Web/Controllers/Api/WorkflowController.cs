@@ -1469,6 +1469,8 @@ namespace Galvarino.Web.Controllers.Api
                 var opt = new string[] { "Sin Reparos","En Espera de Documentación", "Sin Firma ni Huella de Afiliado", "Sin Huella Afiliado", "Sin Firma Afiliado", "Ilegible" };
                 foreach (var item in entrada)
                 {
+
+                   
                     var elExpediente = _context.ExpedientesCreditos.Include(d => d.Credito).SingleOrDefault(x => x.Credito.FolioCredito == item.FolioCredito);
                     _wfService.AsignarVariable("DEVOLUCION_A_SUCURSAL", item.Reparo > 0 ? 1.ToString() : 0.ToString(), elExpediente.Credito.NumeroTicket);
                     if (item.Reparo > 0)
