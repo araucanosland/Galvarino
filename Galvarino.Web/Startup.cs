@@ -106,10 +106,13 @@ namespace Galvarino.Web
 
 
             services.AddHostedService<CargaInicialWorker>();
-            //services.AddHostedService<GeneraArchivoIronMountain>();
+
+            services.AddHostedService<GeneraArchivoIronMountain>();
 
 
             //services.AddHostedService<GenerarReporteGestion>();
+
+
             // services.AddHostedService<CargaDatosCreditoService>();
             //services.AddHostedService<CierrePagaresDeIronMountainWorker>();
             // services.AddHostedService<CargaGalvarinoHistorico>();

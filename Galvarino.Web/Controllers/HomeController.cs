@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Galvarino.Web.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Galvarino.Web.Models;
 using Galvarino.Web.Models.Security;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Galvarino.Web.Controllers
 {
@@ -19,27 +15,27 @@ namespace Galvarino.Web.Controllers
     {
         private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _configuration;
-       private readonly ILogger _logger;
+        private readonly ILogger _logger;
 
-        public HomeController(ILogger<HomeController> logger,SignInManager<Usuario> signInManager, IConfiguration configuration)
+        public HomeController(ILogger<HomeController> logger, SignInManager<Usuario> signInManager, IConfiguration configuration)
         {
             _logger = logger;
             _signInManager = signInManager;
             _configuration = configuration;
-            
+
         }
-        
+
         public IActionResult Index()
         {
             string userAgent = Request.Headers["User-Agent"].ToString();
-            if(userAgent.Contains("MSIE") || userAgent.Contains("Trident"))
+            if (userAgent.Contains("MSIE") || userAgent.Contains("Trident"))
             {
                 return Content("Internet Explorer no soporta esta App.");
             }
             else
             {
 
-                
+
 
                 if (User.Identity.IsAuthenticated)
                 {
@@ -51,40 +47,38 @@ namespace Galvarino.Web.Controllers
                     return Redirect(route);
                 }
             }
-            
-           
+
+
         }
 
         public async Task<IActionResult> SignIn(string rut)
-        {        
+        {
             try
             {
 
-                string usuarioWindows = User.Identity.Name.Replace(@"LAARAUCANA\", "");
+                string validacionUsuarioWindows = _configuration["ValidacionLoginWindows"].ToString();
 
-                if (usuarioWindows != rut)
+
+                if (validacionUsuarioWindows == "true")
                 {
-                    return View("SinPermiso");
+                    string usuarioWindows = User.Identity.Name.Replace(@"LAARAUCANA\", "");
+
+                    if (usuarioWindows != rut)
+                    {
+                        return View("SinPermiso");
+                    }
                 }
-                //_logger.LogInformation("entro al Sign");
-
-                // string rutAd = _currentUserName.Replace(@"LAARAUCANA\", "");
-
-                //_logger.LogInformation("Rut Ad= "+rutAd);
 
 
-                //if (rutAd != rut)
-                //{
-                //    return View("SinPermiso");
-                //}
 
-                var user = await _signInManager.UserManager.FindByNameAsync(rut);               
+                var user = await _signInManager.UserManager.FindByNameAsync(rut);
 
-                if (user.Eliminado==true)
+                if (user.Eliminado == true)
                 {
                     return View("SinPermiso");
                 }
                 await _signInManager.SignInAsync(user, true);
+
                 //if(User.Identity.IsAuthenticated)
                 //{
                 return Redirect("/wf/v1/mis-solicitudes");
@@ -93,7 +87,7 @@ namespace Galvarino.Web.Controllers
                 //{
                 //    return View("SinPermiso");
                 //}
-                
+
             }
             catch (Exception ex)
             {
@@ -111,7 +105,7 @@ namespace Galvarino.Web.Controllers
         {
             return View();
         }
-        
+
         public IActionResult NuevoUsuario()
         {
             return View();
@@ -155,6 +149,6 @@ namespace Galvarino.Web.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        
+
     }
 }

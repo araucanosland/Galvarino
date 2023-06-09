@@ -103,9 +103,9 @@ namespace Galvarino.Web.Workers
 
 
 
-                    // rutaDescargar = @"c:\cargainicial\Carga28042023.txt";
-                    //nombreArchivo = "Carga28042023";
-                   
+                    rutaDescargar = @"c:\cargainicial\Carga06062023.txt";
+                    nombreArchivo = "Carga06062023";
+
 
                     //Valida si archivo de carga y dia de hoy estan cargados en BASE
                     int existeCarga;

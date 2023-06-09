@@ -278,14 +278,14 @@
 					    <div class="col-lg-12">
 					        <div class="panel panel-body text-center">
                                 <div class="panel-body">
-                                    @if(User.IsInRole("Mantenedor de Sistema"))
+                                    @*@if(User.IsInRole("Mantenedor de Sistema"))
                                     {
                                         
                                         @foreach(var cl in User.Claims)
                                         {
                                             <script>console.log("@cl.Type", "@cl.Value");</script>
                                         }
-                                    }
+                                    }*@
                                     @RenderBody()
                                 </div>
 					        </div>
