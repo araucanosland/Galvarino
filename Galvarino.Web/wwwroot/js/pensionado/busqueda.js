@@ -2,7 +2,6 @@
 
 
     $("#btn_busqueda_pensionado").on("click", function () {
-        debugger;
         var folio = $('#search-input-busqueda').val();
         if (folio == '') {
             $.niftyNoty({

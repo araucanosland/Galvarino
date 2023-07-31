@@ -383,10 +383,11 @@ namespace Galvarino.Web.Data.Repository
 
             respuesta.ForEach(s =>
             {
-                s.Documentos = _context.Documentos
+                var Documentos = _context.Documentos
                                .Include(d => d.ExpedienteCredito)
                                .ThenInclude(f => f.Credito)
                                .Where(d => d.ExpedienteCredito.Credito.FolioCredito == s.FolioCredito);
+                s.Documentos = Documentos;
             });
 
             return respuesta;

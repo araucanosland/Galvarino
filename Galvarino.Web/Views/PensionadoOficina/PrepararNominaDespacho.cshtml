@@ -1,29 +1,26 @@
-﻿
-@{
-    ViewData["Title"] = "Pensionado Preparar Nomina Despacho";
+﻿@{
+    ViewData["Title"] = "Preparar Nómina Pensionado";
 }
 
-<h2>Pensionado Preparar Nomina Despacho</h2>
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+}
 
-<div class="row">
-    <div class="col-sm-12 col-md-12">
-        <div class="table-responsive">
-            <table id="table" class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>mensaje</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                        <tr>
-                        <td>@(ViewBag.editando)</td>
-                        </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+@section script{
+
+    <!--Page Script-->
+    <environment include="Development">
+        <script src="~/js/pensionado/prepararNominaPens.js"></script>
+        <script src="~/js/pensionado/formatoListaDocumentosPens.js"></script>
+    </environment>
+   <environment exclude="Development">
+        <script src="~/js/pensionado/prepararNominaPens.min.js?g=@Guid.NewGuid().ToString()"></script>
+        <script src="~/js/pensionado/formatoListaDocumentosPens.js?g=@Guid.NewGuid().ToString()"></script>
+    </environment>
+
+}
 
 <div class="row">
     <div class="col-sm-6 table-toolbar-left">
@@ -37,7 +34,6 @@
         </div>
     </div>
 </div>
-
 <div class="row">
     <table id="tabla-generica"
            data-toggle="table"
@@ -50,16 +46,20 @@
            data-page-list="[]"
            data-page-size="20"
            data-side-pagination="server"
-           data-pagination="true" data-show-pagination-switch="false">
+           data-pagination="true" data-show-pagination-switch="true">
         <thead>
             <tr>
-                <th data-field="Folio" data-sortable="true">Folio</th>
-                @*<th data-field="rutCliente" data-align="center" data-sortable="true">rutCliente</th>
-                <th data-field="NombreCliente" data-sortable="true" data-formatter="formatoTipoCredito">NombreCliente</th>*@
+                <th data-field="folio" data-sortable="false">Folio Pensionado</th>
+                <th data-field="rutCliente" data-align="center" data-sortable="false">Rut Pensionado</th>
+                <th data-field="nombreCliente" data-align="center" data-sortable="false">Nombre Pensionado</th>
+                <th data-field="documento" data-align="left" data-sortable="false" data-formatter="formatoListaDocumentosPens">Documentos</th>
+                <th data-field="motivo" data-align="center" data-sortable="false">motivo</th>
+                <th data-field="tipo" data-align="center" data-sortable="false">Tipo</th>
+                <th data-field="fecha" data-align="center" data-sortable="false">Fecha</th>
             </tr>
         </thead>
     </table>
-</div>
+ </div>
 <input type="hidden" id="etapa-actual" value="@ProcesoDocumentos.ETAPA_PREPARAR_NOMINA" />
 <!--Default Bootstrap Modal-->
 <!--===================================================-->
@@ -70,7 +70,7 @@
                 <!--Modal header-->
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"><i class="pci-cross pci-circle"></i></button>
-                    <h4 class="modal-title">Validación de Documentos para Nómina</h4>
+                    <h4 class="modal-title">Validación de Documentos para Pensionado</h4>
                 </div>
 
                 <!--Modal body-->

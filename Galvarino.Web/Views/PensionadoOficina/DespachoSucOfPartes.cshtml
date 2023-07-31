@@ -1,0 +1,78 @@
+@{
+    ViewData["Title"] = "Despacho Documentos Pensionado de Sucursal a Of. de Partes ";
+}
+
+@section breadcumbs{
+    <li><a href="#"><i class="demo-pli-home"></i></a></li>
+    <li>Etapas</li>
+    <li class="active">@ViewData["Title"]</li>
+}
+
+@section script{
+
+ <!--Page Script-->
+<environment include="Development">
+    <script src="~/js/pensionado/despachoaOfPartes.js"></script>
+</environment>
+<environment exclude="Development">
+    <script src="~/js/pensionado/despachoaOfPartes.min.js?g=@Guid.NewGuid().ToString()"></script>
+</environment>
+
+}
+
+<div class="row">
+    <div class="col-sm-2 table-toolbar-left">
+        <div class="btn-group">
+            <button class="btn btn-primary" id="btn-generar-generico" type="button"><i class="glyphicon glyphicon-list-alt"></i> Generar Despacho</button>
+        </div>
+    </div>
+    <div class="col-sm-2 table-toolbar-left" style="display:none">
+        <div id="filter-dp-component">
+            <div class="input-group date">
+                <input type="text" class="form-control" id="fecha_filtro">
+                <span class="input-group-addon"><i class="demo-pli-calendar-4"></i></span>
+            </div>
+            <small class="text-muted">Selecciona una fecha para el envío</small>
+        </div>
+    </div>
+    <div class="col-sm-8 table-toolbar-right">
+        <div class="btn-group">
+            <button class="btn btn-primary" id="btn-exportar-excel"><i class="fa fa-file-excel-o"></i></button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="alert alert-info"><strong>Recuerda!</strong> Al presionar el botón "Generar Despacho" solo se procesaran los Documentos que tienes en pantalla.</div>
+    </div>
+</div>
+<div class="row">
+    <table          id="tabla-generica" 
+                    data-toggle="table"
+                    data-url="/api/pensionado/wf/v1/mis-solicitudes/@ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES"
+                    data-search="false"
+                    data-show-refresh="false"
+                    data-show-toggle="false"
+                    data-show-columns="false"
+                    data-sort-name="folio"
+                    data-page-list="[]"
+                    data-page-size="40"
+                    data-pagination="true" 
+                    data-side-pagination="server"
+                    data-show-pagination-switch="false"
+                    data-locale="es-CL">
+        <thead>
+            <tr>
+                <th data-field="folio" data-sortable="false">Folio Pensionado</th>
+                <th data-field="rutCliente" data-align="center" data-sortable="false">Rut Pensionado</th>
+                <th data-field="nombreCliente" data-align="center" data-sortable="false">Nombre Pensionado</th>
+                <th data-field="motivo" data-align="center" data-sortable="false">motivo</th>
+                <th data-field="tipo" data-align="center" data-sortable="false">Tipo</th>
+                <th data-field="fecha" data-align="center" data-sortable="false">Fecha</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<input type="hidden" id="la_etapa" value="@ProcesoDocumentos.ETAPA_DESPACHO_OFICINA_PARTES" />
+<canvas id="barcode"></canvas>

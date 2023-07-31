@@ -29,5 +29,12 @@ namespace Galvarino.Web.Controllers.Pensionados
             ViewBag.editando = texto;
             return View();
         }
+
+        public IActionResult DespachoSucOfPartes() {
+            var texto = "pagina Pensionados";
+            ViewBag.editando = texto;
+            return View();
+
+        }
     }
 }

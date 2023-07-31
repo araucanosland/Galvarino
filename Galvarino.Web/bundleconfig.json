@@ -37,6 +37,18 @@
     "sourceMap": false
   },
   {
+    "outputFileName": "wwwroot/js/pensionado/busqueda.min.js",
+    "inputFiles": [
+      "wwwroot/js/pensionado/busqueda.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true,
+      "outputMode": "singleLine"
+    },
+    "sourceMap": true
+  },
+  {
     "outputFileName": "wwwroot/js/mis-solicitudes.min.js",
     "inputFiles": [
       "wwwroot/js/mis-solicitudes.js"
@@ -412,7 +424,7 @@
       "outputMode": "singleLine"
     },
     "sourceMap": true
-  },
+  }
 
 
 

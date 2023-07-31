@@ -39,6 +39,10 @@ namespace Galvarino.Web.Data
 
         public DbSet <Etapas> Etapas { get; set; }
 
+        public DbSet<Transiciones> Transiciones { get; set; }
+
+        public  DbSet<ValijasValoradas> ValijasValoradas { get; set; }
+
         private readonly IConfiguration _conf;
 
         public PensionadoDbContext(DbContextOptions<PensionadoDbContext> options, IConfiguration conf)

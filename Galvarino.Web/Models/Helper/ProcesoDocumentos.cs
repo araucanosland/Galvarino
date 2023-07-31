@@ -31,6 +31,6 @@ namespace Galvarino.Web.Models.Helper
         public static readonly string ETAPA_RECEPCION_DE_NOTARIA_RM = "RECEPCION_DE_NOTARIA_RM";
         public static readonly string ETAPA_REVISION_DOCUMENTOS_NOTARIA_RM = "REVISION_DOCUMENTOS_NOTARIA_RM";
         public static readonly string ETAPA_DEVOLUCION_REPARO_NOTARIA_RM = "DEVOLUCION_REPARO_NOTARIA_RM";
-
+        public static readonly string NOMBRE_PROCESO_PENSIONADO = "SOLICITUD_CUSTODIA_PENSIONADOS";
     }
 }

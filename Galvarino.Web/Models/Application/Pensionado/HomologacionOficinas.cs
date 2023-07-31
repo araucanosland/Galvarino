@@ -11,11 +11,14 @@ namespace Galvarino.Web.Models.Application.Pensionado
     {
         [Key]
         public int Id { get; set; }
-
         [Column(TypeName = "varchar(20)")]
         public string  IdSucursalActividad { get; set; }
-
+        [Column(TypeName = "int")]
         public int IdOficina { get; set; }
+        [Column(TypeName = "varchar(100)")]
+        public string Codificacion { get; set; }
+        [Column(TypeName = "varchar(100)")] 
+        public string Nombre { get; set; }
 
     }
 }
